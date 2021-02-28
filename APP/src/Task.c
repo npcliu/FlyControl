@@ -216,26 +216,30 @@ short amplitude = 0;
 
 PROCEDURE Experiment(char input)
 {//实验模式下不用PID
-  static int save_data_time = 0;
+  static int start_flag = 1;//开始实验时先发送一个开始标志
   if('k'==nrf_rciv[BACKUP1_OFFSET])
   {//这里用油门控制脉冲幅度的大小，按开始实验按钮前应先固定油门位置，点击结束按钮后才能改变油门位置
     //throttle = 1.3*nrf_rciv[TH_ADC_OFFSET]+500;
-    amplitude = 500;
-    pwm[0] = (int)(amplitude);//
-    pwm[1] = 0;//
-    pwm[2] = 0;
-    pwm[3] = 0;
+    pwm[0] = 900;//
+    pwm[1] = 800;//
+    pwm[2] = 800;
+    pwm[3] = 800;
     TIM_SetCompare1(TIM2,pwm[0]);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
     TIM_SetCompare2(TIM2,pwm[1]);  //X2
     TIM_SetCompare3(TIM2,pwm[2]);  //Y1
     TIM_SetCompare4(TIM2,pwm[3]);  //Y2
-    SaveAngleDataToNode(angle);//把解算的角度存到链表中
-    save_data_time++;
-    if(save_data_time > anglex_Node_Number + 1)
-      save_data_time = anglex_Node_Number + 1;
+    if(start_flag == 1)
+    { 
+      start_flag = 0;
+      printf("start the experiment\r\n");
+    }
+    printf("%f ",angle[0]);
+    
   }
-  else if ('t'==nrf_rciv[BACKUP1_OFFSET] || (save_data_time > anglex_Node_Number))//遥控器发送停止命令，或时间大于500ms就停止实验
+  else if ('t'==nrf_rciv[BACKUP1_OFFSET])//遥控器发送停止命令，或时间大于500ms就停止实验
   {
+    start_flag = 1;
+    printf("stop the experiment\r\n");
     pwm[0] = 0;//
     pwm[1] = 0;//
     pwm[2] = 0;
@@ -244,6 +248,18 @@ PROCEDURE Experiment(char input)
     TIM_SetCompare2(TIM2,pwm[1]);  //X2
     TIM_SetCompare3(TIM2,pwm[2]);  //Y1
     TIM_SetCompare4(TIM2,pwm[3]);  //Y2
+  }
+  else if('z'==nrf_rciv[BACKUP1_OFFSET])//准备实验
+  {
+    printf("prepare the experiment\r\n");
+    pwm[0] = 800;//
+    pwm[1] = 800;//
+    pwm[2] = 800;
+    pwm[3] = 800;
+    TIM_SetCompare1(TIM2,pwm[0]);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
+    TIM_SetCompare2(TIM2,pwm[1]);  //X2
+    TIM_SetCompare3(TIM2,pwm[2]);  //Y1
+    TIM_SetCompare4(TIM2,pwm[3]);  //Y2	
   }
   else
   {
@@ -255,15 +271,6 @@ PROCEDURE Experiment(char input)
     TIM_SetCompare2(TIM2,pwm[1]);  //X2
     TIM_SetCompare3(TIM2,pwm[2]);  //Y1
     TIM_SetCompare4(TIM2,pwm[3]);  //Y2
-  }
-  if('s'==nrf_rciv[BACKUP1_OFFSET])
-  {//向电脑发送链表中的数据
-    if(pit_25ms_flag)        //以25ms周期发送，画1个点50ms,详情看SCISend_to_Own函数
-    {
-      send_type = 'e';
-      SCISend_to_Own(USART1);
-      pit_25ms_flag = 0;
-    }
   }
   if('l'==nrf_rciv[PLANE_MODE_OFFSET])
     return stb_pre;

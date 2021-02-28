@@ -1979,6 +1979,9 @@
     <file>
       <name>$PROJ_DIR$\MyFwLib\src\stm32f10x_MyFlash.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\MyFwLib\src\usart.c</name>
+    </file>
   </group>
   <group>
     <name>NMEA</name>

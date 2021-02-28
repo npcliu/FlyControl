@@ -10,6 +10,7 @@
 #include "MyNRF24L0.h"
 #include "L3GD20.h"
 #include "Task.h"
+#include "usart.h"
 
 ACC acc = {.x=1,.y=2,.z=3,.kx = 1,.ky = 1,.kz = 1,.x_off=0,.y_off=0,.z_off=0};   //安全性考虑，缺省斜率应为1，而不能设为0；截距应设为0
 ACC LSM_acc_adc = {.x=1,.y=2,.kx = 1,.ky=1,.kz=1,.x_off=0,.y_off=0,.z_off=0};
@@ -34,6 +35,7 @@ SCom sCom;
 /***************************  main  *****************************/
 int main(void)
 {
+
   __disable_irq();                              //关闭所有中断
   delay_init();
   DelayMs(80);                                  //wait for power up stable
@@ -112,6 +114,19 @@ int main(void)
       pit_5s_flag = 0;
       RGB_B_OUT = 1;
     }
+    
+//    if(USART_RX_STA&0x8000)
+//    {
+//      len=USART_RX_STA&0x3f; //得到此次接收到的数据长度
+//      printf("\r\n 您发送的消息为:\r\n\r\n");
+//      for(int t=0;t<len;t++)
+//      { USART_SendData(USART1, USART_RX_BUF[t]); //向串口 1 发送数据
+//       while(USART_GetFlagStatus(USART1,USART_FLAG_TC)!=SET);
+//      //等待发送结束
+//      }
+//      printf("\r\n\r\n"); //插入换行
+//      USART_RX_STA=0;
+//    }
     next_procedure = Task[next_procedure](1);
   }
 }

@@ -208,8 +208,8 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   {
     if(nrf_rciv[GPS_MODE_OFFSET])
     {
-      pangle[0] = temp_angle[0] - angx_err;
-      pangle[1] =(angy_err+49*temp_angle[1])*0.02;
+      pangle[0] = temp_angle[0] - angx_err;//什么意思
+      pangle[1] =(angy_err+49*temp_angle[1])*0.02;//什么意思
     }
     else
     {
@@ -282,7 +282,7 @@ void PWMCalc(uint8 mod)
 #endif
     
     omega_e = y_p_o*angle_error_y;  
-    _omega_error = omega_e - (gyro.x+gyro.y)*0.7071;
+    _omega_error = omega_e - (gyro.x+gyro.y)*0.7071;//这是什么意思
 #ifdef WATCH_DIFF_COEF
   gc[1][1] = (_omega_error - last_omega_error_y)/INTERUPT_CYC_IN_MS*1e3;
   last_omega_error_y = _omega_error;
@@ -300,7 +300,7 @@ void PWMCalc(uint8 mod)
     _omega_error = omega_e - gyro.y;
     deriv_out = Coef*(x_d_i*_omega_error-filter_coef_state_x);//FilterCoefficient[0]
     xcq = x_b*sin(angle[0]*D2R) + x_p_i*_omega_error + deriv_out;
-    filter_coef_state_x += deriv_out*INTERUPT_CYC_IN_MS*1e-3;
+    filter_coef_state_x += deriv_out*INTERUPT_CYC_IN_MS*1e-3;//这里为什么乘系数
     
     omega_e = y_p_o*angle_error_y;  
     _omega_error = omega_e-gyro.x;

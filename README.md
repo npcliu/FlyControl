@@ -16,9 +16,4 @@ fly control code of quadrotor
 
 你写的代码就上传到远程仓库了
 
-切换分支命令：git checkout [分支名字]
-
-然后git add . 
-git commit...
-
-检查远程分支个数：git branch -r
+关于新建分支的方法：https://blog.csdn.net/qq_42411214/article/details/108906454

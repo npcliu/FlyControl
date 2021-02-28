@@ -262,6 +262,7 @@ void PWMCalc(uint8 mod)
 #else
 #endif
   
+  //用信号框图表示的话，这里写反了
   angle_error_x = angle[0]-(nrf_rciv[LR_ADC_OFFSET]-129)*ANG_CTRL_RATE + offset_angle[0]; //
   angle_error_y = (nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE-angle[1] + offset_angle[1];
   static float filter_coef_state_x = 0,filter_coef_state_y = 0;              //微分状态变量

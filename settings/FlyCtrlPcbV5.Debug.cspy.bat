@@ -19,6 +19,6 @@
 @REM 
 
 
-"D:\DownloadSoftware\IAR\common\bin\cspybat" "D:\DownloadSoftware\IAR\arm\bin\armproc.dll" "D:\DownloadSoftware\IAR\arm\bin\armjlink.dll"  %1 --plugin "D:\DownloadSoftware\IAR\arm\bin\armbat.dll" --device_macro "D:\DownloadSoftware\IAR\arm\config\debugger\ST\Trace_STM32F1xx.dmac" --backend -B "--endian=little" "--cpu=Cortex-M3" "--fpu=None" "-p" "D:\DownloadSoftware\IAR\arm\CONFIG\debugger\ST\STM32F103xC.ddf" "--semihosting" "--device=STM32F103xC" "--drv_communication=USB0" "--jlink_speed=auto" "--jlink_initial_speed=1000" "--jlink_reset_strategy=0,0" "--jlink_interface=SWD" "--drv_catch_exceptions=0x000" "--drv_swo_clock_setup=72000000,0,2000000" 
+"I:\winfile\IAR\common\bin\cspybat" "I:\winfile\IAR\arm\bin\armproc.dll" "I:\winfile\IAR\arm\bin\armjlink.dll"  %1 --plugin "I:\winfile\IAR\arm\bin\armbat.dll" --device_macro "I:\winfile\IAR\arm\config\debugger\ST\Trace_STM32F1xx.dmac" --backend -B "--endian=little" "--cpu=Cortex-M3" "--fpu=None" "-p" "I:\winfile\IAR\arm\CONFIG\debugger\ST\STM32F103xC.ddf" "--semihosting" "--device=STM32F103xC" "--drv_communication=USB0" "--jlink_speed=auto" "--jlink_initial_speed=1000" "--jlink_reset_strategy=0,0" "--jlink_interface=SWD" "--drv_catch_exceptions=0x000" "--drv_swo_clock_setup=72000000,0,2000000" 
 
 

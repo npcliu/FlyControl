@@ -21,6 +21,7 @@ char pit_25ms_flag = 0;
 char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;
 char pit_5s_flag = 0;         //5s时间标志
+
 void TIM4_IRQHandler(void)
 {
   static uint32 irq_count = 0;
@@ -32,6 +33,7 @@ void TIM4_IRQHandler(void)
     PWMCalc(pipl_dir);
 
   irq_count++;
+  pit_5ms_flag = 1;
   if(irq_count>=100000)
     irq_count = 0;
   if(0==irq_count%5)           //INTERUPT_CYC_IN_MS*5 = 25ms is this period检查一次nrf的接收情况

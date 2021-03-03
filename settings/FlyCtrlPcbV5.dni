@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-1507094586
+Checksum=1287947917
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -132,8 +132,13 @@ Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.166.3" 0 0 1 "" 0 "" 0
 Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.212.3" 0 0 1 "" 0 "" 0
 Bp6=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.358.7" 0 0 1 "" 0 "" 0
 Bp7=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.353.5" 0 0 1 "" 0 "" 0
-Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.66.11" 0 0 1 "" 0 "" 0
+Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.74.11" 0 0 1 "" 0 "" 0
 Count=9
 [Aliases]
-Count=0
-SuppressDialog=0
+A0=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\FWLIB\src\delay.c" ""
+A1=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\FWLIB\src\stm32f10x_exti.c" ""
+A2=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\FWLIB\src\stm32f10x_usart.c" ""
+A3=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\User\src\L3GD20.c" ""
+A4=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\User\src\Mpu6050.c" ""
+Count=5
+SuppressDialog=1

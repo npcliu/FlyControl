@@ -5,7 +5,7 @@
 #define ANG_CTRL_RATE   0.3            //偏转角的比率，从遥控收到的ADC信号乘以该比率得到期望偏转角度
 
 //#define WATCH_INTEGRAL_ANGLE    //观察陀螺积分角度，如果需要单独计算陀螺积分的角度则定义此宏，否则注释该定义，
-//#define WATCH_DIFF_COEF         //观察带滤波差分的结果
+#define WATCH_DIFF_COEF         //观察带滤波差分的结果
 
 //typedef struct Node
 //{

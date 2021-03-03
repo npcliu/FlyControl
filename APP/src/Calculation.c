@@ -239,7 +239,7 @@ float y_p_o;
 float y_p_i;
 float y_d_i;
 
-int Coef = 20;                          //derivative Coefficient
+int Coef = 5;                          //derivative Coefficient
 int pwm[4] = {0};      //
 float xcq = 0,ycq = 0;                          //X,Y angle Control quantity
 float pwm_of_dir = 0;                           //yaw  Control quantity
@@ -342,6 +342,17 @@ void PWMCalc(uint8 mod)
     pwm[y_n] = (int)(throttle - ycq + pwm_of_dir);
     pwm[y_p] = (int)(throttle + ycq + pwm_of_dir);
   }
+  if(pwm[x_n]>10000)pwm[x_n] = 10000;
+  else if(pwm[x_n]<0)pwm[x_n] = 0;
+  
+  if(pwm[x_p]>10000)pwm[x_p] = 10000;
+  else if(pwm[x_p]<0)pwm[x_p] = 0;
+  
+  if(pwm[y_n]>10000)pwm[y_n] = 10000;
+  else if(pwm[y_n]<0)pwm[y_n] = 0;
+  
+  if(pwm[y_p]>10000)pwm[y_p] = 10000;
+  else if(pwm[y_p]<0)pwm[y_p] = 0;  
 }
 
 #define CALL_PERIOD_S     1       //GPSCal调用周期单位s

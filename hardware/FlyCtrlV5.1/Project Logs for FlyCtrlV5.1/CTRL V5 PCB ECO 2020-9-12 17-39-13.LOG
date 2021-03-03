@@ -1,0 +1,7 @@
+Removed Pin From Net: NetName=5V Pin=D2-C
+Removed Pin From Net: NetName=5V Pin=D3-C
+Removed Pin From Net: NetName=5V Pin=D4-C
+Removed Pin From Net: NetName=NetD5_A Pin=P1-11
+Removed Member From Class: ClassName=CTRL V5 Member=D2
+Removed Member From Class: ClassName=CTRL V5 Member=D3
+Removed Member From Class: ClassName=CTRL V5 Member=D4

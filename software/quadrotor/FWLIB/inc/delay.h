@@ -38,8 +38,8 @@
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 #endif
 

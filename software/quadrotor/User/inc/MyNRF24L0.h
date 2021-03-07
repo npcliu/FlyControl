@@ -115,7 +115,8 @@ typedef enum
 
 extern uint8 tx_flag;                              //发送结果
 extern uint8 rx_flag;                              //发送结果
-extern uint8 nrf_rciv[32];         //中断接收的FIFO
+extern uint8 irq_tx_buff[DATA_PACKET];
+extern uint8 nrf_rciv[DATA_PACKET];         //中断接收的FIFO
 
 //函数声明
 extern  uint8   nrf_init(nrf_mode_e _nrf_mode_e);                     //初始化NRF24L01+

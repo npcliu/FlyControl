@@ -24,7 +24,7 @@
 
 #define BMP085_SlaveAddress  0xee	 ////定义器件在IIC总线中的从地址
 
-extern void IIC_Port_Init(void);                       //初始化IIC的IO口				 
+void IIC_Port_Init(void);                       //初始化IIC的IO口				 
 void CompassInit(void);
 //void ReadCompass();
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     //void

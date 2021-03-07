@@ -44,10 +44,8 @@ void NVIC_Config(void);
 //void bmp085_init(void);
 //short twobmp085_read(u8 bmp085_RCOMMAND);
 //double BMP085_Get_Altitude(long Pressure);
-//void UartInit();
 //void UARTSendFloat(float d);
 //void MemInit(void);              //´´½¨Á´±í
-//void RCDenote();
 //BOOL MemoryAllocate();
 
 #endif

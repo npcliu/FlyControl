@@ -222,42 +222,69 @@ typedef enum IRQn
  
 
 
- #pragma system_include   
+#pragma system_include   
+
+  
+  
 
 
+  
+
+
+
+
+
+
+
+
+
+
+ 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-typedef char                int8;    
+  typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+ 
+  
+
+ 
+  
    
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
-
-
- 
-
- 
 
 
 
@@ -2944,7 +2971,6 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
-
  
 static inline void NVIC_SystemReset(void)
 {
@@ -2958,8 +2984,6 @@ static inline void NVIC_SystemReset(void)
 }
 
  
-
-
 
  
 
@@ -2986,10 +3010,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -8328,16 +8352,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8613,7 +8637,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -12592,15 +12616,7 @@ _Pragma("function_effects = no_state")    __intrinsic __nounwind double sinh(dou
 
 
 
-
-
-
-
-
-
-
-
-
+    
 extern float angle[3];
 extern float offset_angle[3];
 extern float x_b,y_b;       
@@ -12612,21 +12628,15 @@ extern float y_p_o;
 extern float y_p_i;
 extern float y_d_i;
 
+extern float angx_err;
+extern float angy_err;
 extern float xcq,ycq;
 
 
+void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PACC pacc,const PGYRO pgyro,const PCOMPASS pcps,short* pacc_chip_data,short* pgyro_chip_data,short* pcps_chip_data);
 
-
-
-
-
-extern float angx_err;
-extern float angy_err;
-
-
-
-
-
+void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
+void PWMCalc(uint8 mod);
 
 
 
@@ -12692,6 +12702,7 @@ typedef enum
 
 extern uint8 tx_flag;                              
 extern uint8 rx_flag;                              
+extern uint8 irq_tx_buff[32];
 extern uint8 nrf_rciv[32];         
 
 
@@ -13104,21 +13115,29 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
     temp_angle[0] = pangle[0] - (pgyro[1])*(0.0610370f) * 5/1000.0;
     temp_angle[1] = pangle[1] + (pgyro[0])*(0.0610370f) * 5/1000.0;
   }
-  
+  static uint32 att_cal_count = 0;      
   if(nrf_rciv[1]<=2)                        
   {
     pangle[0] = tmp_acc_angle[0];
     pangle[1] = tmp_acc_angle[1];
+    att_cal_count = 0;
   }
   else
   {
-    if(nrf_rciv[5])
+
+
+
+
+
+    if(att_cal_count<(10/5))      
     {
-      pangle[0] = temp_angle[0] - angx_err;
-      pangle[1] =(angy_err+49*temp_angle[1])*0.02;
+      att_cal_count++;
+      pangle[0] = temp_angle[0];        
+      pangle[1] = temp_angle[1];
     }
     else
     {
+      att_cal_count = 0;
       pangle[0] = 0.001*tmp_acc_angle[0] + (1-0.001)*temp_angle[0];
       pangle[1] = 0.001*tmp_acc_angle[1] + (1-0.001)*temp_angle[1];
     }
@@ -13145,11 +13164,10 @@ float y_p_o;
 float y_p_i;
 float y_d_i;
 
-int Coef = 5;                          
+int Coef = 15;                          
 int pwm[4] = {0};      
 float xcq = 0,ycq = 0;                          
 float pwm_of_dir = 0;                           
-
 
 
 
@@ -13163,8 +13181,6 @@ void PWMCalc(uint8 mod)
   static float throttle = 0;
   static float omega_e = 0;             
   static float _omega_error = 0;
-  static float last_omega_error_x,last_omega_error_y;
-  
   
   angle_error_x = angle[0]-(nrf_rciv[4]-129)*0.3 + offset_angle[0]; 
   angle_error_y = (nrf_rciv[3]-127)*0.3-angle[1] + offset_angle[1];
@@ -13177,14 +13193,9 @@ void PWMCalc(uint8 mod)
     deriv_out = Coef*(x_d_i*_omega_error-filter_coef_state_x);
     xcq = x_p_i*_omega_error + deriv_out;
     filter_coef_state_x += deriv_out*5*1e-3;
-  gc[1][0] = (_omega_error - last_omega_error_x)/5*1e3;
-  last_omega_error_x = _omega_error;
-  gc[1][2] = deriv_out/x_d_i;
     
     omega_e = y_p_o*angle_error_y;  
     _omega_error = omega_e - (gyro.x+gyro.y)*0.7071;
-  gc[1][1] = (_omega_error - last_omega_error_y)/5*1e3;
-  last_omega_error_y = _omega_error;
     deriv_out = Coef*(y_d_i*_omega_error-filter_coef_state_y);
     ycq = y_p_i*_omega_error + deriv_out;
     filter_coef_state_y += deriv_out*5*1e-3;
@@ -13235,17 +13246,6 @@ void PWMCalc(uint8 mod)
     pwm[y_n] = (int)(throttle - ycq + pwm_of_dir);
     pwm[y_p] = (int)(throttle + ycq + pwm_of_dir);
   }
-  if(pwm[x_n]>10000)pwm[x_n] = 10000;
-  else if(pwm[x_n]<0)pwm[x_n] = 0;
-  
-  if(pwm[x_p]>10000)pwm[x_p] = 10000;
-  else if(pwm[x_p]<0)pwm[x_p] = 0;
-  
-  if(pwm[y_n]>10000)pwm[y_n] = 10000;
-  else if(pwm[y_n]<0)pwm[y_n] = 0;
-  
-  if(pwm[y_p]>10000)pwm[y_p] = 10000;
-  else if(pwm[y_p]<0)pwm[y_p] = 0;  
 }
 
 float angx_err = 0;

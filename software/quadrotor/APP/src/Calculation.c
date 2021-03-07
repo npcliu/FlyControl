@@ -198,21 +198,29 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
     temp_angle[0] = pangle[0] - (pgyro[1])*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//陀螺仪积分推算旋转倾角;
     temp_angle[1] = pangle[1] + (pgyro[0])*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//atan((float)(pacc->x)/pacc->z)/PI * 180.0 - Angle0;
   }
-  
+  static uint32 att_cal_count = 0;      //用来计时该使用加速度数据了
   if(nrf_rciv[TH_ADC_OFFSET]<=2)                        //油门小于2则认为没震动，角度就用加速度计解算值
   {
     pangle[0] = tmp_acc_angle[0];
     pangle[1] = tmp_acc_angle[1];
+    att_cal_count = 0;
   }
   else
   {
-    if(nrf_rciv[GPS_MODE_OFFSET])
+//    if(nrf_rciv[GPS_MODE_OFFSET])
+//    {
+//      pangle[0] = temp_angle[0] - angx_err;
+//      pangle[1] =(angy_err+49*temp_angle[1])*0.02;
+//    }
+    if(att_cal_count<(10/INTERUPT_CYC_IN_MS))      //10s钟归位一次
     {
-      pangle[0] = temp_angle[0] - angx_err;//什么意思
-      pangle[1] =(angy_err+49*temp_angle[1])*0.02;//什么意思
+      att_cal_count++;
+      pangle[0] = temp_angle[0];        //只用陀螺仪
+      pangle[1] = temp_angle[1];//      else
     }
     else
     {
+      att_cal_count = 0;
       pangle[0] = 0.001*tmp_acc_angle[0] + (1-0.001)*temp_angle[0];
       pangle[1] = 0.001*tmp_acc_angle[1] + (1-0.001)*temp_angle[1];//      else
     }
@@ -232,18 +240,17 @@ uint16 cali = 0;
 float offset_angle[3] = {0};
 float x_b = 0,y_b = 0;          //basic banlance param of 2 axis
 float z_p = 0,z_d = 0;          //yaw control parameters
-float x_p_o;                     //x(x axis)_p(proportion)_o(out loop)_t(ten shape fly)x轴十形或者X形飞行控制参数
+float x_p_o;                     //x(x axis)_p(proportion)_o(out loop)，x轴十形或者X形飞行控制参数，初始化为不同值
 float x_p_i;
 float x_d_i;
 float y_p_o;
 float y_p_i;
 float y_d_i;
 
-int Coef = 5;                          //derivative Coefficient
+int Coef = 15;                          //derivative Coefficient
 int pwm[4] = {0};      //
 float xcq = 0,ycq = 0;                          //X,Y angle Control quantity
 float pwm_of_dir = 0;                           //yaw  Control quantity
-//float ycq = 0;
 //Brief:name-PWMCalc(Calculate),4个电机占空比计算函数
 //  计算之PWM值存于pwm
 //Parameters:
@@ -262,7 +269,6 @@ void PWMCalc(uint8 mod)
 #else
 #endif
   
-  //用信号框图表示的话，这里写反了
   angle_error_x = angle[0]-(nrf_rciv[LR_ADC_OFFSET]-129)*ANG_CTRL_RATE + offset_angle[0]; //
   angle_error_y = (nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE-angle[1] + offset_angle[1];
   static float filter_coef_state_x = 0,filter_coef_state_y = 0;              //微分状态变量
@@ -282,7 +288,7 @@ void PWMCalc(uint8 mod)
 #endif
     
     omega_e = y_p_o*angle_error_y;  
-    _omega_error = omega_e - (gyro.x+gyro.y)*0.7071;//这是什么意思
+    _omega_error = omega_e - (gyro.x+gyro.y)*0.7071;
 #ifdef WATCH_DIFF_COEF
   gc[1][1] = (_omega_error - last_omega_error_y)/INTERUPT_CYC_IN_MS*1e3;
   last_omega_error_y = _omega_error;
@@ -300,7 +306,7 @@ void PWMCalc(uint8 mod)
     _omega_error = omega_e - gyro.y;
     deriv_out = Coef*(x_d_i*_omega_error-filter_coef_state_x);//FilterCoefficient[0]
     xcq = x_b*sin(angle[0]*D2R) + x_p_i*_omega_error + deriv_out;
-    filter_coef_state_x += deriv_out*INTERUPT_CYC_IN_MS*1e-3;//这里为什么乘系数
+    filter_coef_state_x += deriv_out*INTERUPT_CYC_IN_MS*1e-3;
     
     omega_e = y_p_o*angle_error_y;  
     _omega_error = omega_e-gyro.x;
@@ -342,17 +348,6 @@ void PWMCalc(uint8 mod)
     pwm[y_n] = (int)(throttle - ycq + pwm_of_dir);
     pwm[y_p] = (int)(throttle + ycq + pwm_of_dir);
   }
-  if(pwm[x_n]>10000)pwm[x_n] = 10000;
-  else if(pwm[x_n]<0)pwm[x_n] = 0;
-  
-  if(pwm[x_p]>10000)pwm[x_p] = 10000;
-  else if(pwm[x_p]<0)pwm[x_p] = 0;
-  
-  if(pwm[y_n]>10000)pwm[y_n] = 10000;
-  else if(pwm[y_n]<0)pwm[y_n] = 0;
-  
-  if(pwm[y_p]>10000)pwm[y_p] = 10000;
-  else if(pwm[y_p]<0)pwm[y_p] = 0;  
 }
 
 #define CALL_PERIOD_S     1       //GPSCal调用周期单位s

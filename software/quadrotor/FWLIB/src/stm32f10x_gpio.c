@@ -284,7 +284,7 @@ EXTI_Line:Òý½Å±àºÅ
 Ê¾Àý£º    gpio_int_cfg(PC6,EXTI_Line6,EXTI_Trigger_Rising);       //ÅäÖÃÖÐ¶Ï
 
 */
-void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,EXTITrigger_TypeDef EXTI_Trigger)
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger)
 {
 //    GPIO_EXTILineConfig(GPIO_PortSourceGPIOB,GPIO_PinSource9);
 //  EXTI_InitStructure.EXTI_Line    = EXTI_Line9;

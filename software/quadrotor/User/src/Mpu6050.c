@@ -4,6 +4,8 @@
 #include "Mpu6050.h"
 #include "define.h"
 #include "delay.h"
+#include "stm32f10x_MY_Flash.h"
+#include "ISR.h"                //需要中断读取器件原始数据，数据在中断中定义需包含
 
 
 BOOL MPUInit(void)
@@ -119,7 +121,7 @@ void MPUReadGyr(short *pgyro)
 int gyro_cali_tolerance = 10;
 char MPU6050GyroCalibration(short *PGYRO)
 {
-  short _MPU6050gyro_adc[6] = {0};      //MPUReadGyr will read _MPU6050gyro_adc[3],[4],[5]
+//  short _MPU6050gyro_adc[6] = {0};      //MPUReadGyr will read _MPU6050gyro_adc[3],[4],[5]
   int i = 0, j = 0,k = 0;
   float gyro_cali_sum[3] = {0};
   char recali_flag = 0;         //need recalibrate flag
@@ -128,11 +130,12 @@ char MPU6050GyroCalibration(short *PGYRO)
   
 //  for(k=0;k<3;k++)
 //    PGYRO[k] = 0;                       //clear to zero,then read data will be RAW data
-  MPUReadGyr(_MPU6050gyro_adc);
+//  MPUReadGyr(_MPU6050gyro_adc);
+  while(0==gyro_chip_out[0] && 0==gyro_chip_out[1] && 0==gyro_chip_out[1]);//acc_chip_out由中断更新，如果全是0则认为没有数据输出，因为不太可能测出全是0
   for(k=0;k<3;k++)
   {
-    gyro_min[k] = _MPU6050gyro_adc[k];
-    gyro_max[k] = _MPU6050gyro_adc[k];
+    gyro_min[k] = gyro_chip_out[k];
+    gyro_max[k] = gyro_chip_out[k];
     PGYRO[k] = 0;                       //clear to zero,then read
   }
   for(i=0;i<3;i++)      //i,j 分时段采集
@@ -140,26 +143,33 @@ char MPU6050GyroCalibration(short *PGYRO)
     for(j=0;j<100;j++)
     {
       DelayMs(5);
-      MPUReadGyr(_MPU6050gyro_adc);
+//      MPUReadGyr(_MPU6050gyro_adc);             //注意不要和中断中冲突了
       for(k=0;k<3;k++)
       {
-        gyro_cali_sum[k] += _MPU6050gyro_adc[k];
-        if(gyro_min[k]>_MPU6050gyro_adc[k])
-          gyro_min[k] = _MPU6050gyro_adc[k];
-        if(gyro_max[k]<_MPU6050gyro_adc[k])
-          gyro_max[k] = _MPU6050gyro_adc[k];
-        if(gyro_max[k] - gyro_min[k] > gyro_cali_tolerance)
+        gyro_cali_sum[k] += gyro_chip_out[k];
+        if(gyro_min[k]>gyro_chip_out[k])
+          gyro_min[k] = gyro_chip_out[k];
+        if(gyro_max[k]<gyro_chip_out[k])
+        {
+          gyro_max[k] = gyro_chip_out[k];
+          while(gyro_max[k]>1000);
+        }
+        if(gyro_max[k] - gyro_min[k] > gyro_cali_tolerance)     //极差大于阈值判定读数出现问题，重新校准
+        {
           recali_flag = 1;
+          break;
+        }
       }
       if(recali_flag)
       {
         recali_flag = 0;
         i = -1;
-        MPUReadGyr(_MPU6050gyro_adc);
+//        MPUReadGyr(gyro_chip_out);
+  while(0==gyro_chip_out[0] && 0==gyro_chip_out[1] && 0==gyro_chip_out[1]);//acc_chip_out由中断更新，如果全是0则认为没有数据输出，因为不太可能测出全是0
         for(k=0;k<3;k++)
         {
-          gyro_min[k] = _MPU6050gyro_adc[k];
-          gyro_max[k] = _MPU6050gyro_adc[k];
+          gyro_min[k] = gyro_chip_out[k];
+          gyro_max[k] = gyro_chip_out[k];
           gyro_cali_sum[k] = 0;
         }
         break;

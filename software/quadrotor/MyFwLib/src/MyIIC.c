@@ -14,7 +14,7 @@ void IIC_Port_Init(void)
 //产生IIC起始信号
 void IIC_Start(void)    //START:when CLK is high,DATA change form high to low
 {
-  MSDA_MOD = LJL_OOD;     //sda线输出
+  MSDA_MOD = 0x7;     //sda线输出
   MSDA_OUT=1;
   MSCL_OUT=1;
   MSDA_OUT=0;
@@ -22,7 +22,7 @@ void IIC_Start(void)    //START:when CLK is high,DATA change form high to low
 //产生IIC停止信号
 void IIC_Stop(void) //STOP:when CLK is high DATA change form low to high
 {
-  MSDA_MOD = LJL_OOD;     //sda线输出
+  MSDA_MOD = 0x7;     //sda线输出
   MSDA_OUT=0;
   MSCL_OUT=1;
   MSDA_OUT=1;//发送I2C总线结束信号
@@ -32,11 +32,11 @@ static BOOL IIC_Wait_Ack(void)         //IN;SCL=1-0
 {
   static uint32 count = 0;
   
-  MSDA_MOD = LJL_IFLT;      //SDA设置为输入  
+  MSDA_MOD = 0x4;      //SDA设置为输入  
   MSCL_OUT = 1;
   while(MSDA_IN)
   {
-    DelayUs(1);
+    delay_raw1us();
     if(count<800)
     count++;
     else
@@ -53,7 +53,7 @@ static BOOL IIC_Wait_Ack(void)         //IN;SCL=1-0
 void IIC_Ack(void)      //SCL=0,OUT,SCL=1-0
 {
   MSCL_OUT=0;
-  MSDA_MOD = LJL_OOD;     //sda线输出
+  MSDA_MOD = 0x7;     //sda线输出
   MSCL_OUT=1;
   MSCL_OUT=0;
 }
@@ -61,7 +61,7 @@ void IIC_Ack(void)      //SCL=0,OUT,SCL=1-0
 void IIC_NAck(void)     //SCL=0,OUT,SDA=1,SCL=1-0
 {
   MSCL_OUT=0;
-  MSDA_MOD = LJL_OOD;     //sda线输出
+  MSDA_MOD = 0x7;     //sda线输出
   MSDA_OUT=1;
   MSCL_OUT=1;
   MSCL_OUT=0;
@@ -84,7 +84,7 @@ void IIC_NAck(void)     //SCL=0,OUT,SDA=1,SCL=1-0
 void IIC_Send_Byte(uint8 txd)           //OUT SCL=0 DADA SCL = 0
 {
   uint8 t;
-  MSDA_MOD = LJL_OOD;     //sda线输出
+  MSDA_MOD = 0x7;     //sda线输出
   MSCL_OUT=0;             //时钟输出0 
   for(t=0;t<8;t++)
   {
@@ -97,9 +97,7 @@ void IIC_Send_Byte(uint8 txd)           //OUT SCL=0 DADA SCL = 0
     MSDA_OUT = ((txd&0x80)!=0);
 #endif
     txd<<=1;
-//    DelayUs(1);
     MSCL_OUT=1;
-//    DelayUs(1);
     MSCL_OUT=0;
   }
 }
@@ -110,13 +108,13 @@ uint8 IIC_Read_Byte(uint8 ack)          //IN,SCL=010...OUT,SDA~,SCL=0
   for(i=0;i<8;i++)
   {
     MSCL_OUT=0;
-    DelayUs(1);
+//    delay_raw1usraw();
     MSCL_OUT=1;
-    DelayUs(1);
+//    delay_raw1usraw();
     receive<<=1;
     if(MSDA_IN)
       receive++;     //if(gpio_get(PTE25))receive++;   
-    DelayUs(1);
+//    delay_raw1usraw();
   }
   if (!ack)
     IIC_NAck();             //发送nACK,//SCL=0,OUT,SDA=1,SCL=1-0

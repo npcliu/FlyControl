@@ -80,8 +80,8 @@ char AccCalibration(PACC pacc,PGYRO pgyro)
   MPU_INT_EN(0);                                //关闭MPU6050中断，不然MPU的data ready 中断会引发读冲突
   while(1)
   {
-    MPUReadAcc((short*)&_acc_adc);
-    MPUReadGyr((short*)&_gyro_adc);  //chip output data
+//    MPUReadAcc((short*)&_acc_adc);              //不要和中断读取冲突2021年3月1日22:36:24注释掉
+//    MPUReadGyr((short*)&_gyro_adc);  //chip output data
     _acc_mode = (uint32)sqrt(_acc_adc.x*_acc_adc.x + _acc_adc.y*_acc_adc.y + _acc_adc.z*_acc_adc.z);
 //if stable?
     if(_acc_mode>_1g_value*(1+_amtp) || _acc_mode<_1g_value*(1-_amtp) || _gyro_adc.x>r_t_v || _gyro_adc.x<-r_t_v || _gyro_adc.y>r_t_v || _gyro_adc.y<-r_t_v || _gyro_adc.z>r_t_v || _gyro_adc.z<-r_t_v)  //ensure no acceleration

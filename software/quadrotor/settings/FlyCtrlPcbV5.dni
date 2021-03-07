@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-2112188651
+Checksum=-195608986
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -49,7 +49,7 @@ Freq=10000000
 MultiCoreRunAll=1
 [array_types]
 Fmt0=char[3]	4	0
-Fmt1=uint8[32]	3	0
+Fmt1=uint8[32]	5	0
 [watch_formats]
 Fmt0={W}0:Address	4	0
 Fmt1={W}0:Data	4	0
@@ -125,20 +125,19 @@ Exclusions=
 mode=0
 [Breakpoints2]
 Bp0=_ 0 "EMUL_DATA" "0x20001915" 0 0 0 0 4294967295
-Bp1=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.242.7" 0 0 1 "" 0 "" 0
-Bp2=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.320.5" 0 0 1 "" 0 "" 0
-Bp3=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.202.5" 0 0 1 "" 0 "" 0
-Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.166.3" 0 0 1 "" 0 "" 0
-Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.212.3" 0 0 1 "" 0 "" 0
-Bp6=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.358.7" 0 0 1 "" 0 "" 0
-Bp7=_ 0 "EMUL_CODE" "{$PROJ_DIR$}.353.5" 0 0 1 "" 0 "" 0
-Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.74.11" 0 0 1 "" 0 "" 0
-Count=9
+Bp1=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.242.7" 0 0 1 "" 0 "" 0
+Bp2=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.320.5" 0 0 1 "" 0 "" 0
+Bp3=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.202.5" 0 0 1 "" 0 "" 0
+Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.166.3" 0 0 1 "" 0 "" 0
+Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.212.3" 0 0 1 "" 0 "" 0
+Bp6=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.358.7" 0 0 1 "" 0 "" 0
+Bp7=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.353.5" 0 0 1 "" 0 "" 0
+Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\MyNRF24L0.c}.478.5" 0 0 1 "" 0 "" 0
+Bp9=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.263.5" 0 0 1 "" 0 "" 0
+Bp10=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\Mpu6050.c}.159.11" 0 0 1 "" 0 "" 0
+Bp11=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.76.5" 0 0 1 "" 0 "" 0
+Bp12=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Calculation.c}.305.5" 0 0 1 "" 0 "" 0
+Count=13
 [Aliases]
-A0=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\FWLIB\src\delay.c" ""
-A1=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\FWLIB\src\stm32f10x_exti.c" ""
-A2=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\FWLIB\src\stm32f10x_usart.c" ""
-A3=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\User\src\L3GD20.c" ""
-A4=_ "E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\User\src\Mpu6050.c" ""
-Count=5
-SuppressDialog=1
+Count=0
+SuppressDialog=0

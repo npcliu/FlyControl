@@ -11836,16 +11836,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -12023,7 +12023,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -12143,6 +12143,7 @@ typedef enum
 
 extern uint8 tx_flag;                              
 extern uint8 rx_flag;                              
+extern uint8 irq_tx_buff[32];
 extern uint8 nrf_rciv[32];         
 
 
@@ -12196,8 +12197,8 @@ extern  uint8  nrf_rx_fifo_check(uint32 offset,uint16 * val);
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -12258,6 +12259,7 @@ volatile uint8    *nrf_irq_tx_addr      = 0;
 volatile uint32    nrf_irq_tx_pnum      = 0;                    
 volatile uint8      nrf_irq_tx_flag  = 0;                     
 
+uint8 irq_tx_buff[32];   
 uint8 nrf_rciv[32] = {0};         
 uint8 tx_flag = 0;
 uint8 rx_flag = 0;

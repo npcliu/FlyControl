@@ -88,19 +88,19 @@ void delay_us(u32 nus)
   //  SysTick->CTRL&=~SysTick_CTRL_ENABLE_Msk;       //关闭计数器
   //  SysTick->VAL =0X00;       //清空计数器	 
 }
-void ljldelay_1us()
+void delay_raw1us()
 {
   __NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP(); __NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP();
   __NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP(); __NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP();__NOP();
   __NOP();__NOP();__NOP();//__NOP();
 }
-void ljldelay_us(u32 nus)
+void delay_rawus(u32 nus)
 {
   static uint32 i = 0;
   
   for(i=0;i<nus;++i)
   {
-    ljldelay_1us();
+    delay_raw1us();
   }
 }
 

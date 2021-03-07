@@ -222,42 +222,69 @@ typedef enum IRQn
  
 
 
- #pragma system_include   
+#pragma system_include   
+
+  
+  
 
 
+  
+
+
+
+
+
+
+
+
+
+
+ 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-typedef char                int8;    
+  typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+ 
+  
+
+ 
+  
    
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
-
-
- 
-
- 
 
 
 
@@ -2944,7 +2971,6 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
-
  
 static inline void NVIC_SystemReset(void)
 {
@@ -2958,8 +2984,6 @@ static inline void NVIC_SystemReset(void)
 }
 
  
-
-
 
  
 
@@ -2986,10 +3010,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -8328,16 +8352,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8613,7 +8637,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -11866,8 +11890,8 @@ extern void PWM_Calculation(uint8 mod);
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -12638,7 +12662,7 @@ _Pragma("function_effects = no_state")    __intrinsic __nounwind double sinh(dou
 
 
 
-extern void IIC_Port_Init(void);                       
+void IIC_Port_Init(void);                       
 void CompassInit(void);
 
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
@@ -12726,15 +12750,7 @@ void ReadQMC5883(short *pcompass);
 
 
 
-
-
-
-
-
-
-
-
-
+    
 extern float angle[3];
 extern float offset_angle[3];
 extern float x_b,y_b;       
@@ -12746,21 +12762,15 @@ extern float y_p_o;
 extern float y_p_i;
 extern float y_d_i;
 
+extern float angx_err;
+extern float angy_err;
 extern float xcq,ycq;
 
 
+void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PACC pacc,const PGYRO pgyro,const PCOMPASS pcps,short* pacc_chip_data,short* pgyro_chip_data,short* pcps_chip_data);
 
-
-
-
-
-extern float angx_err;
-extern float angy_err;
-
-
-
-
-
+void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
+void PWMCalc(uint8 mod);
 
 
 
@@ -12835,8 +12845,8 @@ char AccCalibration(PACC pacc,PGYRO pgyro)
   Single_Write(0xD0, 0x38, 0);                                
   while(1)
   {
-    MPUReadAcc((short*)&_acc_adc);
-    MPUReadGyr((short*)&_gyro_adc);  
+
+
     _acc_mode = (uint32)sqrt(_acc_adc.x*_acc_adc.x + _acc_adc.y*_acc_adc.y + _acc_adc.z*_acc_adc.z);
 
     if(_acc_mode>_1g_value*(1+_amtp) || _acc_mode<_1g_value*(1-_amtp) || _gyro_adc.x>r_t_v || _gyro_adc.x<-r_t_v || _gyro_adc.y>r_t_v || _gyro_adc.y<-r_t_v || _gyro_adc.z>r_t_v || _gyro_adc.z<-r_t_v)  

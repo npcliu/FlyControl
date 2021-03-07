@@ -1617,6 +1617,224 @@ _Pragma("function_effects = no_write(1)")      __intrinsic __nounwind size_t __w
  
  
 
+  #pragma system_include
+
+ 
+ 
+
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+  #pragma system_include
+
+
+  
+  
+
+  
+
+
+
+
+
+ 
+
+
+  
+
+
+
+
+ 
+
+
+
+
+  
+
+
+ 
+
+  #pragma inline=no_body
+  __intrinsic __nounwind void * memcpy(void * _D, const void * _S, size_t _N)
+  {
+    __aeabi_memcpy(_D, _S, _N);
+    return _D;
+  }
+
+  #pragma inline=no_body
+  __intrinsic __nounwind void * memmove(void * _D, const void * _S, size_t _N)
+  {
+    __aeabi_memmove(_D, _S, _N);
+    return _D;
+  }
+
+  #pragma inline=no_body
+  __intrinsic __nounwind void * memset(void * _D, int _C, size_t _N)
+  {
+    __aeabi_memset(_D, _N, _C);
+    return _D;
+  }
+
+  
+  
+
+
+
+
+                 
+
+                 
+
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind int        memcmp(const void *, const void *,
+                                                size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind void *     memcpy(void *, 
+                                                const void *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind void *     memmove(void *, const void *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), returns 1")    __intrinsic __nounwind void *     memset(void *, int, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(2), returns 1")    __intrinsic __nounwind char *     strcat(char *, 
+                                                const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind int        strcmp(const char *, const char *);
+_Pragma("function_effects = no_write(1,2)")     __intrinsic __nounwind int        strcoll(const char *, const char *);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind char *     strcpy(char *, 
+                                                const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind size_t     strcspn(const char *, const char *);
+                 __intrinsic __nounwind char *     strerror(int);
+_Pragma("function_effects = no_state, no_errno, no_write(1)")      __intrinsic __nounwind size_t     strlen(const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(2), returns 1")    __intrinsic __nounwind char *     strncat(char *, 
+                                                 const char *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind int        strncmp(const char *, const char *, 
+                                                 size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind char *     strncpy(char *, 
+                                                 const char *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind size_t     strspn(const char *, const char *);
+_Pragma("function_effects = no_write(2)")        __intrinsic __nounwind char *     strtok(char *, 
+                                                const char *);
+_Pragma("function_effects = no_write(2)")        __intrinsic __nounwind size_t     strxfrm(char *, 
+                                                 const char *, size_t);
+
+  _Pragma("function_effects = no_write(1)")      __intrinsic __nounwind char *   strdup(const char *);
+  _Pragma("function_effects = no_write(1,2)")   __intrinsic __nounwind int      strcasecmp(const char *, const char *);
+  _Pragma("function_effects = no_write(1,2)")   __intrinsic __nounwind int      strncasecmp(const char *, const char *, 
+                                                   size_t);
+  _Pragma("function_effects = no_state, no_errno, no_write(2)")    __intrinsic __nounwind char *   strtok_r(char *, const char *, char **);
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind size_t   strnlen(char const *, size_t);
+
+
+
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind void *memchr(const void *_S, int _C, size_t _N);
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *strchr(const char *_S, int _C);
+  _Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *strpbrk(const char *_S, const char *_P);
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *strrchr(const char *_S, int _C);
+  _Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *strstr(const char *_S, const char *_P);
+
+
+                 
+
+                 
+
+_Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind void *__iar_Memchr(const void *, int, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *__iar_Strchr(const char *, int);
+               __intrinsic __nounwind char *__iar_Strerror(int, char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *__iar_Strpbrk(const char *, const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *__iar_Strrchr(const char *, int);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *__iar_Strstr(const char *, const char *);
+
+
+                 
+                 
+    #pragma inline
+    void *memchr(const void *_S, int _C, size_t _N)
+    {
+      return (__iar_Memchr(_S, _C, _N));
+    }
+
+    #pragma inline
+    char *strchr(const char *_S, int _C)
+    {
+      return (__iar_Strchr(_S, _C));
+    }
+
+    #pragma inline
+    char *strpbrk(const char *_S, const char *_P)
+    {
+      return (__iar_Strpbrk(_S, _P));
+    }
+
+    #pragma inline
+    char *strrchr(const char *_S, int _C)
+    {
+      return (__iar_Strrchr(_S, _C));
+    }
+
+    #pragma inline
+    char *strstr(const char *_S, const char *_P)
+    {
+      return (__iar_Strstr(_S, _P));
+    }
+
+  #pragma inline
+  char *strerror(int _Err)
+  {
+    return (__iar_Strerror(_Err, 0));
+  }
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+
  
 
 
@@ -1926,42 +2144,69 @@ typedef enum IRQn
  
 
 
- #pragma system_include   
+#pragma system_include   
+
+  
+  
 
 
+  
+
+
+
+
+
+
+
+
+
+
+ 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-typedef char                int8;    
+  typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+ 
+  
+
+ 
+  
    
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
-
-
- 
-
- 
 
 
 
@@ -3312,7 +3557,6 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
-
  
 static inline void NVIC_SystemReset(void)
 {
@@ -3326,8 +3570,6 @@ static inline void NVIC_SystemReset(void)
 }
 
  
-
-
 
  
 
@@ -3354,10 +3596,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -8696,16 +8938,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8981,7 +9223,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -12958,8 +13200,8 @@ extern void PWM_Calculation(uint8 mod);
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -13085,6 +13327,7 @@ typedef enum
 
 extern uint8 tx_flag;                              
 extern uint8 rx_flag;                              
+extern uint8 irq_tx_buff[32];
 extern uint8 nrf_rciv[32];         
 
 
@@ -13110,6 +13353,10 @@ extern char pit_25ms_flag;
 extern char pit_50ms_flag;
 extern char pit_500ms_flag;
 extern char pit_5s_flag;
+
+extern short acc_chip_out[3];                   
+extern short gyro_chip_out[3];                   
+extern short cps_chip_out[3];                   
 
 
 
@@ -13147,6 +13394,41 @@ void SendParametersToRC();
 void NodeInit();
 void SaveAngleDataToNode(float * angle);
 void SendNodeDataToComputer();
+void RCDenote();
+void UartInit();
+
+
+char GyroCalibration(void);
+void CompassCalibration(int ristrict);
+char AccCalibration(PACC pacc,PGYRO pgyro);
+
+
+
+
+
+
+    
+extern float angle[3];
+extern float offset_angle[3];
+extern float x_b,y_b;       
+extern float z_p,z_d;
+extern float x_p_o;                     
+extern float x_p_i;
+extern float x_d_i;
+extern float y_p_o;
+extern float y_p_i;
+extern float y_d_i;
+
+extern float angx_err;
+extern float angy_err;
+extern float xcq,ycq;
+
+
+void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PACC pacc,const PGYRO pgyro,const PCOMPASS pcps,short* pacc_chip_data,short* pgyro_chip_data,short* pcps_chip_data);
+
+void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
+void PWMCalc(uint8 mod);
+
 
 
 PROCEDURE (* Task[MAX_TASK_NUM])(char input) = 0;              
@@ -13158,19 +13440,16 @@ char cali_gyro_flag = 0;
 char need_restart_flag = 0;     
 char cali_compass = 0;
 char pwr_low_flag = 1;               
-int expriment_time = 0;
-float angley_data[200] = 0;
-int pwm0,pwm1,pwm2,pwm3;
-
 extern int pwm[4];
 
 PROCEDURE StbPrep(char input)
 {
-  TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),0);      
+  TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),0);
   TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),0);
   TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),0);
   TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),0);
   send_wave_flag = 1;
+  
   return standby;
 }
 
@@ -13180,9 +13459,6 @@ PROCEDURE Standby(char input)
   
   
   static uint32 count_delet = 0;
-  
-  expriment_time = 0;
-  
   if(send_wave_flag)
     SCISend_to_Own(((USART_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x3800)));
   else;
@@ -13232,29 +13508,14 @@ PROCEDURE Standby(char input)
   
   TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0400)),(int)(1.3*nrf_rciv[1]+500));  
   
-  if('z'==nrf_rciv[8]&&(angley_data[0] != 0))
-  {
-    
-    printf("send data to computer\r\n");
-    printf("pwm0 = %d\r\n",pwm0);
-    printf("pwm1 = %d\r\n",pwm1);
-    printf("angley_data : ");
-    for(int i = 0;i<200;i++)
-    {
-      printf("%f ",angley_data[i]);
-    }
-  }
+  
   
   if('f'==nrf_rciv[0] && (0==need_restart_flag))
     return att_hld_pre;
   else if('p'==nrf_rciv[0])
   {
-    return standby;
+    return set_para_pre;
   }
-  else if('e'==nrf_rciv[0])
-  {
-    return experiment_pro;
-  }  
   else
     return standby;
 }
@@ -13313,7 +13574,7 @@ PROCEDURE AttHld(char input)
       nrf_break = 0;               
       (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;               
     }
-    if(nrf_int_flag<254)
+    if(nrf_int_flag<100)
       nrf_int_flag ++;           
     pit_50ms_flag = 0;
   }
@@ -13333,10 +13594,6 @@ PROCEDURE AttHld(char input)
     nrf_int_flag = 0;
     return stb_pre;
   }
-  else if('e'==nrf_rciv[0])
-  {
-    return experiment_pro;
-  }  
   else
     return att_hld;
 }
@@ -13361,16 +13618,69 @@ PROCEDURE Landing(char input)
 PROCEDURE SetParaPre(char input)
 {
   need_restart_flag = 1;        
-  nrf_tx_mode();
-  DelayMs(50);
-  SendParametersToRC();
-  nrf_rx_mode();
+
+
+
+
   
   return set_para;
 }
 
 PROCEDURE SetParam(char input)
 {
+  if(0==strncmp((const char *)nrf_rciv,"FEParamGet",10))
+  {
+    if(0==strncmp((char const *)(nrf_rciv+10),"xpo",3))
+    {
+      irq_tx_buff[0] = 6;
+      memcpy(irq_tx_buff+1,(void *)&x_p_o,sizeof(x_p_o));
+    }
+    else if(0==strncmp((const char *)(nrf_rciv+10),"xpi",3))
+    {
+      irq_tx_buff[0] = 6;
+      memcpy(irq_tx_buff+1,(void *)&x_p_i,sizeof(x_p_i));
+    }
+    else if(0==strncmp((const char *)(nrf_rciv+10),"xdi",3))
+    {
+      irq_tx_buff[0] = 6;
+      memcpy(irq_tx_buff+1,(void *)&x_d_i,sizeof(x_d_i));
+    }
+    else if(0==strncmp((const char *)(nrf_rciv+10),"ypo",3))
+    {
+      irq_tx_buff[0] = 6;
+      memcpy(irq_tx_buff+1,(void *)&x_d_i,sizeof(y_p_o));
+    }
+    else if(0==strncmp((const char *)(nrf_rciv+10),"ypi",3))
+    {
+      irq_tx_buff[0] = 6;
+      memcpy(irq_tx_buff+1,(void *)&x_d_i,sizeof(y_p_i));
+    }
+    else if(0==strncmp((const char *)(nrf_rciv+10),"ydi",3))
+    {
+      irq_tx_buff[0] = 6;
+      memcpy(irq_tx_buff+1,(void *)&x_d_i,sizeof(y_d_i));
+    }
+
+
+
+
+
+    (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b11) = 0;
+    DelayMs(500);
+    (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b11) = 1;
+    DelayMs(500);
+    (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b11) = 0;
+    DelayMs(500);
+    (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b11) = 1;
+    
+    nrf_tx_mode();
+    DelayMs(20);
+    nrf_tx(irq_tx_buff,32);
+    DelayMs(20);
+    nrf_rx_mode();
+    memset(nrf_rciv,0,32);
+  }
+
   if('l'==nrf_rciv[0])
     return stb_pre;
   else
@@ -13378,146 +13688,55 @@ PROCEDURE SetParam(char input)
 }
 short amplitude = 0;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-extern float angle[3];
-extern float offset_angle[3];
-extern float x_b,y_b;       
-extern float z_p,z_d;
-extern float x_p_o;                     
-extern float x_p_i;
-extern float x_d_i;
-extern float y_p_o;
-extern float y_p_i;
-extern float y_d_i;
-
-extern float xcq,ycq;
-
-
-
-
-
-
-
-extern float angx_err;
-extern float angy_err;
-
-
-
-
-
-
-
-
-
 PROCEDURE Experiment(char input)
 {
-  if('k'==nrf_rciv[8]&&(expriment_time<200))
+  static int save_data_time = 0;
+  if('k'==nrf_rciv[8])
   {
     
-    if(pit_5ms_flag == 1)
-    {  
-      if(expriment_time == 0){
-        pwm0 = pwm[x_n]-3;
-        pwm1 = pwm[x_p]+3;
-        
+    amplitude = 500;
+    pwm[0] = (int)(amplitude);
+    pwm[1] = 0;
+    pwm[2] = 0;
+    pwm[3] = 0;
+    TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[0]);  
+    TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[1]);  
+        TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[2]);  
+        TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[3]);  
 
-      }
-      
-      if(pwm0>10000)pwm0 = 10000;
-      else if(pwm0<0)pwm0 = 0;
-      if(pwm1>10000)pwm1 = 10000;
-      else if(pwm1<0)pwm1 = 0;
-      TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm0);  
-      TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm1);  
-      TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_n]);  
-      TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_p]);  
-     
-      angley_data[expriment_time] = angle[0];
-      expriment_time++;
-      
-      pit_5ms_flag  = 0;
-      
-      
 
-    }
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    SaveAngleDataToNode(angle);
+    save_data_time++;
+    if(save_data_time > 1500 + 1)
+      save_data_time = 1500 + 1;
   }
-  else if ('t'==nrf_rciv[8]||(expriment_time>=200))
+  else if ('t'==nrf_rciv[8] || (save_data_time > 1500))
   {
-    if(expriment_time>=200&&('k'==nrf_rciv[8]))
-    {
-      nrf_rciv[8] = 't';
-      (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;               
-    }
-
-    
-
-
-
-
-    
-    if(nrf_rciv[1]>2)
-    {
-      TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[x_n]);  
-      TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[x_p]);  
-      TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_n]);  
-      TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_p]);  
-    }else
-    {
-      TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);      
-      TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);
-      TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);
-      TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);
-    }
-    
-    
-    
-     
-    if(pit_50ms_flag)
-    {
-      if(nrf_int_flag>=20)        
-      {
-        nrf_rciv[1] = 0;          
-        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;               
-      }
-      else if(nrf_int_flag)
-      {
-        nrf_break = 1;
-        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 1;               
-        if(nrf_rciv[1] > 80)          
-          nrf_rciv[1] = 80;          
-      }
-      else if(nrf_break)
-      {
-        nrf_break = 0;               
-        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;               
-      }
-      if(nrf_int_flag<254)
-        nrf_int_flag ++;           
-      pit_50ms_flag = 0;
-    }
-     
-    if(pit_500ms_flag)
-    {
-      if(pwr_low_flag)
-        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = (~(((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0));
-      else
-        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;
-      pit_500ms_flag = 0;
-    }
+    pwm[0] = 0;
+    pwm[1] = 0;
+    pwm[2] = 0;
+    pwm[3] = 0;
+    TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[0]);  
+    TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[1]);  
+    TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[2]);  
+    TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[3]);  
   }
   else
   {
@@ -13530,7 +13749,15 @@ PROCEDURE Experiment(char input)
     TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[2]);  
     TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[3]);  
   }
-
+  if('s'==nrf_rciv[8])
+  {
+    if(pit_25ms_flag)        
+    {
+      send_type = 'e';
+      SCISend_to_Own(((USART_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x3800)));
+      pit_25ms_flag = 0;
+    }
+  }
   if('l'==nrf_rciv[0])
     return stb_pre;
   else
@@ -13551,19 +13778,19 @@ PROCEDURE Experiment(char input)
 
 PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char))
 {
-  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 375), ( __iar_EmptyStepPoint())));
+  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 364), ( __iar_EmptyStepPoint())));
   _Task[stb_pre] = StbPrep;                        
-  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 377), ( __iar_EmptyStepPoint())));
+  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 366), ( __iar_EmptyStepPoint())));
   _Task[standby] = Standby;
-  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 379), ( __iar_EmptyStepPoint())));
+  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 368), ( __iar_EmptyStepPoint())));
   _Task[att_hld_pre] = AttHldPrep;
-  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 381), ( __iar_EmptyStepPoint())));
+  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 370), ( __iar_EmptyStepPoint())));
   _Task[att_hld] = AttHld;
-  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 383), ( __iar_EmptyStepPoint())));
+  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 372), ( __iar_EmptyStepPoint())));
   _Task[set_para_pre] = SetParaPre;
-  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 385), ( __iar_EmptyStepPoint())));
+  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 374), ( __iar_EmptyStepPoint())));
   _Task[set_para] = SetParam;           
-  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 387), ( __iar_EmptyStepPoint())));
+  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 376), ( __iar_EmptyStepPoint())));
   _Task[experiment_pro] = Experiment;           
   
   return stb_pre;

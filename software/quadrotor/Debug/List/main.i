@@ -222,42 +222,69 @@ typedef enum IRQn
  
 
 
- #pragma system_include   
+#pragma system_include   
+
+  
+  
 
 
+  
+
+
+
+
+
+
+
+
+
+
+ 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-typedef char                int8;    
+  typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+ 
+  
+
+ 
+  
    
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
-
-
- 
-
- 
 
 
 
@@ -2944,7 +2971,6 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
-
  
 static inline void NVIC_SystemReset(void)
 {
@@ -2958,8 +2984,6 @@ static inline void NVIC_SystemReset(void)
 }
 
  
-
-
 
  
 
@@ -2986,10 +3010,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -8328,16 +8352,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8613,7 +8637,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -11752,8 +11776,8 @@ void SysTick_CLKSourceConfig(uint32_t SysTick_CLKSource);
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -11948,8 +11972,6 @@ void NVIC_Config(void);
 
 
 
-
-
 extern char pit_5ms_flag;
 extern char pit_10ms_flag;
 extern char pit_25ms_flag;
@@ -11957,6 +11979,35 @@ extern char pit_50ms_flag;
 extern char pit_500ms_flag;
 extern char pit_5s_flag;
 
+extern short acc_chip_out[3];                   
+extern short gyro_chip_out[3];                   
+extern short cps_chip_out[3];                   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void IIC_Port_Init(void);                       
+void CompassInit(void);
+
+extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
+uint8 Single_Read(uint8 slave_addr,uint8 reg_addr);
+short bmp085ReadTemp(void);
+short bmp085ReadPressure(void);
+extern   unsigned int ut;
+extern unsigned long up;
 
  
 
@@ -11988,6 +12039,22 @@ extern BOOL MPUInit(void);
 void MPUReadAcc(short *pacc);
 void MPUReadGyr(short *pgyro);
 char MPU6050GyroCalibration(short *PGYRO);
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+void QMC5883Init(void);
+void ReadQMC5883(short *pcompass);
 
 
 
@@ -12892,6 +12959,7 @@ typedef enum
 
 extern uint8 tx_flag;                              
 extern uint8 rx_flag;                              
+extern uint8 irq_tx_buff[32];
 extern uint8 nrf_rciv[32];         
 
 
@@ -12960,317 +13028,19 @@ extern PROCEDURE next_procedure;
 
 PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char));   
 
- 
- 
 
-  #pragma system_include
+extern char send_type;
 
- 
- 
+void UARTSendFloat(float d);
+void SCISend_to_Own(USART_TypeDef* USARTx);
+void SendParametersToRC();
 
- 
 
-  #pragma system_include
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
- 
-
-
-  #pragma system_include
-
- 
- 
-
- 
-
-  #pragma system_include
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-                 
-typedef _Sizet size_t;
-
-typedef unsigned int __data_size_t;
-
-
-
-
- 
- 
-
-  #pragma system_include
-
-
-
-
-
-
-    struct __FILE
-    {        
-      unsigned short _Mode;
-      unsigned char _Lockno;
-      signed char _Handle;
-
-       
-       
-       
-      unsigned char *_Buf, *_Bend, *_Next;
-       
-       
-      
-  
-      unsigned char *_Rend, *_Wend, *_Rback;
-
-      
-  
-      _Wchart *_WRback, _WBack[2];
-
-       
-       
-       
-      unsigned char *_Rsave, *_WRend, *_WWend;
-
-      _Mbstatet _Wstate;
-      char *_Tmpnam;
-      unsigned char _Back[1], _Cbuf;
-    };
-
-    
-  
-
- 
-
-__intrinsic __nounwind int remove(const char *);
-__intrinsic __nounwind int rename(const char *, const char *);
-
-
-
-
-
-
-
-
-
- 
-
-
-
- 
-#pragma rtmodel="__dlib_file_descriptor","1"
-
-                 
-
-  typedef _Filet FILE;
-
-
-      
-       extern FILE __iar_Stdin;
-       extern FILE __iar_Stdout;
-       extern FILE __iar_Stderr;
-      
-
-
-
-
-
-
-                 
-typedef _Fpost fpos_t;
-
-                 
-#pragma language=save
-#pragma language=extended
-
-
-                 
-  
-
-  __intrinsic __nounwind void clearerr(FILE *);
-  __intrinsic __nounwind int fclose(FILE *);
-  __intrinsic __nounwind int feof(FILE *);
-  __intrinsic __nounwind int ferror(FILE *);
-  __intrinsic __nounwind int fflush(FILE *);
-  __intrinsic __nounwind int fgetc(FILE *);
-  __intrinsic __nounwind int fgetpos(FILE *, fpos_t *);
-  __intrinsic __nounwind char * fgets(char *, int, FILE *);
-  __intrinsic __nounwind FILE * fopen(const char *, const char *);
-  _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int fprintf(FILE *, const char *, 
-                                      ...);
-  __intrinsic __nounwind int fputc(int, FILE *);
-  __intrinsic __nounwind int fputs(const char *, FILE *);
-  __intrinsic __nounwind size_t fread(void *, size_t, size_t, FILE *);
-  __intrinsic __nounwind FILE * freopen(const char *, const char *,
-                              FILE *);
-  _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown") __intrinsic __nounwind int fscanf(FILE *, const char *, 
-                                    ...);
-  __intrinsic __nounwind int fseek(FILE *, long, int);
-  __intrinsic __nounwind int fsetpos(FILE *, const fpos_t *);
-  __intrinsic __nounwind long ftell(FILE *);
-  __intrinsic __nounwind size_t fwrite(const void *, size_t, size_t, 
-                             FILE *);
-
-  __intrinsic __nounwind void rewind(FILE *);
-  __intrinsic __nounwind void setbuf(FILE *, char *);
-  __intrinsic __nounwind int setvbuf(FILE *, char *, int, size_t);
-  __intrinsic __nounwind FILE * tmpfile(void);
-  __intrinsic __nounwind int ungetc(int, FILE *);
-  _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vfprintf(FILE *, 
-                                       const char *, __Va_list);
-    _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int vfscanf(FILE *, const char *,
-                                        __Va_list);
-
-    __intrinsic __nounwind FILE * fdopen(signed char, const char *);
-    __intrinsic __nounwind signed char fileno(FILE *);
-    __intrinsic __nounwind int getw(FILE *);
-    __intrinsic __nounwind int putw(int, FILE *);
-
-  __intrinsic __nounwind int getc(FILE *);
-  __intrinsic __nounwind int putc(int, FILE *);
-  
-
-
-              
-_Pragma("function_effects = no_read(1)")    __intrinsic __nounwind char * __gets(char *, int);
-_Pragma("function_effects = no_read(1)")    __intrinsic __nounwind char * gets(char *);
-_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind void perror(const char *);
-_Pragma("function_effects = no_write(1)")    _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int printf(const char *, ...);
-_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind int puts(const char *);
-_Pragma("function_effects = no_write(1)")    _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int scanf(const char *, ...);
-_Pragma("function_effects = no_read(1), no_write(2)") _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int sprintf(char *, 
-                                                 const char *, ...);
-_Pragma("function_effects = no_write(1,2)") _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int sscanf(const char *, 
-                                                const char *, ...);
-             __intrinsic __nounwind char * tmpnam(char *);
-              
-             __intrinsic __nounwind int __ungetchar(int);
-_Pragma("function_effects = no_write(1)")    _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vprintf(const char *,
-                                                 __Va_list);
-  _Pragma("function_effects = no_write(1)")    _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int vscanf(const char *, 
-                                                  __Va_list);
-  _Pragma("function_effects = no_write(1,2)") _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int vsscanf(const char *, 
-                                                   const char *, 
-                                                   __Va_list);
-_Pragma("function_effects = no_read(1), no_write(2)")  _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vsprintf(char *, 
-                                                   const char *,
-                                                   __Va_list);
-               
-_Pragma("function_effects = no_write(1)")      __intrinsic __nounwind size_t __write_array(const void *, size_t, size_t);
-  _Pragma("function_effects = no_read(1), no_write(3)") _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int snprintf(char *, size_t, 
-                                                    const char *, ...);
-  _Pragma("function_effects = no_read(1), no_write(3)") _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vsnprintf(char *, size_t,
-                                                     const char *, 
-                                                     __Va_list);
-
-              __intrinsic __nounwind int getchar(void);
-              __intrinsic __nounwind int putchar(int);
-
-
-
-#pragma language=restore
-
-             
-  #pragma inline
-  int (getc)(FILE *_Str)
-  {
-    return fgetc(_Str);
-  }
-
-  #pragma inline
-  int (putc)(int _C, FILE *_Str)
-  {
-    return fputc(_C, _Str);
-  }
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-extern u8  USART_RX_BUF[200]; 
-extern u16 USART_RX_STA;         		
-
+void NodeInit();
+void SaveAngleDataToNode(float * angle);
+void SendNodeDataToComputer();
+void RCDenote();
 void UartInit();
-
 
 
 ACC acc = {.x=1,.y=2,.z=3,.kx = 1,.ky = 1,.kz = 1,.x_off=0,.y_off=0,.z_off=0};   
@@ -13296,16 +13066,12 @@ SCom sCom;
  
 int main(void)
 {
-
   __disable_interrupt();                              
   delay_init();
   DelayMs(80);                                  
   next_procedure = TaskInit(Task);                               
-  
-  
   ParamInit((short *)&gyro+3,&acc, &compass);       
   AdcInit();                                                    
-
     gpio_init(PB12,GPIO_Mode_Out_PP,n_interupt,GPIO_Speed_50MHz,0);						 
   gpio_init(PB13,GPIO_Mode_Out_OD,n_interupt,GPIO_Speed_50MHz,0);						 
   gpio_init(PC10,GPIO_Mode_Out_PP,n_interupt,GPIO_Speed_50MHz,1);						 
@@ -13317,7 +13083,6 @@ int main(void)
   gpio_init(PB15, GPIO_Mode_Out_PP,n_interupt,GPIO_Speed_50MHz, 1);                               
   gpio_init(PA4, GPIO_Mode_Out_PP,n_interupt,GPIO_Speed_50MHz, 1);                               
 
-  
   IIC_Port_Init();    
   bat_voltage = BatVoltageGet();
   PIT4_Init(5);
@@ -13371,19 +13136,6 @@ int main(void)
       pit_5s_flag = 0;
       (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b12) = 1;
     }
-    
-
-
-
-
-
-
-
-
-
-
-
-
     next_procedure = Task[next_procedure](1);
   }
 }

@@ -8400,16 +8400,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8685,7 +8685,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -14440,7 +14440,7 @@ void PIT4_Init(uint32 nms)
   
   TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;	        
   TIM_ClearITPendingBit(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0800)),((uint16_t)0x0001));	                
-  TIM_TimeBaseStructure.TIM_Period = nms/0.5-1;		        
+  TIM_TimeBaseStructure.TIM_Period = (uint16_t)(nms/0.5-1);		        
   TIM_TimeBaseStructure.TIM_Prescaler = 35999;		        
   TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;	        
   TIM_TimeBaseStructure.TIM_CounterMode = ((uint16_t)0x0000);	
@@ -14754,8 +14754,8 @@ void TIM2_PWM_Init(u32 freq ,u16 scope,int duty)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0800)), &GPIO_InitStructure);
   
-  TIM_TimeBaseStructure.TIM_Period = arr;                     
-  TIM_TimeBaseStructure.TIM_Prescaler =psc;  
+  TIM_TimeBaseStructure.TIM_Period = (uint16_t)arr;                     
+  TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)psc;  
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;                
   TIM_TimeBaseStructure.TIM_CounterMode = ((uint16_t)0x0000); 
   TIM_TimeBaseInit(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)), &TIM_TimeBaseStructure);          
@@ -14810,8 +14810,8 @@ void TIM3_PWM_Init(u32 freq ,u16 scope,int duty)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00)), &GPIO_InitStructure);
   
-  TIM_TimeBaseStructure.TIM_Period = arr;                     
-  TIM_TimeBaseStructure.TIM_Prescaler =psc;  
+  TIM_TimeBaseStructure.TIM_Period = (uint16_t)arr;                     
+  TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)psc;  
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;                
   TIM_TimeBaseStructure.TIM_CounterMode = ((uint16_t)0x0000); 
   TIM_TimeBaseInit(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0400)), &TIM_TimeBaseStructure);          

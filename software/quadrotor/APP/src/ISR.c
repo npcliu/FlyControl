@@ -1,18 +1,21 @@
+#include <string.h>
 #include "stm32f10x.h"
 #include "define.h"
 #include "Mpu6050.h"
 #include "MyNRF24L0.h"
+#include "QMC5883.h"
 #include "L3GD20.h"
 #include "calculation.h"
 #include <parser.h>
+#include "interact.h"
 
 /***************************定时中断,triggerd by TIM*******************************/
 //extern float filted_acc[2][3];              //filted acc data,2 row means 2 acceleration chip,3 means 3aixs; filted_acc[0][1] reprsent chip 0,y axis filted data
 //extern float filted_gyro[2][3];             //filted gyro data;
 //extern float filted_cps[2][3];              //filted compass data
-extern short acc_chip_out[3];                   //data the chip gives
-extern short gyro_chip_out[3];                   //data the chip gives
-extern short cps_chip_out[3];                   //data the chip gives
+short acc_chip_out[3] = {0};                   //data the chip gives
+short gyro_chip_out[3] = {0};                   //data the chip gives
+short cps_chip_out[3] = {0};                   //data the chip gives
 float filted_acc[2][3] = {0};              //filted acc data,2 row means 2 acceleration chip,3 means 3aixs; filted_acc[0][1] reprsent chip 0,y axis filted data
 float filted_gyro[2][3] = {0};             //filted gyro data;
 float filted_cps[2][3] = {0};              //filted compass data
@@ -21,7 +24,6 @@ char pit_25ms_flag = 0;
 char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;
 char pit_5s_flag = 0;         //5s时间标志
-
 void TIM4_IRQHandler(void)
 {
   static uint32 irq_count = 0;
@@ -33,7 +35,6 @@ void TIM4_IRQHandler(void)
     PWMCalc(pipl_dir);
 
   irq_count++;
-  pit_5ms_flag = 1;
   if(irq_count>=100000)
     irq_count = 0;
   if(0==irq_count%5)           //INTERUPT_CYC_IN_MS*5 = 25ms is this period检查一次nrf的接收情况
@@ -47,15 +48,13 @@ void TIM4_IRQHandler(void)
   TIM_ClearITPendingBit(TIM4, TIM_IT_CC1|TIM_IT_Update); //清除中断标志位
   BLUE_OUT = 1;
 }
-short acc_chip_out[3] = {0};                   //data the chip gives
-short gyro_chip_out[3] = {0};                   //data the chip gives
-short cps_chip_out[3] = {0};                   //data the chip gives
 void EXTI15_10_IRQHandler()
 {
 /****************************triggerd by MPU6050 IRQ pin*******************************/
   if(EXTI_GetITStatus(MPUINT_Line)!=RESET)
   {
     RED_OUT = 0;
+
     MPUReadAcc(acc_chip_out);//taks 0.26ms
     MPUReadGyr(gyro_chip_out);//
     ReadQMC5883(cps_chip_out);
@@ -89,7 +88,7 @@ void EXTI9_5_IRQHandler()
     //    L3GD20_Read((short*)&L3GDgyro_adc);
 //SET_SPIn_POLARITY(3,0);                 //set spi'3' polarity to '1'
     nrf_handler();
-    RCDenote();
+    RCDenote();                 //加入参数模式后此句应放在飞行模式中
   }
   else if(EXTI_GetITStatus(GYRO_IRQ_Line)!=RESET)
   {

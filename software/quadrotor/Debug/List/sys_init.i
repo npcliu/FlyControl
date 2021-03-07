@@ -1838,42 +1838,69 @@ typedef enum IRQn
  
 
 
- #pragma system_include   
+#pragma system_include   
+
+  
+  
 
 
+  
+
+
+
+
+
+
+
+
+
+
+ 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-typedef char                int8;    
+  typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+ 
+  
+
+ 
+  
    
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
-
-
- 
-
- 
 
 
 
@@ -3224,7 +3251,6 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
-
  
 static inline void NVIC_SystemReset(void)
 {
@@ -3238,8 +3264,6 @@ static inline void NVIC_SystemReset(void)
 }
 
  
-
-
 
  
 
@@ -3266,10 +3290,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -8608,16 +8632,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8893,7 +8917,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -12032,8 +12056,8 @@ void SysTick_CLKSourceConfig(uint32_t SysTick_CLKSource);
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -12942,15 +12966,7 @@ float FlashReadFloat(uint32_t address);
 
 
 
-
-
-
-
-
-
-
-
-
+    
 extern float angle[3];
 extern float offset_angle[3];
 extern float x_b,y_b;       
@@ -12962,21 +12978,15 @@ extern float y_p_o;
 extern float y_p_i;
 extern float y_d_i;
 
+extern float angx_err;
+extern float angy_err;
 extern float xcq,ycq;
 
 
+void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PACC pacc,const PGYRO pgyro,const PCOMPASS pcps,short* pacc_chip_data,short* pgyro_chip_data,short* pcps_chip_data);
 
-
-
-
-
-extern float angx_err;
-extern float angy_err;
-
-
-
-
-
+void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
+void PWMCalc(uint8 mod);
 
 
 
@@ -13001,7 +13011,7 @@ extern float angy_err;
 
 void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
 {
-  pipl_dir = 0;
+  pipl_dir = 1;
   x_b = -5;
   y_b = 0;
   z_p = 2;
@@ -13024,10 +13034,10 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
     offset_angle[1] = 0;
     offset_angle[2] = 0;
     x_p_o = 100;                     
-    x_p_i = 0.015;
+    x_p_i = 0.0257;
     x_d_i = 0.0012;
     y_p_o = 80;
-    y_p_i = 0.015;
+    y_p_i = 0.0257;
     y_d_i = 0.001;
   }
   p_gyro_offset[0] = FLASH_ReadHalfWord(0x0803F800 + 0);        

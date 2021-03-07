@@ -41,7 +41,9 @@ volatile uint8    *nrf_irq_tx_addr      = NULL;
 volatile uint32    nrf_irq_tx_pnum      = 0;                    //pnum = (len+MAX_ONCE_TX_NUM -1)  / MAX_ONCE_TX_NUM
 volatile uint8      nrf_irq_tx_flag  = 0;                     //0 表示成功 ，1 表示 发送失败
 
-uint8 nrf_rciv[32] = {0};         //中断接收的FIFO
+#define DATA_PACKET     32
+uint8 irq_tx_buff[DATA_PACKET];   //NRF发送缓冲
+uint8 nrf_rciv[DATA_PACKET] = {0};         //中断接收的FIFO
 uint8 tx_flag = 0;
 uint8 rx_flag = 0;
 

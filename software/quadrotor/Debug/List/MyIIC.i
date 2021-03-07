@@ -8352,16 +8352,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8637,7 +8637,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -11757,7 +11757,7 @@ void SysTick_CLKSourceConfig(uint32_t SysTick_CLKSource);
 
 
 
-extern void IIC_Port_Init(void);                       
+void IIC_Port_Init(void);                       
 void CompassInit(void);
 
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
@@ -11801,8 +11801,8 @@ extern unsigned long up;
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -11845,7 +11845,7 @@ void IIC_Port_Init(void)
 
 void IIC_Start(void)    
 {
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = LJL_OOD;     
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = 0x7;     
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b7)=1;
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=1;
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b7)=0;
@@ -11853,7 +11853,7 @@ void IIC_Start(void)
 
 void IIC_Stop(void) 
 {
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = LJL_OOD;     
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = 0x7;     
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b7)=0;
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=1;
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b7)=1;
@@ -11863,11 +11863,11 @@ static BOOL IIC_Wait_Ack(void)
 {
   static uint32 count = 0;
   
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = LJL_IFLT;      
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = 0x4;      
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6) = 1;
   while((((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->IDR)))->b7))
   {
-    delay_us(1);
+    delay_raw1us();
     if(count<800)
     count++;
     else
@@ -11884,7 +11884,7 @@ static BOOL IIC_Wait_Ack(void)
 void IIC_Ack(void)      
 {
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=0;
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = LJL_OOD;     
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = 0x7;     
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=1;
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=0;
 }
@@ -11892,7 +11892,7 @@ void IIC_Ack(void)
 void IIC_NAck(void)     
 {
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=0;
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = LJL_OOD;     
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = 0x7;     
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b7)=1;
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=1;
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=0;
@@ -11915,15 +11915,13 @@ void IIC_NAck(void)
 void IIC_Send_Byte(uint8 txd)           
 {
   uint8 t;
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = LJL_OOD;     
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->CRL)))->fb7) = 0x7;     
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=0;             
   for(t=0;t<8;t++)
   {
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b7) = ((txd&0x80)!=0);
     txd<<=1;
-
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=1;
-
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=0;
   }
 }
@@ -11934,13 +11932,13 @@ uint8 IIC_Read_Byte(uint8 ack)
   for(i=0;i<8;i++)
   {
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=0;
-    delay_us(1);
+
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b6)=1;
-    delay_us(1);
+
     receive<<=1;
     if((((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->IDR)))->b7))
       receive++;     
-    delay_us(1);
+
   }
   if (!ack)
     IIC_NAck();             

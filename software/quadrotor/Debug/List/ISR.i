@@ -1,273 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
- 
-
-
-
- 
-    
-
-  
-
-
- 
-  
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-            
-
-
-
-
-
- 
-
-
-
-
- 
-
-
-
- 
-
-
-
- 
-
-
-
- 
-
-
-
-
- 
-typedef enum IRQn
-{
- 
-  NonMaskableInt_IRQn         = -14,     
-  MemoryManagement_IRQn       = -12,     
-  BusFault_IRQn               = -11,     
-  UsageFault_IRQn             = -10,     
-  SVCall_IRQn                 = -5,      
-  DebugMonitor_IRQn           = -4,      
-  PendSV_IRQn                 = -2,      
-  SysTick_IRQn                = -1,      
-
- 
-  WWDG_IRQn                   = 0,       
-  PVD_IRQn                    = 1,       
-  TAMPER_IRQn                 = 2,       
-  RTC_IRQn                    = 3,       
-  FLASH_IRQn                  = 4,       
-  RCC_IRQn                    = 5,       
-  EXTI0_IRQn                  = 6,       
-  EXTI1_IRQn                  = 7,       
-  EXTI2_IRQn                  = 8,       
-  EXTI3_IRQn                  = 9,       
-  EXTI4_IRQn                  = 10,      
-  DMA1_Channel1_IRQn          = 11,      
-  DMA1_Channel2_IRQn          = 12,      
-  DMA1_Channel3_IRQn          = 13,      
-  DMA1_Channel4_IRQn          = 14,      
-  DMA1_Channel5_IRQn          = 15,      
-  DMA1_Channel6_IRQn          = 16,      
-  DMA1_Channel7_IRQn          = 17,      
-
-
-
-  ADC1_2_IRQn                 = 18,      
-  USB_HP_CAN1_TX_IRQn         = 19,      
-  USB_LP_CAN1_RX0_IRQn        = 20,      
-  CAN1_RX1_IRQn               = 21,      
-  CAN1_SCE_IRQn               = 22,      
-  EXTI9_5_IRQn                = 23,      
-  TIM1_BRK_IRQn               = 24,      
-  TIM1_UP_IRQn                = 25,      
-  TIM1_TRG_COM_IRQn           = 26,      
-  TIM1_CC_IRQn                = 27,      
-  TIM2_IRQn                   = 28,      
-  TIM3_IRQn                   = 29,      
-  TIM4_IRQn                   = 30,      
-  I2C1_EV_IRQn                = 31,      
-  I2C1_ER_IRQn                = 32,      
-  I2C2_EV_IRQn                = 33,      
-  I2C2_ER_IRQn                = 34,      
-  SPI1_IRQn                   = 35,      
-  SPI2_IRQn                   = 36,      
-  USART1_IRQn                 = 37,      
-  USART2_IRQn                 = 38,      
-  USART3_IRQn                 = 39,      
-  EXTI15_10_IRQn              = 40,      
-  RTCAlarm_IRQn               = 41,      
-  USBWakeUp_IRQn              = 42         
-
-
-
-
-
-}IRQn_Type;
-
-
-
- 
-
- 
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
- #pragma system_include   
-
-
-
-  typedef unsigned char       uint8;   
-  typedef unsigned short int  uint16;  
-  typedef unsigned long int   uint32;  
-  typedef unsigned long long  uint64;  
-  
-typedef char                int8;    
-  typedef short int           int16;   
-  typedef long  int           int32;   
-  typedef long  long          int64;   
-   
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
-
-
- 
-
- 
-
-
-
-
-
-
- 
-
-
-
  
  
 
@@ -1642,6 +1372,565 @@ typedef struct
 
 
  
+ 
+ 
+
+
+  #pragma system_include
+
+ 
+ 
+
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+                 
+typedef _Sizet size_t;
+
+typedef unsigned int __data_size_t;
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+  #pragma system_include
+
+
+  
+  
+
+  
+
+
+
+
+
+ 
+
+
+  
+
+
+
+
+ 
+
+
+
+
+  
+
+
+ 
+
+  #pragma inline=no_body
+  __intrinsic __nounwind void * memcpy(void * _D, const void * _S, size_t _N)
+  {
+    __aeabi_memcpy(_D, _S, _N);
+    return _D;
+  }
+
+  #pragma inline=no_body
+  __intrinsic __nounwind void * memmove(void * _D, const void * _S, size_t _N)
+  {
+    __aeabi_memmove(_D, _S, _N);
+    return _D;
+  }
+
+  #pragma inline=no_body
+  __intrinsic __nounwind void * memset(void * _D, int _C, size_t _N)
+  {
+    __aeabi_memset(_D, _N, _C);
+    return _D;
+  }
+
+  
+  
+
+
+
+
+                 
+
+                 
+
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind int        memcmp(const void *, const void *,
+                                                size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind void *     memcpy(void *, 
+                                                const void *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind void *     memmove(void *, const void *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), returns 1")    __intrinsic __nounwind void *     memset(void *, int, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(2), returns 1")    __intrinsic __nounwind char *     strcat(char *, 
+                                                const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind int        strcmp(const char *, const char *);
+_Pragma("function_effects = no_write(1,2)")     __intrinsic __nounwind int        strcoll(const char *, const char *);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind char *     strcpy(char *, 
+                                                const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind size_t     strcspn(const char *, const char *);
+                 __intrinsic __nounwind char *     strerror(int);
+_Pragma("function_effects = no_state, no_errno, no_write(1)")      __intrinsic __nounwind size_t     strlen(const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(2), returns 1")    __intrinsic __nounwind char *     strncat(char *, 
+                                                 const char *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind int        strncmp(const char *, const char *, 
+                                                 size_t);
+_Pragma("function_effects = no_state, no_errno, no_read(1), no_write(2), returns 1") __intrinsic __nounwind char *     strncpy(char *, 
+                                                 const char *, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)")   __intrinsic __nounwind size_t     strspn(const char *, const char *);
+_Pragma("function_effects = no_write(2)")        __intrinsic __nounwind char *     strtok(char *, 
+                                                const char *);
+_Pragma("function_effects = no_write(2)")        __intrinsic __nounwind size_t     strxfrm(char *, 
+                                                 const char *, size_t);
+
+  _Pragma("function_effects = no_write(1)")      __intrinsic __nounwind char *   strdup(const char *);
+  _Pragma("function_effects = no_write(1,2)")   __intrinsic __nounwind int      strcasecmp(const char *, const char *);
+  _Pragma("function_effects = no_write(1,2)")   __intrinsic __nounwind int      strncasecmp(const char *, const char *, 
+                                                   size_t);
+  _Pragma("function_effects = no_state, no_errno, no_write(2)")    __intrinsic __nounwind char *   strtok_r(char *, const char *, char **);
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind size_t   strnlen(char const *, size_t);
+
+
+
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind void *memchr(const void *_S, int _C, size_t _N);
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *strchr(const char *_S, int _C);
+  _Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *strpbrk(const char *_S, const char *_P);
+  _Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *strrchr(const char *_S, int _C);
+  _Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *strstr(const char *_S, const char *_P);
+
+
+                 
+
+                 
+
+_Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind void *__iar_Memchr(const void *, int, size_t);
+_Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *__iar_Strchr(const char *, int);
+               __intrinsic __nounwind char *__iar_Strerror(int, char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *__iar_Strpbrk(const char *, const char *);
+_Pragma("function_effects = no_state, no_errno, no_write(1)")    __intrinsic __nounwind char *__iar_Strrchr(const char *, int);
+_Pragma("function_effects = no_state, no_errno, no_write(1,2)") __intrinsic __nounwind char *__iar_Strstr(const char *, const char *);
+
+
+                 
+                 
+    #pragma inline
+    void *memchr(const void *_S, int _C, size_t _N)
+    {
+      return (__iar_Memchr(_S, _C, _N));
+    }
+
+    #pragma inline
+    char *strchr(const char *_S, int _C)
+    {
+      return (__iar_Strchr(_S, _C));
+    }
+
+    #pragma inline
+    char *strpbrk(const char *_S, const char *_P)
+    {
+      return (__iar_Strpbrk(_S, _P));
+    }
+
+    #pragma inline
+    char *strrchr(const char *_S, int _C)
+    {
+      return (__iar_Strrchr(_S, _C));
+    }
+
+    #pragma inline
+    char *strstr(const char *_S, const char *_P)
+    {
+      return (__iar_Strstr(_S, _P));
+    }
+
+  #pragma inline
+  char *strerror(int _Err)
+  {
+    return (__iar_Strerror(_Err, 0));
+  }
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+    
+
+  
+
+
+ 
+  
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+ 
+
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+
+ 
+
+
+
+
+ 
+typedef enum IRQn
+{
+ 
+  NonMaskableInt_IRQn         = -14,     
+  MemoryManagement_IRQn       = -12,     
+  BusFault_IRQn               = -11,     
+  UsageFault_IRQn             = -10,     
+  SVCall_IRQn                 = -5,      
+  DebugMonitor_IRQn           = -4,      
+  PendSV_IRQn                 = -2,      
+  SysTick_IRQn                = -1,      
+
+ 
+  WWDG_IRQn                   = 0,       
+  PVD_IRQn                    = 1,       
+  TAMPER_IRQn                 = 2,       
+  RTC_IRQn                    = 3,       
+  FLASH_IRQn                  = 4,       
+  RCC_IRQn                    = 5,       
+  EXTI0_IRQn                  = 6,       
+  EXTI1_IRQn                  = 7,       
+  EXTI2_IRQn                  = 8,       
+  EXTI3_IRQn                  = 9,       
+  EXTI4_IRQn                  = 10,      
+  DMA1_Channel1_IRQn          = 11,      
+  DMA1_Channel2_IRQn          = 12,      
+  DMA1_Channel3_IRQn          = 13,      
+  DMA1_Channel4_IRQn          = 14,      
+  DMA1_Channel5_IRQn          = 15,      
+  DMA1_Channel6_IRQn          = 16,      
+  DMA1_Channel7_IRQn          = 17,      
+
+
+
+  ADC1_2_IRQn                 = 18,      
+  USB_HP_CAN1_TX_IRQn         = 19,      
+  USB_LP_CAN1_RX0_IRQn        = 20,      
+  CAN1_RX1_IRQn               = 21,      
+  CAN1_SCE_IRQn               = 22,      
+  EXTI9_5_IRQn                = 23,      
+  TIM1_BRK_IRQn               = 24,      
+  TIM1_UP_IRQn                = 25,      
+  TIM1_TRG_COM_IRQn           = 26,      
+  TIM1_CC_IRQn                = 27,      
+  TIM2_IRQn                   = 28,      
+  TIM3_IRQn                   = 29,      
+  TIM4_IRQn                   = 30,      
+  I2C1_EV_IRQn                = 31,      
+  I2C1_ER_IRQn                = 32,      
+  I2C2_EV_IRQn                = 33,      
+  I2C2_ER_IRQn                = 34,      
+  SPI1_IRQn                   = 35,      
+  SPI2_IRQn                   = 36,      
+  USART1_IRQn                 = 37,      
+  USART2_IRQn                 = 38,      
+  USART3_IRQn                 = 39,      
+  EXTI15_10_IRQn              = 40,      
+  RTCAlarm_IRQn               = 41,      
+  USBWakeUp_IRQn              = 42         
+
+
+
+
+
+}IRQn_Type;
+
+
+
+ 
+
+ 
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+#pragma system_include   
+
+  
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+ 
+
+  typedef unsigned char       uint8;   
+  typedef unsigned short int  uint16;  
+  typedef unsigned long int   uint32;  
+  typedef unsigned long long  uint64;  
+  
+  typedef char                int8;    
+  typedef short int           int16;   
+  typedef long  int           int32;   
+  typedef long  long          int64;   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+ 
+  
+
+ 
+  
+   
+
+
+
+
+
+
+ 
+
+
+
+ 
+ 
+
+  #pragma system_include
+
+ 
+ 
+
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
 
 
  
@@ -2944,7 +3233,6 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
-
  
 static inline void NVIC_SystemReset(void)
 {
@@ -2958,8 +3246,6 @@ static inline void NVIC_SystemReset(void)
 }
 
  
-
-
 
  
 
@@ -2986,10 +3272,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -8328,16 +8614,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8613,7 +8899,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -11926,6 +12212,7 @@ typedef enum
 
 extern uint8 tx_flag;                              
 extern uint8 rx_flag;                              
+extern uint8 irq_tx_buff[32];
 extern uint8 nrf_rciv[32];         
 
 
@@ -11942,6 +12229,22 @@ extern  void nrf_handler(void);
 
 
 extern  uint8  nrf_rx_fifo_check(uint32 offset,uint16 * val);    
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+void QMC5883Init(void);
+void ReadQMC5883(short *pcompass);
 
 
 
@@ -11974,15 +12277,7 @@ char L3GD20GyroCalibration(short *PGYRO);
 
 
 
-
-
-
-
-
-
-
-
-
+    
 extern float angle[3];
 extern float offset_angle[3];
 extern float x_b,y_b;       
@@ -11994,21 +12289,15 @@ extern float y_p_o;
 extern float y_p_i;
 extern float y_d_i;
 
+extern float angx_err;
+extern float angy_err;
 extern float xcq,ycq;
 
 
+void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PACC pacc,const PGYRO pgyro,const PCOMPASS pcps,short* pacc_chip_data,short* pgyro_chip_data,short* pcps_chip_data);
 
-
-
-
-
-extern float angx_err;
-extern float angy_err;
-
-
-
-
-
+void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
+void PWMCalc(uint8 mod);
 
 
 
@@ -12283,13 +12572,27 @@ int     nmea_parser_queue_clear(nmeaPARSER *parser);
 
 
 
+extern char send_type;
+
+void UARTSendFloat(float d);
+void SCISend_to_Own(USART_TypeDef* USARTx);
+void SendParametersToRC();
+
+
+void NodeInit();
+void SaveAngleDataToNode(float * angle);
+void SendNodeDataToComputer();
+void RCDenote();
+void UartInit();
+
+
  
 
 
 
-extern short acc_chip_out[3];                   
-extern short gyro_chip_out[3];                   
-extern short cps_chip_out[3];                   
+short acc_chip_out[3] = {0};                   
+short gyro_chip_out[3] = {0};                   
+short cps_chip_out[3] = {0};                   
 float filted_acc[2][3] = {0};              
 float filted_gyro[2][3] = {0};             
 float filted_cps[2][3] = {0};              
@@ -12298,7 +12601,6 @@ char pit_25ms_flag = 0;
 char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;
 char pit_5s_flag = 0;         
-
 void TIM4_IRQHandler(void)
 {
   static uint32 irq_count = 0;
@@ -12310,7 +12612,6 @@ void TIM4_IRQHandler(void)
     PWMCalc(pipl_dir);
 
   irq_count++;
-  pit_5ms_flag = 1;
   if(irq_count>=100000)
     irq_count = 0;
   if(0==irq_count%5)           
@@ -12324,15 +12625,13 @@ void TIM4_IRQHandler(void)
   TIM_ClearITPendingBit(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0800)), ((uint16_t)0x0002)|((uint16_t)0x0001)); 
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b13) = 1;
 }
-short acc_chip_out[3] = {0};                   
-short gyro_chip_out[3] = {0};                   
-short cps_chip_out[3] = {0};                   
 void EXTI15_10_IRQHandler()
 {
  
   if(EXTI_GetITStatus(((uint32_t)0x04000))!=RESET)
   {
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b12) = 0;
+
     MPUReadAcc(acc_chip_out);
     MPUReadGyr(gyro_chip_out);
     ReadQMC5883(cps_chip_out);
@@ -12349,7 +12648,7 @@ void EXTI15_10_IRQHandler()
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b12) = 1;
   }
   else
-    ((0) ? (void)0 : ( __aeabi_assert("0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\APP\\src\\ISR.c", 75), ( __iar_EmptyStepPoint())));
+    ((0) ? (void)0 : ( __aeabi_assert("0", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\ISR.c", 74), ( __iar_EmptyStepPoint())));
 }
 char nrf_int_flag = 1;          
 void EXTI9_5_IRQHandler()
@@ -12366,7 +12665,7 @@ void EXTI9_5_IRQHandler()
     
 
     nrf_handler();
-    RCDenote();
+    RCDenote();                 
   }
   else if(EXTI_GetITStatus(((uint32_t)0x00200))!=RESET)
   {

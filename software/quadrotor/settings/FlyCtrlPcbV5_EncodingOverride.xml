@@ -70,6 +70,18 @@
     <encoding>System</encoding>
   </override>
   <override>
+    <path>E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\FWLIB\src\delay.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\MyFwLib\inc\MyIIC.h</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\MyFwLib\src\MyIIC.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
     <path>E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\MyFwLib\src\stm32f10x_MyFlash.c</path>
     <encoding>System</encoding>
   </override>

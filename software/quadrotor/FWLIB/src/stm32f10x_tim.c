@@ -2667,7 +2667,7 @@ void PIT4_Init(uint32 nms)
   
   TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;	        //
   TIM_ClearITPendingBit(TIM4,TIM_IT_Update);	                //清除中断挂起位
-  TIM_TimeBaseStructure.TIM_Period = nms/0.5-1;		        //定时器初值，（自动装载）
+  TIM_TimeBaseStructure.TIM_Period = (uint16_t)(nms/0.5-1);		        //定时器初值，（自动装载）
   TIM_TimeBaseStructure.TIM_Prescaler = 35999;		        //预分频系数72000000/this number = CK_CNT,不能装72000>65536(16位寄存器)
   TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;	        //时钟不分割
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;	//模式为向上计数
@@ -2981,8 +2981,8 @@ void TIM2_PWM_Init(u32 freq ,u16 scope,int duty)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
   //初始化TIM2
-  TIM_TimeBaseStructure.TIM_Period = arr;                     //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
-  TIM_TimeBaseStructure.TIM_Prescaler =psc;  //设置用来作为TIMx时钟频率除数的预分频值 
+  TIM_TimeBaseStructure.TIM_Period = (uint16_t)arr;                     //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
+  TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)psc;  //设置用来作为TIMx时钟频率除数的预分频值 
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;                //设置时钟分割:TDTS = Tck_tim
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //TIM向上计数模式
   TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);          //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位
@@ -3037,8 +3037,8 @@ void TIM3_PWM_Init(u32 freq ,u16 scope,int duty)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
   //初始化TIM2
-  TIM_TimeBaseStructure.TIM_Period = arr;                     //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
-  TIM_TimeBaseStructure.TIM_Prescaler =psc;  //设置用来作为TIMx时钟频率除数的预分频值 
+  TIM_TimeBaseStructure.TIM_Period = (uint16_t)arr;                     //设置在下一个更新事件装入活动的自动重装载寄存器周期的值
+  TIM_TimeBaseStructure.TIM_Prescaler = (uint16_t)psc;  //设置用来作为TIMx时钟频率除数的预分频值 
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;                //设置时钟分割:TDTS = Tck_tim
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //TIM向上计数模式
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);          //根据TIM_TimeBaseInitStruct中指定的参数初始化TIMx的时间基数单位

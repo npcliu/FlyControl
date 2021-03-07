@@ -11564,16 +11564,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -11849,7 +11849,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -11881,7 +11881,7 @@ void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interup
 
 
 
-extern void IIC_Port_Init(void);                       
+void IIC_Port_Init(void);                       
 void CompassInit(void);
 
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
@@ -12071,8 +12071,8 @@ extern void PWM_Calculation(uint8 mod);
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -12102,6 +12102,53 @@ void ljldelay_us(u32 nus);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+uint8_t FLASH_ReadByte(uint32_t address);
+uint16_t FLASH_ReadHalfWord(uint32_t address);
+uint32_t FLASH_ReadWord(uint32_t address);
+float FlashReadFloat(uint32_t address);
+
+
+
+
+
+
+
+
+extern char pit_5ms_flag;
+extern char pit_10ms_flag;
+extern char pit_25ms_flag;
+extern char pit_50ms_flag;
+extern char pit_500ms_flag;
+extern char pit_5s_flag;
+
+extern short acc_chip_out[3];                   
+extern short gyro_chip_out[3];                   
+extern short cps_chip_out[3];                   
 
 
 
@@ -12117,11 +12164,11 @@ BOOL MPUInit(void)
   
   int gyro_scale_config = 0;              
   gyro_scale_config = 0*((0.0610370f)>(0.0076294f)-0.0001 && (0.0610370f)<(0.0076294f)+0.0001)    +1*((0.0610370f)>(0.0152592f)-0.0001 && (0.0610370f)<(0.0152592f)+0.0001)    +2*((0.0610370f)>(0.0305185f)-0.0001 && (0.0610370f)<(0.0305185f)+0.0001)    +3*((0.0610370f)>(0.0610370f)-0.0001 && (0.0610370f)<(0.0610370f)+0.0001);
-((0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config) ? (void)0 : ( __aeabi_assert("0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\User\\src\\Mpu6050.c", 24), ( __iar_EmptyStepPoint())));       
+((0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config) ? (void)0 : ( __aeabi_assert("0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\User\\src\\Mpu6050.c", 26), ( __iar_EmptyStepPoint())));       
 
   int acc_scale_config = 0;              
 acc_scale_config = 0*((0.00048830f)>(0.00006104f)-1e-6 && (0.00048830f)<(0.00006104f)+1e-6)  +1*((0.00048830f)>(0.00012207f)-1e-6 && (0.00048830f)<(0.00012207f)+1e-6)  +2*((0.00048830f)>(0.00024415f)-1e-6 && (0.00048830f)<(0.00024415f)+1e-6)  +3*((0.00048830f)>(0.00048830f)-1e-6 && (0.00048830f)<(0.00048830f)+1e-6);
-((0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config) ? (void)0 : ( __aeabi_assert("0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\User\\src\\Mpu6050.c", 31), ( __iar_EmptyStepPoint())));       
+((0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config) ? (void)0 : ( __aeabi_assert("0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\User\\src\\Mpu6050.c", 33), ( __iar_EmptyStepPoint())));       
   const uint8 param[][2] = 
   {
     {0x6B,        1     }, 
@@ -12184,7 +12231,7 @@ void MPUReadGyr(short *pgyro)
 int gyro_cali_tolerance = 10;
 char MPU6050GyroCalibration(short *PGYRO)
 {
-  short _MPU6050gyro_adc[6] = {0};      
+
   int i = 0, j = 0,k = 0;
   float gyro_cali_sum[3] = {0};
   char recali_flag = 0;         
@@ -12193,11 +12240,12 @@ char MPU6050GyroCalibration(short *PGYRO)
   
 
 
-  MPUReadGyr(_MPU6050gyro_adc);
+
+  while(0==gyro_chip_out[0] && 0==gyro_chip_out[1] && 0==gyro_chip_out[1]);
   for(k=0;k<3;k++)
   {
-    gyro_min[k] = _MPU6050gyro_adc[k];
-    gyro_max[k] = _MPU6050gyro_adc[k];
+    gyro_min[k] = gyro_chip_out[k];
+    gyro_max[k] = gyro_chip_out[k];
     PGYRO[k] = 0;                       
   }
   for(i=0;i<3;i++)      
@@ -12205,26 +12253,33 @@ char MPU6050GyroCalibration(short *PGYRO)
     for(j=0;j<100;j++)
     {
       DelayMs(5);
-      MPUReadGyr(_MPU6050gyro_adc);
+
       for(k=0;k<3;k++)
       {
-        gyro_cali_sum[k] += _MPU6050gyro_adc[k];
-        if(gyro_min[k]>_MPU6050gyro_adc[k])
-          gyro_min[k] = _MPU6050gyro_adc[k];
-        if(gyro_max[k]<_MPU6050gyro_adc[k])
-          gyro_max[k] = _MPU6050gyro_adc[k];
-        if(gyro_max[k] - gyro_min[k] > gyro_cali_tolerance)
+        gyro_cali_sum[k] += gyro_chip_out[k];
+        if(gyro_min[k]>gyro_chip_out[k])
+          gyro_min[k] = gyro_chip_out[k];
+        if(gyro_max[k]<gyro_chip_out[k])
+        {
+          gyro_max[k] = gyro_chip_out[k];
+          while(gyro_max[k]>1000);
+        }
+        if(gyro_max[k] - gyro_min[k] > gyro_cali_tolerance)     
+        {
           recali_flag = 1;
+          break;
+        }
       }
       if(recali_flag)
       {
         recali_flag = 0;
         i = -1;
-        MPUReadGyr(_MPU6050gyro_adc);
+
+  while(0==gyro_chip_out[0] && 0==gyro_chip_out[1] && 0==gyro_chip_out[1]);
         for(k=0;k<3;k++)
         {
-          gyro_min[k] = _MPU6050gyro_adc[k];
-          gyro_max[k] = _MPU6050gyro_adc[k];
+          gyro_min[k] = gyro_chip_out[k];
+          gyro_max[k] = gyro_chip_out[k];
           gyro_cali_sum[k] = 0;
         }
         break;

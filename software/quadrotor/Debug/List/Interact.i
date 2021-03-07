@@ -1864,42 +1864,69 @@ typedef enum IRQn
  
 
 
- #pragma system_include   
+#pragma system_include   
+
+  
+  
 
 
+  
+
+
+
+
+
+
+
+
+
+
+ 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-typedef char                int8;    
+  typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+ 
+  
+
+ 
+  
    
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
- 
-
-
- 
-
- 
 
 
 
@@ -3250,7 +3277,6 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
-
  
 static inline void NVIC_SystemReset(void)
 {
@@ -3264,8 +3290,6 @@ static inline void NVIC_SystemReset(void)
 }
 
  
-
-
 
  
 
@@ -3292,10 +3316,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -8634,16 +8658,16 @@ typedef enum
   GPIO_Mode_AF_PP = 0x18                        
 }GPIOMode_TypeDef;
 
-typedef enum
-{
-  LJL_AIN = 0x0,
-  LJL_IFLT = 0x4,                 
-  LJL_IPUL = 0x8,                 
-  LJL_OOD = 0x7,                  
-  LJL_OPP = 0x3,                  
 
 
-}LJL_GPIOMode;
+
+
+
+
+
+
+
+
 
 typedef enum
 {
@@ -8919,7 +8943,7 @@ void GPIO_EXTILineConfig(uint8_t GPIO_PortSource, uint8_t GPIO_PinSource);
 void GPIO_ETH_MediaInterfaceConfig(uint32_t GPIO_ETH_MediaInterface);
 
 void gpio_init(PTXn_e pin, GPIOMode_TypeDef mode, GPIOIfInterupt_Typedef interupt_flag, GPIOSpeed_TypeDef speed, uint8 level);
-
+void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
@@ -12068,8 +12092,8 @@ void USART_ClearITPendingBit(USART_TypeDef* USARTx, uint16_t USART_IT);
 void delay_init(void);
 void DelayMs(u16 nms); 
 void delay_us(u32 nus);
-void ljldelay_1us();
-void ljldelay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
 
 
 
@@ -12101,127 +12125,6 @@ void ljldelay_us(u32 nus);
 
 
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-extern float angle[3];
-extern float offset_angle[3];
-extern float x_b,y_b;       
-extern float z_p,z_d;
-extern float x_p_o;                     
-extern float x_p_i;
-extern float x_d_i;
-extern float y_p_o;
-extern float y_p_i;
-extern float y_d_i;
-
-extern float xcq,ycq;
-
-
-
-
-
-
-
-extern float angx_err;
-extern float angy_err;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-typedef enum
-{
-    NRF_TXING,              
-    NRF_TX_ERROR,           
-    NRF_TX_OK,              
-} nrf_tx_state_e;
-
-
-typedef enum
-{
-  NOT_INIT = 0,
-  TX_MODE,
-  RX_MODE,
-} nrf_mode_e;
-
-typedef enum
-{
-  QUEUE_EMPTY = 0,        
-  QUEUE_NORMAL,           
-  QUEUE_FULL,             
-} nrf_rx_queueflag_e; 
-
-extern uint8 tx_flag;                              
-extern uint8 rx_flag;                              
-extern uint8 nrf_rciv[32];         
-
-
-extern  uint8   nrf_init(nrf_mode_e _nrf_mode_e);                     
-extern  uint8   nrf_link_check(void);               
-extern  uint32  nrf_rx(uint8 *rxbuf, uint32 len);   
-extern  uint8   nrf_tx(uint8 *txbuf, uint32 len);   
-void nrf_rx_mode(void);           
-void nrf_tx_mode(void);           
-
-
-extern  nrf_tx_state_e nrf_tx_state();             
-extern  void nrf_handler(void);                  
-
-
-extern  uint8  nrf_rx_fifo_check(uint32 offset,uint16 * val);    
 
 
 
@@ -12336,6 +12239,114 @@ extern void PWM_Calculation(uint8 mod);
 
 
 
+
+
+
+
+
+    
+extern float angle[3];
+extern float offset_angle[3];
+extern float x_b,y_b;       
+extern float z_p,z_d;
+extern float x_p_o;                     
+extern float x_p_i;
+extern float x_d_i;
+extern float y_p_o;
+extern float y_p_i;
+extern float y_d_i;
+
+extern float angx_err;
+extern float angy_err;
+extern float xcq,ycq;
+
+
+void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PACC pacc,const PGYRO pgyro,const PCOMPASS pcps,short* pacc_chip_data,short* pgyro_chip_data,short* pcps_chip_data);
+
+void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
+void PWMCalc(uint8 mod);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+typedef enum
+{
+    NRF_TXING,              
+    NRF_TX_ERROR,           
+    NRF_TX_OK,              
+} nrf_tx_state_e;
+
+
+typedef enum
+{
+  NOT_INIT = 0,
+  TX_MODE,
+  RX_MODE,
+} nrf_mode_e;
+
+typedef enum
+{
+  QUEUE_EMPTY = 0,        
+  QUEUE_NORMAL,           
+  QUEUE_FULL,             
+} nrf_rx_queueflag_e; 
+
+extern uint8 tx_flag;                              
+extern uint8 rx_flag;                              
+extern uint8 irq_tx_buff[32];
+extern uint8 nrf_rciv[32];         
+
+
+extern  uint8   nrf_init(nrf_mode_e _nrf_mode_e);                     
+extern  uint8   nrf_link_check(void);               
+extern  uint32  nrf_rx(uint8 *rxbuf, uint32 len);   
+extern  uint8   nrf_tx(uint8 *txbuf, uint32 len);   
+void nrf_rx_mode(void);           
+void nrf_tx_mode(void);           
+
+
+extern  nrf_tx_state_e nrf_tx_state();             
+extern  void nrf_handler(void);                  
+
+
+extern  uint8  nrf_rx_fifo_check(uint32 offset,uint16 * val);    
 
 
 
@@ -12603,6 +12614,8 @@ void SendParametersToRC();
 void NodeInit();
 void SaveAngleDataToNode(float * angle);
 void SendNodeDataToComputer();
+void RCDenote();
+void UartInit();
 
 
 
@@ -12788,8 +12801,12 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
   
 }
 
+
+
 void SendParametersToRC()
 {
+  
+
 
 
 
@@ -12831,8 +12848,91 @@ void RCDenote()
   last_DR_value = nrf_rciv[2];
 }
 
-
-
+void UartInit()
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+  USART_InitTypeDef USART_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;	
+  
+   
+  RCC_APB2PeriphClockCmd(
+                         ((uint32_t)0x00004000) |
+                           ((uint32_t)0x00000004) |
+                             ((uint32_t)0x00000001), ENABLE);
+   
+   
+  GPIO_InitStructure.GPIO_Pin = ((uint16_t)0x0200);
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Init(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0800)), &GPIO_InitStructure);
+   
+  GPIO_InitStructure.GPIO_Pin = ((uint16_t)0x0400);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0800)), &GPIO_InitStructure);
+   
+  USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_WordLength = ((uint16_t)0x0000);
+  USART_InitStructure.USART_StopBits = ((uint16_t)0x0000);
+  USART_InitStructure.USART_Parity = ((uint16_t)0x0000);
+  USART_InitStructure.USART_HardwareFlowControl = ((uint16_t)0x0000);
+  USART_InitStructure.USART_Mode = ((uint16_t)0x0008);
+  USART_Init(((USART_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x3800)), &USART_InitStructure);
+  USART_Cmd(((USART_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x3800)), ENABLE); 
+     
+  RCC_APB2PeriphClockCmd(((uint32_t)0x00000008), ENABLE);	
+  RCC_APB1PeriphClockCmd(((uint32_t)0x00040000),ENABLE); 
+  GPIO_InitStructure.GPIO_Pin = ((uint16_t)0x0400);
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+  GPIO_Init(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00)), &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin = ((uint16_t)0x0800);   
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00)), &GPIO_InitStructure);
+  USART_InitStructure.USART_BaudRate = 9600;
+  USART_InitStructure.USART_WordLength = ((uint16_t)0x0000);
+  USART_InitStructure.USART_StopBits = ((uint16_t)0x0000);
+  USART_InitStructure.USART_Parity = ((uint16_t)0x0000);
+  USART_InitStructure.USART_HardwareFlowControl = ((uint16_t)0x0000);
+  USART_InitStructure.USART_Mode = ((uint16_t)0x0004)|((uint16_t)0x0008);
+  USART_Init(((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800)), &USART_InitStructure);
+   
+  ((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800))->CR3 |= ((uint16_t)0x0080);  
+   
+  ((RCC_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x1000))->AHBENR |= ((uint16_t)0x0001);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR = (((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR & (~((uint16_t)0x3000))) | ((uint16_t)0x1000);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR = (((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR & (~((uint16_t)0x0C00)));  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR = (((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR & (~((uint16_t)0x0300)));  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR |= ((uint16_t)0x0080);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR &= ~((uint16_t)0x0040);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CCR |= ((uint16_t)0x0010);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x001C))->CPAR = (uint32)&((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800))->DR;  
+  
+   
+  ((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800))->CR3 |= ((uint16_t)0x0040);  
+   
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR = (((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR & (~((uint16_t)0x3000))) | ((uint16_t)0x2000);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR = (((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR & (~((uint16_t)0x0300)));  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR = (((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR & (~((uint16_t)0x0C00)));  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR &= ~((uint16_t)0x0040);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR |= ((uint16_t)0x0080);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CCR &= ~((uint16_t)0x0010);  
+  ((DMA_Channel_TypeDef *) ((((uint32_t)0x40000000) + 0x20000) + 0x0030))->CPAR = (uint32)&((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800))->DR;  
+  
+   
+  ((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800))->CR1 |= ((uint16_t)0x0010);  
+  
+   
+  ((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800))->CR1 |= ((uint16_t)0x0008) | ((uint16_t)0x0004);  
+  ((USART_TypeDef *) (((uint32_t)0x40000000) + 0x4800))->CR1 |= ((uint16_t)0x2000);  
+  
+  
+  
+  NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3 ;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;		
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
+  NVIC_Init(&NVIC_InitStructure);	
+}
 
 
 

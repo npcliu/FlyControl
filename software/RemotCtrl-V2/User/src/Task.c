@@ -303,18 +303,18 @@ PROCEDURE AttHld(char input)
   
   if(pit_50ms_flag)
   {
-    //  if(nrf_tx_sta!=NRF_TXING)
-    if(S1_IN)
-    {
+//    //  if(nrf_tx_sta!=NRF_TXING)
+//    if(S1_IN)
+//    {
       plane_mod = fly;
       irq_tx_buff[PLANE_MODE_OFFSET] = 'f';         //置飞行模式
-    }
-    else
-    {
-      plane_mod = height_fix;
-      irq_tx_buff[PLANE_MODE_OFFSET] = 'h';         //置飞行模式
-    }
-    
+//    }
+//    else
+//    {
+//      plane_mod = height_fix;
+//      irq_tx_buff[PLANE_MODE_OFFSET] = 'h';         //置飞行模式
+//    }
+//    
     pit_50ms_flag = 0;
   }
   

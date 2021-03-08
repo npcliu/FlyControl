@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<userOverrides>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\APP\src\Calculation.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\FWLIB\src\stm32f10x_gpio.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\User\inc\FONT.H</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\User\inc\define.h</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\User\src\ISR.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\User\src\MyNRF24L0.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\User\src\lcd.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\User\src\main.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V1\User\src\sys_init.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V2\User\inc\lcd.h</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V2\User\src\ISR.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V2\User\src\lcd.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V2\User\src\main.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\Elec\Air plane\FlyCtrl\RemotCtrl-V2\User\src\sys_init.c</path>
+    <encoding>System</encoding>
+  </override>
+</userOverrides>
+
+

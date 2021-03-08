@@ -1,0 +1,117 @@
+Removed Pin From Net: NetName=5V Pin=+5V-1
+Removed Pin From Net: NetName=GND Pin=C13-1
+Removed Pin From Net: NetName=PURE_3V3 Pin=C13-2
+Removed Pin From Net: NetName=PURE_3V3 Pin=C25-1
+Removed Pin From Net: NetName=GND Pin=C25-2
+Removed Pin From Net: NetName=GND Pin=C27-1
+Removed Pin From Net: NetName=3V3 Pin=C27-2
+Removed Pin From Net: NetName=GND Pin=C28-1
+Removed Pin From Net: NetName=GND Pin=C29-1
+Removed Pin From Net: NetName=3V3 Pin=C29-2
+Removed Pin From Net: NetName=GND Pin=C31-1
+Removed Pin From Net: NetName=GND Pin=M1-1
+Removed Pin From Net: NetName=GND Pin=M1-1
+Removed Pin From Net: NetName=GND Pin=M1-1
+Removed Pin From Net: NetName=GND Pin=M1-1
+Removed Pin From Net: NetName=GND Pin=M1-1
+Removed Pin From Net: NetName=PURE_3V3 Pin=M1-2
+Removed Pin From Net: NetName=GND Pin=P2-1
+Removed Pin From Net: NetName=3V3 Pin=R_LED1-1
+Removed Pin From Net: NetName=3V3 Pin=R_LED2-1
+Removed Pin From Net: NetName=PPM Pin=U2-4
+Removed Pin From Net: NetName=A\C\C\E\L\_\M\A\G\_\C\S\ Pin=U2-36
+Removed Pin From Net: NetName=ACCEL_DRDY Pin=U2-39
+Removed Pin From Net: NetName=SDA Pin=U2-59
+Removed Pin From Net: NetName=3V3 Pin=U10-1
+Removed Pin From Net: NetName=GND Pin=U10-8
+Removed Pin From Net: NetName=GND Pin=U10-9
+Removed Pin From Net: NetName=GND Pin=U10-10
+Removed Pin From Net: NetName=GND Pin=U10-11
+Removed Pin From Net: NetName=GND Pin=U10-12
+Removed Pin From Net: NetName=GND Pin=U10-13
+Removed Pin From Net: NetName=3V3 Pin=U10-15
+Removed Pin From Net: NetName=3V3 Pin=U10-16
+Removed Pin From Net: NetName=3V3 Pin=U11-1
+Removed Pin From Net: NetName=GND Pin=U11-5
+Removed Pin From Net: NetName=A\C\C\E\L\_\M\A\G\_\C\S\ Pin=U11-8
+Removed Pin From Net: NetName=GND Pin=U11-10
+Removed Pin From Net: NetName=ACCEL_DRDY Pin=U11-11
+Removed Pin From Net: NetName=GND Pin=U11-12
+Removed Pin From Net: NetName=GND Pin=U11-13
+Removed Pin From Net: NetName=3V3 Pin=U11-14
+Removed Pin From Net: NetName=GND Pin=U11-16
+Removed Member From Class: ClassName=CTRL V5-19 Member=+5V
+Removed Member From Class: ClassName=CTRL V5-19 Member=C13
+Removed Member From Class: ClassName=CTRL V5-19 Member=C25
+Removed Member From Class: ClassName=CTRL V5-19 Member=C27
+Removed Member From Class: ClassName=CTRL V5-19 Member=C28
+Removed Member From Class: ClassName=CTRL V5-19 Member=C29
+Removed Member From Class: ClassName=CTRL V5-19 Member=C30
+Removed Member From Class: ClassName=CTRL V5-19 Member=C31
+Removed Member From Class: ClassName=CTRL V5-19 Member=LED1
+Removed Member From Class: ClassName=CTRL V5-19 Member=LED2
+Removed Member From Class: ClassName=CTRL V5-19 Member=M1
+Removed Member From Class: ClassName=CTRL V5-19 Member=P2
+Removed Member From Class: ClassName=CTRL V5-19 Member=PC13
+Removed Member From Class: ClassName=CTRL V5-19 Member=PD1
+Removed Member From Class: ClassName=CTRL V5-19 Member=R_LED1
+Removed Member From Class: ClassName=CTRL V5-19 Member=R_LED2
+Removed Member From Class: ClassName=CTRL V5-19 Member=U10
+Removed Member From Class: ClassName=CTRL V5-19 Member=U11
+Change Component Comment : Designator=C10 Old Comment=0.1uF New Comment=22pF
+Change Component Comment : Designator=Q1 Old Comment=NPN New Comment=2N3904
+Change Component Comment : Designator=Q2 Old Comment=NPN New Comment=2N3904
+Change Component Comment : Designator=BUZZER Old Comment=PIN HDR 1x2 New Comment=DF13C-2P
+Change Component Comment : Designator=Lights Old Comment=PIN HDR 1x2 New Comment=DF13C-2P
+Change Component Comment : Designator=BAT_SEN Old Comment=PIN HDR 1x4 New Comment=DF13C-4P
+Change Component Comment : Designator=UART Old Comment=PIN HDR 1x4 New Comment=SH1.0-4P
+Change Component Comment : Designator=D2 Old Comment=S4_SOD-523 New Comment=1N4148
+Change Component Comment : Designator=D3 Old Comment=S4_SOD-523 New Comment=1N4148
+Change Component Comment : Designator=D4 Old Comment=S4_SOD-523 New Comment=1N4148
+Change Component Comment : Designator=D5 Old Comment=S4_SOD-523 New Comment=1N4148
+Change Component Comment : Designator=D1 Old Comment=SOD-323 New Comment=shotechy
+Change Component Comment : Designator=USB Old Comment=USB New Comment=USB-MICRO
+Change Component Comment : Designator=R1 Old Comment=Value New Comment=10K
+Change Component Comment : Designator=R3 Old Comment=Value New Comment=10K
+Change Component Comment : Designator=R6 Old Comment=Value New Comment=10K
+Change Component Comment : Designator=R12 Old Comment=Value New Comment=10K
+Change Component Comment : Designator=C8 Old Comment=Value New Comment=10uF
+Change Component Comment : Designator=C12 Old Comment=Value New Comment=10uF
+Change Component Comment : Designator=C15 Old Comment=Value New Comment=10uF
+Change Component Comment : Designator=R11 Old Comment=Value New Comment=22
+Change Component Comment : Designator=R19 Old Comment=Value New Comment=22
+Change Component Comment : Designator=R22 Old Comment=Value New Comment=22
+Change Component Comment : Designator=R23 Old Comment=Value New Comment=22
+Change Component Comment : Designator=R24 Old Comment=Value New Comment=22
+Change Component Comment : Designator=R25 Old Comment=Value New Comment=22
+Change Component Comment : Designator=R32 Old Comment=Value New Comment=22
+Change Component Comment : Designator=R26 Old Comment=Value New Comment=100
+Change Component Comment : Designator=R27 Old Comment=Value New Comment=200
+Change Component Comment : Designator=R7 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R8 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R9 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R13 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R14 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R15 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R16 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R17 Old Comment=Value New Comment=220
+Change Component Comment : Designator=R_B Old Comment=Value New Comment=220
+Change Component Comment : Designator=R_G Old Comment=Value New Comment=220
+Change Component Comment : Designator=R_R Old Comment=Value New Comment=470
+Change Component Comment : Designator=PPM Old Comment=voltage New Comment=PIN HDR 1X3
+Change Component Comment : Designator=U3 Old Comment=votage New Comment=5032-8M
+Added Component: Designator=JP2(HDR-1X4)
+Added Pin To Net: NetName=5V Pin=JP2-1
+Added Pin To Net: NetName=ACCEL_DRDY Pin=JP2-2
+Added Pin To Net: NetName=A\C\C\E\L\_\M\A\G\_\C\S\ Pin=JP2-3
+Added Pin To Net: NetName=GND Pin=JP2-4
+Added Pin To Net: NetName=ACCEL_DRDY Pin=R7-2
+Added Pin To Net: NetName=A\C\C\E\L\_\M\A\G\_\C\S\ Pin=R8-2
+Added Pin To Net: NetName=SDA Pin=U2-57
+Added Pin To Net: NetName=PPM Pin=U2-59
+Change Net Name : Old Net Name=A\C\C\E\L\_\M\A\G\_\C\S\ New Net Name=NetJP2_3
+Change Net Name : Old Net Name=ACCEL_DRDY New Net Name=NetJP2_2
+Change Class Name : Old Net Name=CTRL V5-19 New Net Name=CTRL V5
+Added Member To Class: ClassName=CTRL V5 Member=Component JP2 HDR-1X4
+Added Member To Class: ClassName=CTRL V5 Member=Component PD2 voltage
+Added Room: Name=CTRL V5

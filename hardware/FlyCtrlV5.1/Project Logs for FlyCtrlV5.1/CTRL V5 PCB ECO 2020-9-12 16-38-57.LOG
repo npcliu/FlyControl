@@ -1,0 +1,3 @@
+Removed Pin From Net: NetName=GND Pin=BAT_SEN-3
+Removed Pin From Net: NetName=GND Pin=BAT_SEN-4
+Removed Member From Class: ClassName=CTRL V5 Member=BAT_SEN

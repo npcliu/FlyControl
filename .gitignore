@@ -1,0 +1,3 @@
+#过滤编译过程中生成的文件
+/software/quadrotor/Debug/
+/software/RemotCtrl-V2/Debug/

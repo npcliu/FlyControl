@@ -2144,69 +2144,42 @@ typedef enum IRQn
  
 
 
-#pragma system_include   
-
-  
-  
+ #pragma system_include   
 
 
-  
-
-
-
-
-
-
-
-
-
-
- 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-  typedef char                int8;    
+typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-
- 
-  
-
- 
-  
    
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+ 
+
+
+ 
+
+ 
 
 
 
@@ -3557,6 +3530,7 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
+
  
 static inline void NVIC_SystemReset(void)
 {
@@ -3570,6 +3544,8 @@ static inline void NVIC_SystemReset(void)
 }
 
  
+
+
 
  
 
@@ -3596,10 +3572,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -13127,7 +13103,7 @@ extern float bat_voltage;
 extern float gc[4][8];          
 extern float ctrl[5];           
 
-
+extern short cps_chip_out[3];
 
 
 
@@ -13395,7 +13371,7 @@ void NodeInit();
 void SaveAngleDataToNode(float * angle);
 void SendNodeDataToComputer();
 void RCDenote();
-void UartInit();
+
 
 
 char GyroCalibration(void);
@@ -13430,6 +13406,45 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
 void PWMCalc(uint8 mod);
 
 
+ 
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+extern u8  USART_RX_BUF[200]; 
+extern u16 USART_RX_STA;         		
+
+void UartInit();
+
 
 PROCEDURE (* Task[MAX_TASK_NUM])(char input) = 0;              
 PROCEDURE next_procedure = stb_pre;
@@ -13459,6 +13474,7 @@ PROCEDURE Standby(char input)
   
   
   static uint32 count_delet = 0;
+  send_wave_flag = 0;
   if(send_wave_flag)
     SCISend_to_Own(((USART_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x3800)));
   else;
@@ -13470,16 +13486,18 @@ PROCEDURE Standby(char input)
     else
     {
       count_delet=0;
-      UARTSendFloat(gyro.x*(0.0610370f));
-      UARTSendFloat(gyro.y*(0.0610370f));
-      UARTSendFloat(gyro.z*(0.0610370f));
-      UARTSendFloat(acc.x*(0.00048830f)*9.81);
-      UARTSendFloat(acc.y*(0.00048830f)*9.81);
-      UARTSendFloat(acc.z*(0.00048830f)*9.81);
+
+
+
+
+
+
       float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
-      UARTSendFloat(compass.x/norm);
-      UARTSendFloat(compass.y/norm);
-      UARTSendFloat(compass.z/norm);
+      printf("水平面下的偏航角为 ： %f\r\n",57.29577f*atan((float)compass.y/compass.x));
+      
+
+
+
     }
     pit_25ms_flag = 0;
   }
@@ -13778,19 +13796,19 @@ PROCEDURE Experiment(char input)
 
 PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char))
 {
-  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 364), ( __iar_EmptyStepPoint())));
+  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 367), ( __iar_EmptyStepPoint())));
   _Task[stb_pre] = StbPrep;                        
-  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 366), ( __iar_EmptyStepPoint())));
+  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 369), ( __iar_EmptyStepPoint())));
   _Task[standby] = Standby;
-  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 368), ( __iar_EmptyStepPoint())));
+  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 371), ( __iar_EmptyStepPoint())));
   _Task[att_hld_pre] = AttHldPrep;
-  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 370), ( __iar_EmptyStepPoint())));
+  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 373), ( __iar_EmptyStepPoint())));
   _Task[att_hld] = AttHld;
-  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 372), ( __iar_EmptyStepPoint())));
+  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 375), ( __iar_EmptyStepPoint())));
   _Task[set_para_pre] = SetParaPre;
-  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 374), ( __iar_EmptyStepPoint())));
+  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 377), ( __iar_EmptyStepPoint())));
   _Task[set_para] = SetParam;           
-  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\APP\\src\\Task.c", 376), ( __iar_EmptyStepPoint())));
+  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 379), ( __iar_EmptyStepPoint())));
   _Task[experiment_pro] = Experiment;           
   
   return stb_pre;

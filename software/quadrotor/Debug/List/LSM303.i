@@ -2285,69 +2285,42 @@ typedef enum IRQn
  
 
 
-#pragma system_include   
-
-  
-  
+ #pragma system_include   
 
 
-  
-
-
-
-
-
-
-
-
-
-
- 
 
   typedef unsigned char       uint8;   
   typedef unsigned short int  uint16;  
   typedef unsigned long int   uint32;  
   typedef unsigned long long  uint64;  
   
-  typedef char                int8;    
+typedef char                int8;    
   typedef short int           int16;   
   typedef long  int           int32;   
   typedef long  long          int64;   
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-
- 
-  
-
- 
-  
    
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+ 
+
+
+ 
+
+ 
 
 
 
@@ -3698,6 +3671,7 @@ static inline void NVIC_DecodePriority (uint32_t Priority, uint32_t PriorityGrou
 
 
 
+
  
 static inline void NVIC_SystemReset(void)
 {
@@ -3711,6 +3685,8 @@ static inline void NVIC_SystemReset(void)
 }
 
  
+
+
 
  
 
@@ -3737,10 +3713,10 @@ static inline void NVIC_SystemReset(void)
  
 static inline uint32_t SysTick_Config(uint32_t ticks)
 {
-  if((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
+  if ((ticks - 1) > (0xFFFFFFUL << 0))  return (1);       
 
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->LOAD  = ticks - 1;                                   
-  NVIC_SetPriority(SysTick_IRQn, (1<<4) - 1);   
+  NVIC_SetPriority (SysTick_IRQn, (1<<4) - 1);   
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->VAL   = 0;                                           
   ((SysTick_Type *) ((0xE000E000UL) + 0x0010UL) )->CTRL  = (1UL << 2) |
                    (1UL << 1)   |
@@ -12702,7 +12678,7 @@ extern float bat_voltage;
 extern float gc[4][8];          
 extern float ctrl[5];           
 
-
+extern short cps_chip_out[3];
 
 
 

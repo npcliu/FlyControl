@@ -12,7 +12,7 @@
 #include "interact.h"
 #include "canlibration.h"
 #include "calculation.h"        //该文件中的参数需要发送出去
-
+#include "usart.h"	
 PROCEDURE (* Task[MAX_TASK_NUM])(char input) = NULL;              //函数指针，每个指针代表一个函数入口，这些函数都是非中断函数，也可以叫任务。
 PROCEDURE next_procedure = stb_pre;
 
@@ -41,6 +41,7 @@ PROCEDURE Standby(char input)
   //      pwm[y_p] = (int)(1.3*nrf_rciv[TH_ADC_OFFSET]+500);  //校准
   
   static uint32 count_delet = 0;
+  send_wave_flag = 0;
   if(send_wave_flag)
     SCISend_to_Own(USART1);
   else;
@@ -52,16 +53,18 @@ PROCEDURE Standby(char input)
     else
     {
       count_delet=0;
-      UARTSendFloat(gyro.x*MPU6050GYRO_SCALE_DEG);
-      UARTSendFloat(gyro.y*MPU6050GYRO_SCALE_DEG);
-      UARTSendFloat(gyro.z*MPU6050GYRO_SCALE_DEG);
-      UARTSendFloat(acc.x*MPU6050ACC_SCALE_G*9.81);
-      UARTSendFloat(acc.y*MPU6050ACC_SCALE_G*9.81);
-      UARTSendFloat(acc.z*MPU6050ACC_SCALE_G*9.81);
+//      UARTSendFloat(gyro.x*MPU6050GYRO_SCALE_DEG);
+//      UARTSendFloat(gyro.y*MPU6050GYRO_SCALE_DEG);
+//      UARTSendFloat(gyro.z*MPU6050GYRO_SCALE_DEG);
+//      UARTSendFloat(acc.x*MPU6050ACC_SCALE_G*9.81);
+//      UARTSendFloat(acc.y*MPU6050ACC_SCALE_G*9.81);
+//      UARTSendFloat(acc.z*MPU6050ACC_SCALE_G*9.81);
       float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
-      UARTSendFloat(compass.x/norm);
-      UARTSendFloat(compass.y/norm);
-      UARTSendFloat(compass.z/norm);
+      printf("水平面下的偏航角为 ： %f\r\n",R2D*atan((float)compass.y/compass.x));
+      
+//      UARTSendFloat(compass.x/norm);
+//      UARTSendFloat(compass.y/norm);
+//      UARTSendFloat(compass.z/norm);
     }
     pit_25ms_flag = 0;
   }

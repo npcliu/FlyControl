@@ -15,6 +15,6 @@ void NodeInit();
 void SaveAngleDataToNode(float * angle);
 void SendNodeDataToComputer();
 void RCDenote();
-void UartInit();
+//void UartInit();
 
 #endif

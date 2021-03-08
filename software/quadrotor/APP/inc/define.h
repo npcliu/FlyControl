@@ -159,7 +159,7 @@ extern float bat_voltage;          //电池电压
 extern float gc[4][8];          //输出观察变量        
 extern float ctrl[5];           //输入控制变量
 
-
+extern short cps_chip_out[3];
 
 
 

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "math.h"
 #include "stm32f10x_usart.h"
 #include "delay.h"
 /********数据源*********/
@@ -87,15 +88,10 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
 //    send_data[2][1] = (short)gc[DBG_TMP_ANG_WATCH][DBG_GYRO_TMP_ANG_Y_WATCH];
     break;
   case 'z':               //[偏航角][？][地磁计x,y,z]
-    send_data[0][0] = (short)angle[2];
-    send_data[0][1] = (short)(offset_angle[2]);
-//    send_data[1][0] = (short)gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH];
-//    send_data[1][1] = (short)gc[DBG_TMP_ANG_WATCH][DBG_GYRO_TMP_ANG_Z_WATCH];
-    send_data[1][2] = 0;
-    send_data[2][0] = (short)pwm_of_dir;
-    send_data[2][1] = (short)pwm_of_dir;
-    //    send_data[2][2] = (short)gc[DBG_ACC_COMPASS_WATCH][DBG_COMPASS_Z_WATCH];
-    //    send_data[2][3] = (short)gc[DBG_ACC_COMPASS_WATCH][DBG_COMPASS_M_WATCH]/10;
+    send_data[0][0] = (short)(compass.x);
+    send_data[1][1] = (short)((float)compass.y/10)*1000;
+    send_data[2][2] = (short)((float)compass.z/10)*1000;
+    
     break;
   case 'Z':               //[偏航角][z轴角速度][偏航角参量]
     send_data[0][0] = (short)angle[2];
@@ -240,91 +236,7 @@ void RCDenote()
   last_DR_value = nrf_rciv[DR_ADC_OFFSET];
 }
 
-void UartInit()
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  USART_InitTypeDef USART_InitStructure;
-  NVIC_InitTypeDef NVIC_InitStructure;	
-  
-  /* Enable peripheral clocks for USART1 on GPIOA */
-  RCC_APB2PeriphClockCmd(
-                         RCC_APB2Periph_USART1 |
-                           RCC_APB2Periph_GPIOA |
-                             RCC_APB2Periph_AFIO, ENABLE);
-  /* Configure PA9 and PA10 as USART1 TX/RX */
-  /* PA9 = alternate function push/pull output */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  /* PA10 = floating input */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  /* Configure and initialize usart... */
-  USART_InitStructure.USART_BaudRate = 115200;
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  USART_InitStructure.USART_Parity = USART_Parity_No;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Tx;
-  USART_Init(USART1, &USART_InitStructure);
-  USART_Cmd(USART1, ENABLE); 
-  /******************************USART3***********************************/  
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	// GPIOB时钟
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3,ENABLE); //串口3时钟使能
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;  /* PA10 = floating input */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  USART_InitStructure.USART_BaudRate = 9600;
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  USART_InitStructure.USART_Parity = USART_Parity_No;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Rx|USART_Mode_Tx;
-  USART_Init(USART3, &USART_InitStructure);
-  /* DMA for transmission */
-  USART3->CR3 |= USART_CR3_DMAT; /* transmission DMA enabled */
-  /* DMA1 channel2 */
-  RCC->AHBENR |= RCC_AHBENR_DMA1EN; /* Enable DMA1 Clock */
-  DMA1_Channel2->CCR = (DMA1_Channel2->CCR & (~DMA_CCR2_PL)) | DMA_CCR2_PL_0; /* Channel priority level: medium */
-  DMA1_Channel2->CCR = (DMA1_Channel2->CCR & (~DMA_CCR2_MSIZE)); /* Memory size:8-bits */
-  DMA1_Channel2->CCR = (DMA1_Channel2->CCR & (~DMA_CCR2_PSIZE)); /* Peripheral size:8-bits */
-  DMA1_Channel2->CCR |= DMA_CCR2_MINC; /* Memory increment mode enabled */
-  DMA1_Channel2->CCR &= ~DMA_CCR2_PINC; /* Peripheral increment mode disabled */
-  DMA1_Channel2->CCR |= DMA_CCR2_DIR; /* Read from memory */
-  DMA1_Channel2->CPAR = (uint32)&USART3->DR; /* Peripheral address */
-  
-  /* DMA for receive */
-  USART3->CR3 |= USART_CR3_DMAR; /* receive DMA enabled */
-  /* DMA1 channel3 */
-  DMA1_Channel3->CCR = (DMA1_Channel3->CCR & (~DMA_CCR3_PL)) | DMA_CCR3_PL_1; /* Channel priority level: high */
-  DMA1_Channel3->CCR = (DMA1_Channel3->CCR & (~DMA_CCR3_PSIZE)); /* Peripheral size:8-bits */
-  DMA1_Channel3->CCR = (DMA1_Channel3->CCR & (~DMA_CCR3_MSIZE)); /* Memory size:8-bits */
-  DMA1_Channel3->CCR &= ~DMA_CCR3_PINC; /* Peripheral increment mode disabled */
-  DMA1_Channel3->CCR |= DMA_CCR3_MINC; /* Memory increment mode enabled */
-  DMA1_Channel3->CCR &= ~DMA_CCR3_DIR; /* Read from Peripheral */
-  DMA1_Channel3->CPAR = (uint32)&USART3->DR; /* Peripheral address */
-  
-  /* interrupt */
-  USART3->CR1 |= USART_CR1_IDLEIE; /* IDLE */
-  
-  /* USART enable */
-  USART3->CR1 |= USART_CR1_TE | USART_CR1_RE; /* Transmitter and Receiver enable */
-  USART3->CR1 |= USART_CR1_UE; /* USART prescaler and outputs enabled */
-  
-  //  USART_ITConfig(USART3, USART_IT_RXNE|USART_IT_IDLE, ENABLE);// Enable USART3 Receive interrupts 使能串口接收中断
-  //  USART_Cmd(USART3, ENABLE); //使能串口3  
-  NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3 ;//抢占优先级3
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;		//子优先级3
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
-  NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
-}
+
 //u8 sendbuf[1024];
 //u8 receivebuf[1024];
 

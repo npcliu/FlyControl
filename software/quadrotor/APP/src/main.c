@@ -67,6 +67,7 @@ int main(void)
   
   SPI3_Init();
   UartInit();
+  printf("aaaaa");
   //ComInit();
   //  BUZZER_OUT = 0;
   //  DelayMs(300);         //等待MPU6050自身上电初始化完成

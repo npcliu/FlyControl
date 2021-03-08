@@ -2443,7 +2443,7 @@ int nmea_pack_type(const char *buff, int buff_sz)
         "GPVTG",
     };
 
-    ((buff) ? (void)0 : ( __aeabi_assert("buff", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 110), ( __iar_EmptyStepPoint())));
+    ((buff) ? (void)0 : ( __aeabi_assert("buff", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 110), ( __iar_EmptyStepPoint())));
 
     if(buff_sz < 5)
         return GPNON;
@@ -2476,7 +2476,7 @@ int nmea_find_tail(const char *buff, int buff_sz, int *res_crc)
     int nread = 0;
     int crc = 0;
 
-    ((buff && res_crc) ? (void)0 : ( __aeabi_assert("buff && res_crc", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 143), ( __iar_EmptyStepPoint())));
+    ((buff && res_crc) ? (void)0 : ( __aeabi_assert("buff && res_crc", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 143), ( __iar_EmptyStepPoint())));
 
     *res_crc = -1;
 
@@ -2523,7 +2523,7 @@ int nmea_parse_GPGGA(const char *buff, int buff_sz, nmeaGPGGA *pack)
 {
     char time_buff[(256)];
 
-    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 190), ( __iar_EmptyStepPoint())));
+    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 190), ( __iar_EmptyStepPoint())));
 
     memset(pack, 0, sizeof(nmeaGPGGA));
 
@@ -2558,7 +2558,7 @@ int nmea_parse_GPGGA(const char *buff, int buff_sz, nmeaGPGGA *pack)
  
 int nmea_parse_GPGSA(const char *buff, int buff_sz, nmeaGPGSA *pack)
 {
-    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 225), ( __iar_EmptyStepPoint())));
+    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 225), ( __iar_EmptyStepPoint())));
 
     memset(pack, 0, sizeof(nmeaGPGSA));
 
@@ -2589,7 +2589,7 @@ int nmea_parse_GPGSV(const char *buff, int buff_sz, nmeaGPGSV *pack)
 {
     int nsen, nsat;
 
-    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 256), ( __iar_EmptyStepPoint())));
+    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 256), ( __iar_EmptyStepPoint())));
 
     memset(pack, 0, sizeof(nmeaGPGSV));
 
@@ -2632,7 +2632,7 @@ int nmea_parse_GPRMC(const char *buff, int buff_sz, nmeaGPRMC *pack)
     int nsen;
     char time_buff[(256)];
 
-    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 299), ( __iar_EmptyStepPoint())));
+    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 299), ( __iar_EmptyStepPoint())));
 
     memset(pack, 0, sizeof(nmeaGPRMC));
 
@@ -2674,7 +2674,7 @@ int nmea_parse_GPRMC(const char *buff, int buff_sz, nmeaGPRMC *pack)
  
 int nmea_parse_GPVTG(const char *buff, int buff_sz, nmeaGPVTG *pack)
 {
-    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 341), ( __iar_EmptyStepPoint())));
+    ((buff && pack) ? (void)0 : ( __aeabi_assert("buff && pack", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 341), ( __iar_EmptyStepPoint())));
 
     memset(pack, 0, sizeof(nmeaGPVTG));
 
@@ -2710,7 +2710,7 @@ int nmea_parse_GPVTG(const char *buff, int buff_sz, nmeaGPVTG *pack)
  
 void nmea_GPGGA2info(nmeaGPGGA *pack, nmeaINFO *info)
 {
-    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 377), ( __iar_EmptyStepPoint())));
+    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 377), ( __iar_EmptyStepPoint())));
 
     info->utc.hour = pack->utc.hour;
     info->utc.min = pack->utc.min;
@@ -2733,7 +2733,7 @@ void nmea_GPGSA2info(nmeaGPGSA *pack, nmeaINFO *info)
 {
     int i, j, nuse = 0;
 
-    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 400), ( __iar_EmptyStepPoint())));
+    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 400), ( __iar_EmptyStepPoint())));
 
     info->fix = pack->fix_type;
     info->PDOP = pack->PDOP;
@@ -2765,7 +2765,7 @@ void nmea_GPGSV2info(nmeaGPGSV *pack, nmeaINFO *info)
 {
     int isat, isi, nsat;
 
-    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 432), ( __iar_EmptyStepPoint())));
+    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 432), ( __iar_EmptyStepPoint())));
 
     if(pack->pack_index > pack->pack_count ||
         pack->pack_index * (4) > (12))
@@ -2798,7 +2798,7 @@ void nmea_GPGSV2info(nmeaGPGSV *pack, nmeaINFO *info)
  
 void nmea_GPRMC2info(nmeaGPRMC *pack, nmeaINFO *info)
 {
-    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 465), ( __iar_EmptyStepPoint())));
+    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 465), ( __iar_EmptyStepPoint())));
 
     if('A' == pack->status)
     {
@@ -2828,7 +2828,7 @@ void nmea_GPRMC2info(nmeaGPRMC *pack, nmeaINFO *info)
  
 void nmea_GPVTG2info(nmeaGPVTG *pack, nmeaINFO *info)
 {
-    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\Elec\\Air plane\\FlyCtrl\\CTRL_PCBV5\\nmealib\\src\\parse.c", 495), ( __iar_EmptyStepPoint())));
+    ((pack && info) ? (void)0 : ( __aeabi_assert("pack && info", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\parse.c", 495), ( __iar_EmptyStepPoint())));
 
     info->direction = pack->dir;
     info->declination = pack->dec;

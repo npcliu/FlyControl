@@ -54,7 +54,7 @@
           
           
           
-        <item>x_p_o</item><item>x_p_i</item><item>x_d_i</item><item>ctrl[0]</item><item>Coef</item><item>x1[0]</item><item>nrf_rciv[1]</item><item>gyro</item><item>cali_gyro_flag</item><item>send_type</item><item>0</item><item>ctrl[0]</item><item>angle</item><item></item></expressions>
+        <item>x_p_o</item><item>x_p_i</item><item>x_d_i</item><item>ctrl[0]</item><item>Coef</item><item>x1[0]</item><item>nrf_rciv[1]</item><item>gyro</item><item>cali_gyro_flag</item><item>send_type</item><item>0</item><item>ctrl[0]</item><item>angle</item><item/></expressions>
         <col-names>
           
           

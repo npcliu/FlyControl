@@ -12987,7 +12987,7 @@ void PWMCalc(uint8 mod);
 
 void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
 {
-  pipl_dir = 1;
+  pipl_dir = 0;
   x_b = -5;
   y_b = 0;
   z_p = 2;

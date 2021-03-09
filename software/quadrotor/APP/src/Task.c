@@ -41,7 +41,6 @@ PROCEDURE Standby(char input)
   //      pwm[y_p] = (int)(1.3*nrf_rciv[TH_ADC_OFFSET]+500);  //校准
   
   static uint32 count_delet = 0;
-  send_wave_flag = 0;
   if(send_wave_flag)
     SCISend_to_Own(USART1);
   else;
@@ -59,8 +58,8 @@ PROCEDURE Standby(char input)
 //      UARTSendFloat(acc.x*MPU6050ACC_SCALE_G*9.81);
 //      UARTSendFloat(acc.y*MPU6050ACC_SCALE_G*9.81);
 //      UARTSendFloat(acc.z*MPU6050ACC_SCALE_G*9.81);
-      float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
-      printf("水平面下的偏航角为 ： %f\r\n",R2D*atan((float)compass.y/compass.x));
+     // float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
+//      printf("水平面下的偏航角为 ： %f\r\n",R2D*atan((float)compass.y/compass.x));
       
 //      UARTSendFloat(compass.x/norm);
 //      UARTSendFloat(compass.y/norm);

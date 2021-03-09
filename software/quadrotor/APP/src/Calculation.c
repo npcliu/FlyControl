@@ -74,99 +74,79 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 //  mod:飞行的形式，十字形0，X形=1；
 //Return:void;
 //Example:;
+//a = pacc[0];b = pacc[1];c = pacc[2];
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 {//  木机架抖动太厉害，并且不是高斯分布的，有一种频率比较低的大幅度成分不知道来源估计是共振，如果能解决此“共振”则可用
   static float tmp_acc_angle[3] = {0};      //attitude angle calculated from accelerometer
   float temp_angle[3] = {0};         //acc_delay_angx:acc平均滤波有较大延迟的角度
   
-  float csquar = pacc[2] * pacc[2];
-  float sec_partx,sec_party;            //计算公式中的第二项
+  float csquar = pacc[2] * pacc[2];//c^2
+  float asquar,bsquar;//a^2,b^2            //计算公式中的第二项
   if(mod)       //X形状，详见大计划
   {
-    sec_partx = pacc[1] + pacc[0];
-    sec_partx = sec_partx*sec_partx;
-    sec_partx = sec_partx/2.0;
-    sec_party = pacc[1] - pacc[0];
-    sec_party = sec_party*sec_party;
-    sec_party = sec_party/2.0;
+    asquar = pacc[1] + pacc[0];
+    asquar = asquar*asquar;
+    asquar = asquar/2.0;
+    bsquar = pacc[1] - pacc[0];
+    bsquar = bsquar*bsquar;
+    bsquar = bsquar/2.0;
   }
   else          //十字形，详见大计划
   {
-    sec_partx = pacc[0]*pacc[0];
-    sec_party = pacc[1]*pacc[1];
+    asquar = pacc[0]*pacc[0];
+    bsquar = pacc[1]*pacc[1];
   }
-  float tmp = sqrt(csquar + sec_partx);
-  if(tmp<0.00001)
+  float asquar_plus_csquar = asquar + csquar;//a^2 + b^2
+  float abs_d = sqrt(asquar_plus_csquar);//向量d的模
+  if(abs_d<0.00001)
     return;
-  float cos_tmp_ang_x = pacc[2]/tmp; //cos_delta/sqrt(cos_delta*cos_delta + sin_gama*sin_gama);
-  if(cos_tmp_ang_x>1)
-    cos_tmp_ang_x = 1;
-  else if(cos_tmp_ang_x<-1)
-    cos_tmp_ang_x = -1;
+  float cos_alpha = pacc[2]/abs_d; //y轴旋转角
+  if(cos_alpha>1)
+    cos_alpha = 1;
+  else if(cos_alpha<-1)
+    cos_alpha = -1;
   
   if(mod)       //X形状，详见大计划
   {
     if(pacc[0]+pacc[1]>0)                         //cos映射到0~180；通过sin正负映射到0~-180
-      temp_angle[0] = acos(cos_tmp_ang_x)/PI_DIV_180;
+      temp_angle[0] = acos(cos_alpha)/PI_DIV_180;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_x)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+      temp_angle[0] = -acos(cos_alpha)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
   }
   else
   {
     if(pacc[0]>0)                         //cos映射到0~180；通过sin正负映射到0~-180
-      temp_angle[0] = acos(cos_tmp_ang_x)/PI_DIV_180;
+      temp_angle[0] = acos(cos_alpha)/PI_DIV_180;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_x)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+      temp_angle[0] = -acos(cos_alpha)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
   }
   acc_angle[0][0] = tmp_acc_angle[0] = temp_angle[0];
   
-  tmp = sqrt(sec_party + csquar);
-  if(tmp<0.00001)
+  
+  float abs_e = sqrt(asquar*bsquar + asquar_plus_csquar*asquar_plus_csquar + bsquar*csquar);//向量e的模
+  if(abs_e<0.00001)
     return;
-  float cos_tmp_ang_y =  pacc[2]/tmp;//cos_delta/sqrt(cos_delta*cos_delta + sin_ykxr*sin_ykxr);
-  if(cos_tmp_ang_y>1)
-    cos_tmp_ang_y = 1;
-  else if(cos_tmp_ang_y<-1)
-    cos_tmp_ang_y = -1;
+  float cos_beta =  asquar_plus_csquar/abs_e;//绕x轴旋转角的余弦
+  if(cos_beta>1)
+    cos_beta = 1;
+  else if(cos_beta<-1)
+    cos_beta = -1;
   if(mod)       //X形状，详见大计划
   {
     if(pacc[0]<pacc[1])                         //cos映射到0~180；通过sin正负映射到0~-180
-      temp_angle[0] = acos(cos_tmp_ang_y)/PI_DIV_180;
+      temp_angle[0] = acos(cos_beta)/PI_DIV_180;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_y)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+      temp_angle[0] = -acos(cos_beta)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
   }
   else
   {
     if(pacc[1]>0)
-      temp_angle[0] = acos(cos_tmp_ang_y)/PI_DIV_180;
+      temp_angle[0] = acos(cos_beta)/PI_DIV_180;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_y)/PI_DIV_180;
+      temp_angle[0] = -acos(cos_beta)/PI_DIV_180;
   }
   acc_angle[0][1] = tmp_acc_angle[1] = temp_angle[0];  //  assert(!isnan(temp_angle[0]));
   
-  
-  /************************compass data process*****************************/
-  
-  //  static float z_angle[2] = {0};                        //编译时赋值
-  
-  //  float hz_divid_gz = (float)pcps->z/pacc[2];//注意：如果加速度计采用了长时延的滤波，而电子罗盘未滤波，则变化过程中由于加计延迟，角度会有较大偏差
-  //  float index[2] = {0};
-  //  index[0] = pcps->x - pacc[0]*hz_divid_gz;
-  //  index[1] = pcps->y - pacc[1]*hz_divid_gz;
-  //  float denum = sqrt(index[0]*index[0] + index[1]*index[1]);
-  //  if(denum<0.00001)
-  //    return;
-  //  float tan_fai = index[0]/index[1];
-  // gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = pacc[0]/10;
-  //    p_acc_angle[2] = atan2(index[0],index[1])/PI_DIV_180;
-  
-  sqrt(pcps[0]*pcps[0] + pcps[1]*pcps[1] + pcps[2]*pcps[2]);
-  //  gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = (z_angle[0] = atan2(pcps[0],pcps[1])/PI_DIV_180); //计算偏航角度
-  angle[2] = angle[2] - (gyro.z)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//pgyro->z
-  //    p_acc_angle[2] = (z_angle[0]+99*temp_angle[1])*0.01;  //  计算x&y轴角度值ang_x & ang_y，单位：度
-  //    if(nrf_rciv[TH_ADC_OFFSET]<2)
-  //      p_acc_angle[2] = 0;
-  //    p_acc_angle[2] = temp_angle[1];  //  计算x&y轴角度值ang_x & ang_y，单位：度
 #ifdef WATCH_INTEGRAL_ANGLE             //
   static float gyro_angle[2] = {0};
   if(mod)
@@ -225,6 +205,28 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
       pangle[1] = 0.001*tmp_acc_angle[1] + (1-0.001)*temp_angle[1];//      else
     }
   }
+  /************************compass data process*****************************/
+ 
+  //  static float z_angle[2] = {0};                        //编译时赋值
+  
+  //  float hz_divid_gz = (float)pcps->z/pacc[2];//注意：如果加速度计采用了长时延的滤波，而电子罗盘未滤波，则变化过程中由于加计延迟，角度会有较大偏差
+  //  float index[2] = {0};
+  //  index[0] = pcps->x - pacc[0]*hz_divid_gz;
+  //  index[1] = pcps->y - pacc[1]*hz_divid_gz;
+  //  float denum = sqrt(index[0]*index[0] + index[1]*index[1]);
+  //  if(denum<0.00001)
+  //    return;
+  //  float tan_fai = index[0]/index[1];
+  // gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = pacc[0]/10;
+  //    p_acc_angle[2] = atan2(index[0],index[1])/PI_DIV_180;
+  
+  //sqrt(pcps[0]*pcps[0] + pcps[1]*pcps[1] + pcps[2]*pcps[2]);
+  //  gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = (z_angle[0] = atan2(pcps[0],pcps[1])/PI_DIV_180); //计算偏航角度
+  angle[2] = angle[2] - (gyro.z)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//pgyro->z
+  //    p_acc_angle[2] = (z_angle[0]+99*temp_angle[1])*0.01;  //  计算x&y轴角度值ang_x & ang_y，单位：度
+  //    if(nrf_rciv[TH_ADC_OFFSET]<2)
+  //      p_acc_angle[2] = 0;
+  //    p_acc_angle[2] = temp_angle[1];  //  计算x&y轴角度值ang_x & ang_y，单位：度
   //  AttitudeEKF(true,false,update,5e-3,z,0,0,0,0,0,0,0, 0,xa_apo,Pa_apo,Rot_matrix,eulerAngle,debugOutput);
   
   if(nrf_rciv[TH_ADC_OFFSET]<2)

@@ -37,7 +37,7 @@ extern short amplitude;
 *  修改时间：2014-1-14    已经测试DLUT上位机默认数据为short格式;因此数据不要超过-32767~32767区间
 0：red;1=blue;2=light blue;3=yellow;4=light green;5=dark green
 *************************************************/
-char send_type = 'x';
+char send_type = 'X';
 extern float pwm_of_dir;
 void SCISend_to_Own(USART_TypeDef* USARTx)
 {
@@ -62,8 +62,8 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     send_data[2][2] = (short)gc[0][0];
     break;
   case 'X':               //[x倾角，x倾角期望][y角速度][？]
-    send_data[0][0] = (short)angle[0];
-    send_data[0][1] = (short)((nrf_rciv[LR_ADC_OFFSET]-127)*-ANG_CTRL_RATE);
+    send_data[0][0] = (short)acc_angle[0][0];
+    send_data[0][1] = (short)acc_angle[0][1];
     send_data[1][0] = (short)0;
     send_data[1][1] = (short)0;
 //    send_data[2][0] = (short)gc[DBG_TMP_ANG_WATCH][DBG_ACC_TMP_ANG_X_WATCH];

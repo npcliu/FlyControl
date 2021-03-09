@@ -12988,98 +12988,78 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 
 
 
+
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 {
   static float tmp_acc_angle[3] = {0};      
   float temp_angle[3] = {0};         
   
   float csquar = pacc[2] * pacc[2];
-  float sec_partx,sec_party;            
+  float asquar,bsquar;
   if(mod)       
   {
-    sec_partx = pacc[1] + pacc[0];
-    sec_partx = sec_partx*sec_partx;
-    sec_partx = sec_partx/2.0;
-    sec_party = pacc[1] - pacc[0];
-    sec_party = sec_party*sec_party;
-    sec_party = sec_party/2.0;
+    asquar = pacc[1] + pacc[0];
+    asquar = asquar*asquar;
+    asquar = asquar/2.0;
+    bsquar = pacc[1] - pacc[0];
+    bsquar = bsquar*bsquar;
+    bsquar = bsquar/2.0;
   }
   else          
   {
-    sec_partx = pacc[0]*pacc[0];
-    sec_party = pacc[1]*pacc[1];
+    asquar = pacc[0]*pacc[0];
+    bsquar = pacc[1]*pacc[1];
   }
-  float tmp = sqrt(csquar + sec_partx);
-  if(tmp<0.00001)
+  float asquar_plus_csquar = asquar + csquar;
+  float abs_d = sqrt(asquar_plus_csquar);
+  if(abs_d<0.00001)
     return;
-  float cos_tmp_ang_x = pacc[2]/tmp; 
-  if(cos_tmp_ang_x>1)
-    cos_tmp_ang_x = 1;
-  else if(cos_tmp_ang_x<-1)
-    cos_tmp_ang_x = -1;
+  float cos_alpha = pacc[2]/abs_d; 
+  if(cos_alpha>1)
+    cos_alpha = 1;
+  else if(cos_alpha<-1)
+    cos_alpha = -1;
   
   if(mod)       
   {
     if(pacc[0]+pacc[1]>0)                         
-      temp_angle[0] = acos(cos_tmp_ang_x)/0.01745329252f;
+      temp_angle[0] = acos(cos_alpha)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_x)/0.01745329252f;           
+      temp_angle[0] = -acos(cos_alpha)/0.01745329252f;           
   }
   else
   {
     if(pacc[0]>0)                         
-      temp_angle[0] = acos(cos_tmp_ang_x)/0.01745329252f;
+      temp_angle[0] = acos(cos_alpha)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_x)/0.01745329252f;           
+      temp_angle[0] = -acos(cos_alpha)/0.01745329252f;           
   }
   acc_angle[0][0] = tmp_acc_angle[0] = temp_angle[0];
   
-  tmp = sqrt(sec_party + csquar);
-  if(tmp<0.00001)
+  
+  float abs_e = sqrt(asquar*bsquar + asquar_plus_csquar*asquar_plus_csquar + bsquar*csquar);
+  if(abs_e<0.00001)
     return;
-  float cos_tmp_ang_y =  pacc[2]/tmp;
-  if(cos_tmp_ang_y>1)
-    cos_tmp_ang_y = 1;
-  else if(cos_tmp_ang_y<-1)
-    cos_tmp_ang_y = -1;
+  float cos_beta =  asquar_plus_csquar/abs_e;
+  if(cos_beta>1)
+    cos_beta = 1;
+  else if(cos_beta<-1)
+    cos_beta = -1;
   if(mod)       
   {
     if(pacc[0]<pacc[1])                         
-      temp_angle[0] = acos(cos_tmp_ang_y)/0.01745329252f;
+      temp_angle[0] = acos(cos_beta)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_y)/0.01745329252f;           
+      temp_angle[0] = -acos(cos_beta)/0.01745329252f;           
   }
   else
   {
     if(pacc[1]>0)
-      temp_angle[0] = acos(cos_tmp_ang_y)/0.01745329252f;
+      temp_angle[0] = acos(cos_beta)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_y)/0.01745329252f;
+      temp_angle[0] = -acos(cos_beta)/0.01745329252f;
   }
   acc_angle[0][1] = tmp_acc_angle[1] = temp_angle[0];  
-  
-  
-   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  sqrt(pcps[0]*pcps[0] + pcps[1]*pcps[1] + pcps[2]*pcps[2]);
-  
-  angle[2] = angle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
-  
-  
-  
   
   if(mod)
   {
@@ -13118,6 +13098,28 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
       pangle[1] = 0.001*tmp_acc_angle[1] + (1-0.001)*temp_angle[1];
     }
   }
+   
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  angle[2] = angle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
+  
+  
+  
+  
   
   
   if(nrf_rciv[1]<2)

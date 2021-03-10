@@ -13491,7 +13491,7 @@ PROCEDURE Standby(char input)
 
 
 
-      float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
+     
 
       
 

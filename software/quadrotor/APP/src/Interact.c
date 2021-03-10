@@ -39,6 +39,8 @@ extern short amplitude;
 *************************************************/
 char send_type = 'X';
 extern float pwm_of_dir;
+extern short acc_chip_out[3];
+extern short cps_chip_out[3];
 void SCISend_to_Own(USART_TypeDef* USARTx)
 {
 //  static uint32 count = 0;
@@ -64,20 +66,20 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
   case 'X':               //[x倾角，x倾角期望][y角速度][？]
     send_data[0][0] = (short)acc_angle[0][0];
     send_data[0][1] = (short)acc_angle[0][1];
-    send_data[1][0] = (short)0;
-    send_data[1][1] = (short)0;
+    send_data[1][0] = (short)acc_angle[0][2];
+    send_data[1][1] = (short)angle[2];
 //    send_data[2][0] = (short)gc[DBG_TMP_ANG_WATCH][DBG_ACC_TMP_ANG_X_WATCH];
 //    send_data[2][1] = (short)gc[DBG_TMP_ANG_WATCH][DBG_GYRO_TMP_ANG_X_WATCH];
     break;
   case 'y':               //[y倾角，y倾角期望][y分量加速度][？]
-    send_data[0][0] = (short)angle[1];
-    send_data[0][1] = (short)((nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE);
-    send_data[0][2] = (short)(ycq);
-    send_data[1][0] = (short)acc.y;
-    send_data[1][1] = (short)0;
-    send_data[2][0] = (short)angle[1];
-    send_data[2][1] = (short)acc_angle[0][1];
-    send_data[2][2] = (short)gc[0][1];
+    send_data[0][0] = (short)acc_chip_out[0];
+    send_data[0][1] = (short)cps_chip_out[0];
+    //send_data[0][2] = (short)acc_chip_out[2];
+    send_data[1][0] = (short)acc_chip_out[1];
+    send_data[1][1] = (short)cps_chip_out[1];
+    send_data[2][0] = (short)acc_chip_out[2];
+    send_data[2][1] = (short)cps_chip_out[2];
+//    send_data[2][2] = (short)gc[0][1];
     break;
   case 'Y':               //[y倾角，y倾角期望][x角速度][？]
     send_data[0][0] = (short)angle[1];

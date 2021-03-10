@@ -12992,29 +12992,30 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 {
   static float tmp_acc_angle[3] = {0};      
+  float a = pacc[0], b = pacc[1], c = pacc[2], f = pcps[0], h = pcps[1], m = pcps[2];
   float temp_angle[3] = {0};         
   
-  float csquar = pacc[2] * pacc[2];
+  float csquar = c * c;
   float asquar,bsquar;
   if(mod)       
   {
-    asquar = pacc[1] + pacc[0];
+    asquar = b + a;
     asquar = asquar*asquar;
     asquar = asquar/2.0;
-    bsquar = pacc[1] - pacc[0];
+    bsquar = b - a;
     bsquar = bsquar*bsquar;
     bsquar = bsquar/2.0;
   }
   else          
   {
-    asquar = pacc[0]*pacc[0];
-    bsquar = pacc[1]*pacc[1];
+    asquar = a*a;
+    bsquar = b*b;
   }
   float asquar_plus_csquar = asquar + csquar;
   float abs_d = sqrt(asquar_plus_csquar);
   if(abs_d<0.00001)
     return;
-  float cos_alpha = pacc[2]/abs_d; 
+  float cos_alpha = c/abs_d; 
   if(cos_alpha>1)
     cos_alpha = 1;
   else if(cos_alpha<-1)
@@ -13022,19 +13023,19 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   
   if(mod)       
   {
-    if(pacc[0]+pacc[1]>0)                         
-      temp_angle[0] = acos(cos_alpha)/0.01745329252f;
+    if(a+b>0)                         
+      tmp_acc_angle[0] = acos(cos_alpha)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_alpha)/0.01745329252f;           
+      tmp_acc_angle[0] = -acos(cos_alpha)/0.01745329252f;           
   }
   else
   {
-    if(pacc[0]>0)                         
-      temp_angle[0] = acos(cos_alpha)/0.01745329252f;
+    if(a>0)                         
+      tmp_acc_angle[0] = acos(cos_alpha)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_alpha)/0.01745329252f;           
+      tmp_acc_angle[0] = -acos(cos_alpha)/0.01745329252f;           
   }
-  acc_angle[0][0] = tmp_acc_angle[0] = temp_angle[0];
+  acc_angle[0][0] = tmp_acc_angle[0];
   
   
   float abs_e = sqrt(asquar*bsquar + asquar_plus_csquar*asquar_plus_csquar + bsquar*csquar);
@@ -13047,19 +13048,19 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
     cos_beta = -1;
   if(mod)       
   {
-    if(pacc[0]<pacc[1])                         
-      temp_angle[0] = acos(cos_beta)/0.01745329252f;
+    if(a<b)                         
+      tmp_acc_angle[1] = acos(cos_beta)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_beta)/0.01745329252f;           
+      tmp_acc_angle[1] = -acos(cos_beta)/0.01745329252f;           
   }
   else
   {
-    if(pacc[1]>0)
-      temp_angle[0] = acos(cos_beta)/0.01745329252f;
+    if(b>0)
+      tmp_acc_angle[1] = acos(cos_beta)/0.01745329252f;
     else
-      temp_angle[0] = -acos(cos_beta)/0.01745329252f;
+      tmp_acc_angle[1] = -acos(cos_beta)/0.01745329252f;
   }
-  acc_angle[0][1] = tmp_acc_angle[1] = temp_angle[0];  
+  acc_angle[0][1] = tmp_acc_angle[1];  
   
   if(mod)
   {
@@ -13100,6 +13101,48 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   }
    
  
+  float earth_magnetic_in_d = m * a / abs_d - f * cos_alpha;
+  float earth_magnetic_in_e = (f * a + m * c) * b / abs_e - h * cos_beta;
+  float gamma = 0;
+  static float yaw_init = 0;
+  pangle[2] = pangle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
+  if(pangle[2] + yaw_init<0)
+  {
+    if(earth_magnetic_in_e>=0)
+    {
+      if(earth_magnetic_in_d>0)
+        gamma = -360 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+      else
+        gamma = -180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+    }
+    else
+    {
+      if(earth_magnetic_in_d>0)
+        gamma = 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+      else
+        gamma = -180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+    }
+    acc_angle[0][2] = gamma; 
+
+  }
+  else
+  {
+    if(earth_magnetic_in_e>=0)
+    {
+      if(earth_magnetic_in_d>0)
+        gamma = 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+      else
+        gamma = 180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+    }
+    else
+    {
+      if(earth_magnetic_in_d>0)
+        gamma = 360 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+      else
+        gamma = 180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+    }
+    acc_angle[0][2] = gamma;
+  }
   
   
   
@@ -13115,17 +13158,28 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   
   
   
-  angle[2] = angle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
   
   
   
   
   
   
+  
+  
+  static char t = 0;
   if(nrf_rciv[1]<2)
   {
     offset_angle[2] = 0;
-    angle[2] = 0;
+    pangle[2] = 0;
+    yaw_init = gamma;
+
+
+
+
+
+
+
+
   }
 }
 

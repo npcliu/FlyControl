@@ -13347,6 +13347,8 @@ extern short amplitude;
  
 char send_type = 'X';
 extern float pwm_of_dir;
+extern short acc_chip_out[3];
+extern short cps_chip_out[3];
 void SCISend_to_Own(USART_TypeDef* USARTx)
 {
 
@@ -13372,20 +13374,20 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
   case 'X':               
     send_data[0][0] = (short)acc_angle[0][0];
     send_data[0][1] = (short)acc_angle[0][1];
-    send_data[1][0] = (short)0;
-    send_data[1][1] = (short)0;
+    send_data[1][0] = (short)acc_angle[0][2];
+    send_data[1][1] = (short)angle[2];
 
 
     break;
   case 'y':               
-    send_data[0][0] = (short)angle[1];
-    send_data[0][1] = (short)((nrf_rciv[3]-127)*0.3);
-    send_data[0][2] = (short)(ycq);
-    send_data[1][0] = (short)acc.y;
-    send_data[1][1] = (short)0;
-    send_data[2][0] = (short)angle[1];
-    send_data[2][1] = (short)acc_angle[0][1];
-    send_data[2][2] = (short)gc[0][1];
+    send_data[0][0] = (short)acc_chip_out[0];
+    send_data[0][1] = (short)cps_chip_out[0];
+    
+    send_data[1][0] = (short)acc_chip_out[1];
+    send_data[1][1] = (short)cps_chip_out[1];
+    send_data[2][0] = (short)acc_chip_out[2];
+    send_data[2][1] = (short)cps_chip_out[2];
+
     break;
   case 'Y':               
     send_data[0][0] = (short)angle[1];

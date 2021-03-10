@@ -65,7 +65,7 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     break;
   case 'X':               //[x倾角，x倾角期望][y角速度][？]
     send_data[0][0] = (short)acc_angle[0][0];
-    send_data[0][1] = (short)acc_angle[0][1];
+    //send_data[0][1] = (short)acc_angle[0][1];
     send_data[1][0] = (short)acc_angle[0][2];
     send_data[1][1] = (short)angle[2];
 //    send_data[2][0] = (short)gc[DBG_TMP_ANG_WATCH][DBG_ACC_TMP_ANG_X_WATCH];
@@ -224,18 +224,23 @@ void RCDenote()
 {
   static uint8 last_DR_value = 0;
   if(nrf_rciv[TH_ADC_OFFSET]>20)                //apply direction control only when plane in the air,cause unlock plane will change direction stick
-    if(nrf_rciv[DR_ADC_OFFSET]>DR_ADC_CENTER)
+    if(nrf_rciv[DR_ADC_OFFSET]>DR_ADC_CENTER)//摇杆向右打的时候
     {
-      if(nrf_rciv[DR_ADC_OFFSET]>last_DR_value)
+      if(nrf_rciv[DR_ADC_OFFSET]>last_DR_value)//增量为正才算有效增量
         offset_angle[2] += angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);
     }
-    else if(nrf_rciv[DR_ADC_OFFSET]<DR_ADC_CENTER)
+    else if(nrf_rciv[DR_ADC_OFFSET]<DR_ADC_CENTER)//摇杆向左打的时候
     {
-      if(nrf_rciv[DR_ADC_OFFSET]<last_DR_value)
+      if(nrf_rciv[DR_ADC_OFFSET]<last_DR_value)//增量为负才算有效增量
         offset_angle[2] += angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);
     }
     else;
   last_DR_value = nrf_rciv[DR_ADC_OFFSET];
+
+  if(offset_angle[2]>360)//把期望yaw角度限制在0到360度
+    offset_angle[2] -= 360;
+  else if(offset_angle[2]<0)
+    offset_angle[2] += 360;
 }
 
 

@@ -13373,7 +13373,7 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     break;
   case 'X':               
     send_data[0][0] = (short)acc_angle[0][0];
-    send_data[0][1] = (short)acc_angle[0][1];
+    
     send_data[1][0] = (short)acc_angle[0][2];
     send_data[1][1] = (short)angle[2];
 
@@ -13543,6 +13543,11 @@ void RCDenote()
     }
     else;
   last_DR_value = nrf_rciv[2];
+
+  if(offset_angle[2]>360)
+    offset_angle[2] -= 360;
+  else if(offset_angle[2]<0)
+    offset_angle[2] += 360;
 }
 
 

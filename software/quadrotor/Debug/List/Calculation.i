@@ -12921,6 +12921,7 @@ void nmea_zero_INFO(nmeaINFO *info);
 
 
 
+float yaw_init = 0;
 float angle[3] = {0};
 float angle_error_x = 0;
 
@@ -13062,71 +13063,33 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   }
   acc_angle[0][1] = tmp_acc_angle[1];  
   
-  if(mod)
-  {
-    temp_angle[0] = pangle[0] + ((pgyro[0]-pgyro[1])*0.7071)*(0.0610370f) * 5/1000.0;
-    temp_angle[1] = pangle[1] + ((pgyro[1]+pgyro[0])*0.7071)*(0.0610370f) * 5/1000.0;
-  }
-  else
-  {
-    temp_angle[0] = pangle[0] - (pgyro[1])*(0.0610370f) * 5/1000.0;
-    temp_angle[1] = pangle[1] + (pgyro[0])*(0.0610370f) * 5/1000.0;
-  }
-  static uint32 att_cal_count = 0;      
-  if(nrf_rciv[1]<=2)                        
-  {
-    pangle[0] = tmp_acc_angle[0];
-    pangle[1] = tmp_acc_angle[1];
-    att_cal_count = 0;
-  }
-  else
-  {
-
-
-
-
-
-    if(att_cal_count<(10/5))      
-    {
-      att_cal_count++;
-      pangle[0] = temp_angle[0];        
-      pangle[1] = temp_angle[1];
-    }
-    else
-    {
-      att_cal_count = 0;
-      pangle[0] = 0.001*tmp_acc_angle[0] + (1-0.001)*temp_angle[0];
-      pangle[1] = 0.001*tmp_acc_angle[1] + (1-0.001)*temp_angle[1];
-    }
-  }
    
  
   float earth_magnetic_in_d = m * a / abs_d - f * cos_alpha;
   float earth_magnetic_in_e = (f * a + m * c) * b / abs_e - h * cos_beta;
   float gamma = 0;
-  static float yaw_init = 0;
-  pangle[2] = pangle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
-  if(pangle[2] + yaw_init<0)
-  {
-    if(earth_magnetic_in_e>=0)
-    {
-      if(earth_magnetic_in_d>0)
-        gamma = -360 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-      else
-        gamma = -180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-    }
-    else
-    {
-      if(earth_magnetic_in_d>0)
-        gamma = 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-      else
-        gamma = -180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-    }
-    acc_angle[0][2] = gamma; 
+  static float last_gamma = 0;
 
-  }
-  else
-  {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
     if(earth_magnetic_in_e>=0)
     {
       if(earth_magnetic_in_d>0)
@@ -13142,7 +13105,8 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
         gamma = 180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
     }
     acc_angle[0][2] = gamma;
-  }
+    
+    
   
   
   
@@ -13163,24 +13127,81 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   
   
   
-  
-  
-  
-  static char t = 0;
-  if(nrf_rciv[1]<2)
+
+    
+  if(mod)
   {
-    offset_angle[2] = 0;
-    pangle[2] = 0;
-    yaw_init = gamma;
-
-
-
-
-
-
-
-
+    temp_angle[0] = pangle[0] + ((pgyro[0]-pgyro[1])*0.7071)*(0.0610370f) * 5/1000.0;
+    temp_angle[1] = pangle[1] + ((pgyro[1]+pgyro[0])*0.7071)*(0.0610370f) * 5/1000.0;
+    
   }
+  else
+  {
+    temp_angle[0] = pangle[0] - (pgyro[1])*(0.0610370f) * 5/1000.0;
+    temp_angle[1] = pangle[1] + (pgyro[0])*(0.0610370f) * 5/1000.0;
+    
+  }
+  
+  temp_angle[2] = pangle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
+
+  acc_angle[0][0] = temp_angle[2];
+  
+  static uint32 att_cal_count = 0;      
+  static char t = 0;   
+  if(nrf_rciv[1]<=2)                        
+  {
+    pangle[0] = tmp_acc_angle[0];
+    pangle[1] = tmp_acc_angle[1];
+    att_cal_count = 0;
+    
+    
+    yaw_init = gamma;
+    pangle[2] = yaw_init;
+    offset_angle[2] = yaw_init;
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  }
+  else
+  {
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    {
+      att_cal_count = 0;
+      pangle[0] = 0.002*tmp_acc_angle[0] + (1-0.002)*temp_angle[0];
+      pangle[1] = 0.002*tmp_acc_angle[1] + (1-0.002)*temp_angle[1];
+      
+      if(gamma-last_gamma<350&&(gamma-last_gamma>-350))
+        pangle[2] = 0.003*gamma + (1-0.003)*temp_angle[2];
+      else
+        pangle[2] = gamma;
+      last_gamma = gamma;
+    }
+  }
+
 }
 
 
@@ -13209,7 +13230,7 @@ float pwm_of_dir = 0;
 
 void PWMCalc(uint8 mod)
 {
-  static float dir_angle_error[2] = {0};
+  float dir_angle_error[2] = {0};
   static float throttle = 0;
   static float omega_e = 0;             
   static float _omega_error = 0;
@@ -13249,6 +13270,10 @@ void PWMCalc(uint8 mod)
     filter_coef_state_y += deriv_out*5*1e-3;
   }
   dir_angle_error[0] = offset_angle[2] - angle[2];
+  if(dir_angle_error[0]>270)
+    dir_angle_error[0] -= 360;
+  else if(dir_angle_error[0]<-270)
+    dir_angle_error[0] += 360;
   pwm_of_dir = z_p *dir_angle_error[0] + z_d*(gyro.z);
 
   throttle = 1.2*nrf_rciv[1]+500;      

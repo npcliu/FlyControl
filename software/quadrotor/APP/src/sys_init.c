@@ -32,7 +32,7 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
   x_b = -5;
   y_b = 0;
   z_p = 2;
-  z_d = 0.02;
+  z_d = 0.04;
 #ifdef MY_WOOD                  //my wood plane
   if(pipl_dir)         //XÐÎ·ÉÐÐ
   {

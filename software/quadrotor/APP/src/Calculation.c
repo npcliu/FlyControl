@@ -301,8 +301,8 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
       pangle[0] = 0.002*tmp_acc_angle[0] + (1-0.002)*temp_angle[0];
       pangle[1] = 0.002*tmp_acc_angle[1] + (1-0.002)*temp_angle[1];//      else
       //偏航角互补滤波
-      if(gamma-last_gamma<350&&(gamma-last_gamma>-350))
-        pangle[2] = 0.003*gamma + (1-0.003)*temp_angle[2];//     改了这，还没实验
+      if(gamma-last_gamma<340&&(gamma-last_gamma>-340))
+        pangle[2] = 0.004*gamma + (1-0.004)*temp_angle[2];
       else
         pangle[2] = gamma;
       last_gamma = gamma;
@@ -392,10 +392,11 @@ void PWMCalc(uint8 mod)
     filter_coef_state_y += deriv_out*INTERUPT_CYC_IN_MS*1e-3;
   }
   dir_angle_error[0] = offset_angle[2] - angle[2];
-  if(dir_angle_error[0]>270)//误差大于270度说明经过了0和360度之间的间断点
+  if(dir_angle_error[0]>200)//误差大于270度说明经过了0和360度之间的间断点
     dir_angle_error[0] -= 360;
-  else if(dir_angle_error[0]<-270)
+  else if(dir_angle_error[0]<-200)
     dir_angle_error[0] += 360;
+  gc[1][1] = dir_angle_error[0];
   pwm_of_dir = z_p *dir_angle_error[0] + z_d*(gyro.z);
 
 #ifdef MY_WOOD                  //my wood plane

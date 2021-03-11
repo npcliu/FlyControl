@@ -22,6 +22,10 @@ char cali_gyro_flag = 0;
 char need_restart_flag = 0;     //更改传感器设置后必须重启以生效更改
 char cali_compass = 0;
 char pwr_low_flag = 1;               //电池能量不足标志
+int expriment_time = 0;//实验模式下记录实验时间
+#define MAX_EXPRIMENT_TIME 200//5ms记录一次，则200表示最大记录时间为1s
+float angley_data[MAX_EXPRIMENT_TIME] = 0;//y轴角度数据
+int pwm0,pwm1,pwm2,pwm3;//记录实验开始时的pwm波数据
 extern int pwm[4];
 
 PROCEDURE StbPrep(char input)
@@ -41,6 +45,9 @@ PROCEDURE Standby(char input)
   //      pwm[y_p] = (int)(1.3*nrf_rciv[TH_ADC_OFFSET]+500);  //校准
   
   static uint32 count_delet = 0;
+  
+  expriment_time = 0;//实验模式下的实验时间清零
+  
   if(send_wave_flag)
     SCISend_to_Own(USART1);
   else;
@@ -52,18 +59,16 @@ PROCEDURE Standby(char input)
     else
     {
       count_delet=0;
-//      UARTSendFloat(gyro.x*MPU6050GYRO_SCALE_DEG);
-//      UARTSendFloat(gyro.y*MPU6050GYRO_SCALE_DEG);
-//      UARTSendFloat(gyro.z*MPU6050GYRO_SCALE_DEG);
-//      UARTSendFloat(acc.x*MPU6050ACC_SCALE_G*9.81);
-//      UARTSendFloat(acc.y*MPU6050ACC_SCALE_G*9.81);
-//      UARTSendFloat(acc.z*MPU6050ACC_SCALE_G*9.81);
-     // float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
-//      printf("水平面下的偏航角为 ： %f\r\n",R2D*atan((float)compass.y/compass.x));
-      
-//      UARTSendFloat(compass.x/norm);
-//      UARTSendFloat(compass.y/norm);
-//      UARTSendFloat(compass.z/norm);
+      UARTSendFloat(gyro.x*MPU6050GYRO_SCALE_DEG);
+      UARTSendFloat(gyro.y*MPU6050GYRO_SCALE_DEG);
+      UARTSendFloat(gyro.z*MPU6050GYRO_SCALE_DEG);
+      UARTSendFloat(acc.x*MPU6050ACC_SCALE_G*9.81);
+      UARTSendFloat(acc.y*MPU6050ACC_SCALE_G*9.81);
+      UARTSendFloat(acc.z*MPU6050ACC_SCALE_G*9.81);
+      float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
+      UARTSendFloat(compass.x/norm);
+      UARTSendFloat(compass.y/norm);
+      UARTSendFloat(compass.z/norm);
     }
     pit_25ms_flag = 0;
   }
@@ -90,16 +95,31 @@ PROCEDURE Standby(char input)
     CompassCalibration(50);
   }
   
-  TIM_SetCompare4(TIM3,(int)(1.3*nrf_rciv[TH_ADC_OFFSET]+500));  //舵机端口输出油门信号，可用于校准电调
+  TIM_SetCompare4(TIM3,(int)(1.3*nrf_rciv[TH_ADC_OFFSET]+500));  //Y2
   
-  
+  if('z'==nrf_rciv[BACKUP1_OFFSET]&&(angley_data[0] != 0))//发送实验模式下采集的数据，如果采集到了才会发
+  {
+    
+    printf("send data to computer\r\n");
+    printf("pwm0 = %d\r\n",pwm0);
+    printf("pwm1 = %d\r\n",pwm1);
+    printf("angley_data : ");
+    for(int i = 0;i<MAX_EXPRIMENT_TIME;i++)
+    {
+      printf("%f ",angley_data[i]);
+    }
+  }
   
   if('f'==nrf_rciv[PLANE_MODE_OFFSET] && (0==need_restart_flag))
     return att_hld_pre;
   else if('p'==nrf_rciv[PLANE_MODE_OFFSET])
   {
-    return set_para_pre;
+    return standby;
   }
+  else if('e'==nrf_rciv[PLANE_MODE_OFFSET])
+  {
+    return experiment_pro;
+  }  
   else
     return standby;
 }
@@ -118,11 +138,12 @@ extern char nrf_int_flag;          //看门狗标志，定时置位
 char nrf_break = 1;             //无线失联状态
 PROCEDURE AttHld(char input)
 {
-  //  if(*p_send_wave_flag && pit_25ms_flag)        //以25ms周期发送，画1个点50ms,详情看SCISend_to_Own函数
-  //  {
-  //      SCISend_to_Own(USART1);
-  //    pit_25ms_flag = 0;
-  //  }
+//   send_wave_flag = 1;
+//    if(send_wave_flag && pit_25ms_flag)        //以25ms周期发送，画1个点50ms,详情看SCISend_to_Own函数
+//    {
+//        SCISend_to_Own(USART1);
+//      pit_25ms_flag = 0;
+//    }
   
   if(nrf_rciv[TH_ADC_OFFSET]>2)
   {
@@ -274,54 +295,102 @@ short amplitude = 0;
 #include "calculation.h"
 
 PROCEDURE Experiment(char input)
-{//实验模式下不用PID
-  static int save_data_time = 0;
-  if('k'==nrf_rciv[BACKUP1_OFFSET])
+{
+  if('k'==nrf_rciv[BACKUP1_OFFSET]&&(expriment_time<MAX_EXPRIMENT_TIME))
   {//这里用油门控制脉冲幅度的大小，按开始实验按钮前应先固定油门位置，点击结束按钮后才能改变油门位置
     //throttle = 1.3*nrf_rciv[TH_ADC_OFFSET]+500;
-    amplitude = 500;
-    pwm[0] = (int)(amplitude);//
-    pwm[1] = 0;//
-    pwm[2] = 0;
-    pwm[3] = 0;
-    TIM_SetCompare1(TIM2,pwm[0]);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
-    TIM_SetCompare2(TIM2,pwm[1]);  //X2
-        TIM_SetCompare3(TIM2,pwm[2]);  //Y1
-        TIM_SetCompare4(TIM2,pwm[3]);  //Y2
-//    pwm[x_n] = (int)(throttle + xcq + ycq - pwm_of_dir);//
-//    pwm[x_p] = (int)(throttle - xcq - ycq - pwm_of_dir);//
-//    pwm[y_n] = (int)(throttle + xcq - ycq + pwm_of_dir);
-//    pwm[y_p] = (int)(throttle - xcq + ycq + pwm_of_dir);
-//    
-//      if(nrf_rciv[TH_ADC_OFFSET]>2)
-//  {
-//    TIM_SetCompare1(TIM2,pwm[x_n]);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
-//    TIM_SetCompare2(TIM2,pwm[x_p]);  //X2
-//    TIM_SetCompare3(TIM2,pwm[y_n]);  //Y1
-//    TIM_SetCompare4(TIM2,pwm[y_p]);  //Y2
-//  }else
-//  {
-//    TIM_SetCompare1(TIM2,STOP_PWM);      
-//    TIM_SetCompare2(TIM2,STOP_PWM);
-//    TIM_SetCompare3(TIM2,STOP_PWM);
-//    TIM_SetCompare4(TIM2,STOP_PWM);
-//  }
+    if(pit_5ms_flag == 1)
+    {  
+      if(expriment_time == 0){
+        pwm0 = pwm[x_n]-3;
+        pwm1 = pwm[x_p]+3;
+        
 
-    SaveAngleDataToNode(angle);//把解算的角度存到链表中
-    save_data_time++;
-    if(save_data_time > anglex_Node_Number + 1)
-      save_data_time = anglex_Node_Number + 1;
+      }
+      //printf("%d   %d\r\n",pwm0,pwm1);
+      if(pwm0>10000)pwm0 = 10000;
+      else if(pwm0<0)pwm0 = 0;
+      if(pwm1>10000)pwm1 = 10000;
+      else if(pwm1<0)pwm1 = 0;
+      TIM_SetCompare1(TIM2,pwm0);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
+      TIM_SetCompare2(TIM2,pwm1);  //X2
+      TIM_SetCompare3(TIM2,pwm[y_n]);  //Y1
+      TIM_SetCompare4(TIM2,pwm[y_p]);  //Y2
+     
+      angley_data[expriment_time] = angle[0];
+      expriment_time++;
+      
+      pit_5ms_flag  = 0;
+      //printf("%f ",angle[0]);
+      //printf("start the experiment\r\n");
+
+    }
+    
+    
   }
-  else if ('t'==nrf_rciv[BACKUP1_OFFSET] || (save_data_time > anglex_Node_Number))//遥控器发送停止命令，或时间大于500ms就停止实验
+  else if ('t'==nrf_rciv[BACKUP1_OFFSET]||(expriment_time>=MAX_EXPRIMENT_TIME))//遥控器发送停止命令，或时间大于500ms就停止实验
   {
-    pwm[0] = 0;//
-    pwm[1] = 0;//
-    pwm[2] = 0;
-    pwm[3] = 0;
-    TIM_SetCompare1(TIM2,pwm[0]);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
-    TIM_SetCompare2(TIM2,pwm[1]);  //X2
-    TIM_SetCompare3(TIM2,pwm[2]);  //Y1
-    TIM_SetCompare4(TIM2,pwm[3]);  //Y2
+    if(expriment_time>=MAX_EXPRIMENT_TIME&&('k'==nrf_rciv[BACKUP1_OFFSET]))
+    {
+      nrf_rciv[BACKUP1_OFFSET] = 't';
+      BUZZER_OUT = 0;               //蜂鸣报警
+    }
+
+    //printf("stop the experiment\r\n");
+//    printf("pwm0 = %d     ",pwm[x_n]);
+//    printf("pwm1 = %d     ",pwm[x_p]);
+//    printf("pwm2 = %d     ",pwm[y_n]);
+//    printf("pwm3 = %d\r\n",pwm[y_p]);
+    
+    if(nrf_rciv[TH_ADC_OFFSET]>2)
+    {
+      TIM_SetCompare1(TIM2,pwm[x_n]);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
+      TIM_SetCompare2(TIM2,pwm[x_p]);  //X2
+      TIM_SetCompare3(TIM2,pwm[y_n]);  //Y1
+      TIM_SetCompare4(TIM2,pwm[y_p]);  //Y2
+    }else
+    {
+      TIM_SetCompare1(TIM2,STOP_PWM);      
+      TIM_SetCompare2(TIM2,STOP_PWM);
+      TIM_SetCompare3(TIM2,STOP_PWM);
+      TIM_SetCompare4(TIM2,STOP_PWM);
+    }
+    
+    
+    
+    /**************************50ms******************************/
+    if(pit_50ms_flag)
+    {
+      if(nrf_int_flag>=20)        //超過1秒未收到信号才关油门
+      {
+        nrf_rciv[TH_ADC_OFFSET] = 0;          //如果你想坠机的话就关闭油门
+        BUZZER_OUT = 0;               //蜂鸣报警（50ms的急促报警声）
+      }
+      else if(nrf_int_flag)
+      {
+        nrf_break = 1;
+        BUZZER_OUT = 1;               //蜂鸣报警（50ms的急促报警声）
+        if(nrf_rciv[TH_ADC_OFFSET] > 80)          //大于80，才收至平衡位置，否则你不插遥控直接就转了
+          nrf_rciv[TH_ADC_OFFSET] = 80;          //如果你想坠机的话就关闭油门，我估计油门80刚好平衡
+      }
+      else if(nrf_break)
+      {
+        nrf_break = 0;               //蜂鸣报警（50ms的急促报警声）
+        BUZZER_OUT = 0;               //蜂鸣报警（50ms的急促报警声）
+      }
+      if(nrf_int_flag<254)
+        nrf_int_flag ++;           //置位查验标志（nrf接收中断复位标志）
+      pit_50ms_flag = 0;
+    }
+    /**************************500ms******************************/
+    if(pit_500ms_flag)
+    {
+      if(pwr_low_flag)
+        BUZZER_TRN;
+      else
+        BUZZER_OUT = 0;
+      pit_500ms_flag = 0;
+    }
   }
   else
   {
@@ -334,15 +403,7 @@ PROCEDURE Experiment(char input)
     TIM_SetCompare3(TIM2,pwm[2]);  //Y1
     TIM_SetCompare4(TIM2,pwm[3]);  //Y2
   }
-  if('s'==nrf_rciv[BACKUP1_OFFSET])
-  {//向电脑发送链表中的数据
-    if(pit_25ms_flag)        //以25ms周期发送，画1个点50ms,详情看SCISend_to_Own函数
-    {
-      send_type = 'e';
-      SCISend_to_Own(USART1);
-      pit_25ms_flag = 0;
-    }
-  }
+
   if('l'==nrf_rciv[PLANE_MODE_OFFSET])
     return stb_pre;
   else

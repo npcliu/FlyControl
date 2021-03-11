@@ -13372,10 +13372,11 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     send_data[2][2] = (short)gc[0][0];
     break;
   case 'X':               
-    send_data[0][0] = (short)acc_angle[0][0];
+    send_data[0][0] = (short)acc_angle[0][2];
     
-    send_data[1][0] = (short)acc_angle[0][2];
+    send_data[1][0] = (short)gc[1][1];
     send_data[1][1] = (short)angle[2];
+    send_data[1][2] = (short)offset_angle[2];
 
 
     break;
@@ -13531,15 +13532,15 @@ void RCDenote()
 {
   static uint8 last_DR_value = 0;
   if(nrf_rciv[1]>20)                
-    if(nrf_rciv[2]>127)
+    if(nrf_rciv[2]>127+15)
     {
       if(nrf_rciv[2]>last_DR_value)
-        offset_angle[2] += angle_z_ctrl_rate*(nrf_rciv[2] - last_DR_value);
+        offset_angle[2] -= angle_z_ctrl_rate*(nrf_rciv[2] - last_DR_value);
     }
-    else if(nrf_rciv[2]<127)
+    else if(nrf_rciv[2]<127-15)
     {
       if(nrf_rciv[2]<last_DR_value)
-        offset_angle[2] += angle_z_ctrl_rate*(nrf_rciv[2] - last_DR_value);
+        offset_angle[2] -= angle_z_ctrl_rate*(nrf_rciv[2] - last_DR_value);
     }
     else;
   last_DR_value = nrf_rciv[2];

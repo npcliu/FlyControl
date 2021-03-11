@@ -13455,6 +13455,9 @@ char cali_gyro_flag = 0;
 char need_restart_flag = 0;     
 char cali_compass = 0;
 char pwr_low_flag = 1;               
+int expriment_time = 0;
+float angley_data[200] = 0;
+int pwm0,pwm1,pwm2,pwm3;
 extern int pwm[4];
 
 PROCEDURE StbPrep(char input)
@@ -13474,6 +13477,9 @@ PROCEDURE Standby(char input)
   
   
   static uint32 count_delet = 0;
+  
+  expriment_time = 0;
+  
   if(send_wave_flag)
     SCISend_to_Own(((USART_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x3800)));
   else;
@@ -13485,18 +13491,16 @@ PROCEDURE Standby(char input)
     else
     {
       count_delet=0;
-
-
-
-
-
-
-     
-
-      
-
-
-
+      UARTSendFloat(gyro.x*(0.0610370f));
+      UARTSendFloat(gyro.y*(0.0610370f));
+      UARTSendFloat(gyro.z*(0.0610370f));
+      UARTSendFloat(acc.x*(0.00048830f)*9.81);
+      UARTSendFloat(acc.y*(0.00048830f)*9.81);
+      UARTSendFloat(acc.z*(0.00048830f)*9.81);
+      float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
+      UARTSendFloat(compass.x/norm);
+      UARTSendFloat(compass.y/norm);
+      UARTSendFloat(compass.z/norm);
     }
     pit_25ms_flag = 0;
   }
@@ -13525,14 +13529,29 @@ PROCEDURE Standby(char input)
   
   TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0400)),(int)(1.3*nrf_rciv[1]+500));  
   
-  
+  if('z'==nrf_rciv[8]&&(angley_data[0] != 0))
+  {
+    
+    printf("send data to computer\r\n");
+    printf("pwm0 = %d\r\n",pwm0);
+    printf("pwm1 = %d\r\n",pwm1);
+    printf("angley_data : ");
+    for(int i = 0;i<200;i++)
+    {
+      printf("%f ",angley_data[i]);
+    }
+  }
   
   if('f'==nrf_rciv[0] && (0==need_restart_flag))
     return att_hld_pre;
   else if('p'==nrf_rciv[0])
   {
-    return set_para_pre;
+    return standby;
   }
+  else if('e'==nrf_rciv[0])
+  {
+    return experiment_pro;
+  }  
   else
     return standby;
 }
@@ -13551,11 +13570,12 @@ extern char nrf_int_flag;
 char nrf_break = 1;             
 PROCEDURE AttHld(char input)
 {
-  
-  
-  
-  
-  
+
+
+
+
+
+
   
   if(nrf_rciv[1]>2)
   {
@@ -13707,53 +13727,101 @@ short amplitude = 0;
 
 PROCEDURE Experiment(char input)
 {
-  static int save_data_time = 0;
-  if('k'==nrf_rciv[8])
+  if('k'==nrf_rciv[8]&&(expriment_time<200))
   {
     
-    amplitude = 500;
-    pwm[0] = (int)(amplitude);
-    pwm[1] = 0;
-    pwm[2] = 0;
-    pwm[3] = 0;
-    TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[0]);  
-    TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[1]);  
-        TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[2]);  
-        TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[3]);  
+    if(pit_5ms_flag == 1)
+    {  
+      if(expriment_time == 0){
+        pwm0 = pwm[x_n]-3;
+        pwm1 = pwm[x_p]+3;
+        
 
+      }
+      
+      if(pwm0>10000)pwm0 = 10000;
+      else if(pwm0<0)pwm0 = 0;
+      if(pwm1>10000)pwm1 = 10000;
+      else if(pwm1<0)pwm1 = 0;
+      TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm0);  
+      TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm1);  
+      TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_n]);  
+      TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_p]);  
+     
+      angley_data[expriment_time] = angle[0];
+      expriment_time++;
+      
+      pit_5ms_flag  = 0;
+      
+      
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    SaveAngleDataToNode(angle);
-    save_data_time++;
-    if(save_data_time > 1500 + 1)
-      save_data_time = 1500 + 1;
+    }
+    
+    
   }
-  else if ('t'==nrf_rciv[8] || (save_data_time > 1500))
+  else if ('t'==nrf_rciv[8]||(expriment_time>=200))
   {
-    pwm[0] = 0;
-    pwm[1] = 0;
-    pwm[2] = 0;
-    pwm[3] = 0;
-    TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[0]);  
-    TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[1]);  
-    TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[2]);  
-    TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[3]);  
+    if(expriment_time>=200&&('k'==nrf_rciv[8]))
+    {
+      nrf_rciv[8] = 't';
+      (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;               
+    }
+
+    
+
+
+
+
+    
+    if(nrf_rciv[1]>2)
+    {
+      TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[x_n]);  
+      TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[x_p]);  
+      TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_n]);  
+      TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[y_p]);  
+    }else
+    {
+      TIM_SetCompare1(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);      
+      TIM_SetCompare2(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);
+      TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);
+      TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),500);
+    }
+    
+    
+    
+     
+    if(pit_50ms_flag)
+    {
+      if(nrf_int_flag>=20)        
+      {
+        nrf_rciv[1] = 0;          
+        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;               
+      }
+      else if(nrf_int_flag)
+      {
+        nrf_break = 1;
+        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 1;               
+        if(nrf_rciv[1] > 80)          
+          nrf_rciv[1] = 80;          
+      }
+      else if(nrf_break)
+      {
+        nrf_break = 0;               
+        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;               
+      }
+      if(nrf_int_flag<254)
+        nrf_int_flag ++;           
+      pit_50ms_flag = 0;
+    }
+     
+    if(pit_500ms_flag)
+    {
+      if(pwr_low_flag)
+        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = (~(((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0));
+      else
+        (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b0) = 0;
+      pit_500ms_flag = 0;
+    }
   }
   else
   {
@@ -13766,15 +13834,7 @@ PROCEDURE Experiment(char input)
     TIM_SetCompare3(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[2]);  
     TIM_SetCompare4(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0000)),pwm[3]);  
   }
-  if('s'==nrf_rciv[8])
-  {
-    if(pit_25ms_flag)        
-    {
-      send_type = 'e';
-      SCISend_to_Own(((USART_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x3800)));
-      pit_25ms_flag = 0;
-    }
-  }
+
   if('l'==nrf_rciv[0])
     return stb_pre;
   else
@@ -13795,19 +13855,19 @@ PROCEDURE Experiment(char input)
 
 PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char))
 {
-  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 366), ( __iar_EmptyStepPoint())));
+  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 427), ( __iar_EmptyStepPoint())));
   _Task[stb_pre] = StbPrep;                        
-  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 368), ( __iar_EmptyStepPoint())));
+  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 429), ( __iar_EmptyStepPoint())));
   _Task[standby] = Standby;
-  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 370), ( __iar_EmptyStepPoint())));
+  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 431), ( __iar_EmptyStepPoint())));
   _Task[att_hld_pre] = AttHldPrep;
-  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 372), ( __iar_EmptyStepPoint())));
+  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 433), ( __iar_EmptyStepPoint())));
   _Task[att_hld] = AttHld;
-  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 374), ( __iar_EmptyStepPoint())));
+  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 435), ( __iar_EmptyStepPoint())));
   _Task[set_para_pre] = SetParaPre;
-  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 376), ( __iar_EmptyStepPoint())));
+  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 437), ( __iar_EmptyStepPoint())));
   _Task[set_para] = SetParam;           
-  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 378), ( __iar_EmptyStepPoint())));
+  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 439), ( __iar_EmptyStepPoint())));
   _Task[experiment_pro] = Experiment;           
   
   return stb_pre;

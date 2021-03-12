@@ -13025,16 +13025,23 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   if(mod)       
   {
     if(a+b>0)                         
-      tmp_acc_angle[0] = acos(cos_alpha)/0.01745329252f;
+      tmp_acc_angle[0] = acos(cos_alpha)*57.29577f;
     else
-      tmp_acc_angle[0] = -acos(cos_alpha)/0.01745329252f;           
+    {
+      tmp_acc_angle[0] = -acos(cos_alpha)*57.29577f;           
+
+    }
   }
   else
   {
     if(a>0)                         
-      tmp_acc_angle[0] = acos(cos_alpha)/0.01745329252f;
+      tmp_acc_angle[0] = acos(cos_alpha)*57.29577f;
+    
     else
-      tmp_acc_angle[0] = -acos(cos_alpha)/0.01745329252f;           
+    {
+      tmp_acc_angle[0] = -acos(cos_alpha)*57.29577f;           
+
+    }
   }
   acc_angle[0][0] = tmp_acc_angle[0];
   
@@ -13050,25 +13057,41 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   if(mod)       
   {
     if(a<b)                         
-      tmp_acc_angle[1] = acos(cos_beta)/0.01745329252f;
+      tmp_acc_angle[1] = acos(cos_beta)*57.29577f;
     else
-      tmp_acc_angle[1] = -acos(cos_beta)/0.01745329252f;           
+    {
+      tmp_acc_angle[1] = -acos(cos_beta)*57.29577f;           
+    
+    }
   }
   else
   {
     if(b>0)
-      tmp_acc_angle[1] = acos(cos_beta)/0.01745329252f;
+      tmp_acc_angle[1] = acos(cos_beta)*57.29577f;
     else
-      tmp_acc_angle[1] = -acos(cos_beta)/0.01745329252f;
+    {
+      
+      tmp_acc_angle[1] = -acos(cos_beta)*57.29577f;
+    
+    }
   }
   acc_angle[0][1] = tmp_acc_angle[1];  
   
    
- 
-  float earth_magnetic_in_d = m * a / abs_d - f * cos_alpha;
-  float earth_magnetic_in_e = (f * a + m * c) * b / abs_e - h * cos_beta;
   float gamma = 0;
   static float last_gamma = 0;
+  
+  
+  float sin_alpha = sin(pangle[0]*0.01745329252f);
+  float sin_beta = sin(pangle[1]*0.01745329252f);
+  cos_alpha = cos(pangle[0]*0.01745329252f);
+  cos_beta = cos(pangle[1]*0.01745329252f);
+
+  float earth_magnetic_in_d = f * cos_alpha - m * sin_alpha;
+  
+  float earth_magnetic_in_e = h * cos_beta - f * sin_alpha * sin_beta - m * cos_alpha * sin_beta;
+  
+
 
 
 
@@ -13144,7 +13167,10 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   
   temp_angle[2] = pangle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
 
-  acc_angle[0][0] = temp_angle[2];
+  
+  
+  
+
   
   static uint32 att_cal_count = 0;      
   static char t = 0;   
@@ -13194,13 +13220,14 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
       pangle[0] = 0.002*tmp_acc_angle[0] + (1-0.002)*temp_angle[0];
       pangle[1] = 0.002*tmp_acc_angle[1] + (1-0.002)*temp_angle[1];
       
-      if(gamma-last_gamma<340&&(gamma-last_gamma>-340))
-        pangle[2] = 0.004*gamma + (1-0.004)*temp_angle[2];
+      if(gamma-last_gamma<345&&(gamma-last_gamma>-345))
+        pangle[2] = 0.003*gamma + (1-0.003)*temp_angle[2];
       else
         pangle[2] = gamma;
       last_gamma = gamma;
     }
   }
+  
 
 }
 

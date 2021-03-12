@@ -13372,11 +13372,13 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     send_data[2][2] = (short)gc[0][0];
     break;
   case 'X':               
-    send_data[0][0] = (short)acc_angle[0][2];
     
-    send_data[1][0] = (short)gc[1][1];
-    send_data[1][1] = (short)angle[2];
-    send_data[1][2] = (short)offset_angle[2];
+    send_data[0][0] = (short)acc_angle[0][0];
+    send_data[0][1] = (short)acc_angle[0][1];
+    send_data[1][0] = (short)angle[0];
+    send_data[1][1] = (short)angle[1];
+    send_data[1][2] = (short) acc_angle[0][2];
+   
 
 
     break;

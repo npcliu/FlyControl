@@ -13733,8 +13733,8 @@ PROCEDURE Experiment(char input)
     if(pit_5ms_flag == 1)
     {  
       if(expriment_time == 0){
-        pwm0 = pwm[x_n]-3;
-        pwm1 = pwm[x_p]+3;
+        pwm0 = pwm[x_n]-5;
+        pwm1 = pwm[x_p]+5;
         
 
       }

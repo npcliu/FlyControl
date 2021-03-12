@@ -32,7 +32,7 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
   x_b = -5;
   y_b = 0;
   z_p = 2;
-  z_d = 0.04;
+  z_d = 0.02;
 #ifdef MY_WOOD                  //my wood plane
   if(pipl_dir)         //X形飞行
   {
@@ -76,9 +76,9 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
     offset_angle[0] = 0;//5;
     offset_angle[1] = 0;//5;
     offset_angle[2] = 0;
-    x_p_o = 100;                     //x(x axis)_p(proportion)_o(out loop)_t(ten shape fly)x轴十形飞行控制参数
-    x_p_i = 0.0257;
-    x_d_i = 0.0012;
+    x_p_o = 80;                     //x(x axis)_p(proportion)_o(out loop)_t(ten shape fly)x轴十形飞行控制参数
+    x_p_i = 0.0247;
+    x_d_i = 0.0015;
     y_p_o = 80;
     y_p_i = 0.0257;
     y_d_i = 0.001;

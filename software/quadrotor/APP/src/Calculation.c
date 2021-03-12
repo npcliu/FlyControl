@@ -79,7 +79,7 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 {//  木机架抖动太厉害，并且不是高斯分布的，有一种频率比较低的大幅度成分不知道来源估计是共振，如果能解决此“共振”则可用
   static float tmp_acc_angle[3] = {0};      //attitude angle calculated from accelerometer
-  float a = pacc[0], b = pacc[1], c = pacc[2], f = pcps[0], h = pcps[1], m = pcps[2];
+  float a = pacc[0], b = pacc[1], c = pacc[2], f = pcps[0], h = pcps[1], m = pcps[2];//加负号是为了和加速度计在一个坐标系
   float temp_angle[3] = {0};         //acc_delay_angx:acc平均滤波有较大延迟的角度
   
   float csquar = c * c;//c^2
@@ -102,7 +102,7 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   float abs_d = sqrt(asquar_plus_csquar);//向量d的模
   if(abs_d<0.00001)
     return;
-  float cos_alpha = c/abs_d; //y轴旋转角
+  float cos_alpha = c/abs_d; //y轴旋转角的绝对值
   if(cos_alpha>1)
     cos_alpha = 1;
   else if(cos_alpha<-1)
@@ -111,16 +111,23 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   if(mod)       //X形状，详见大计划
   {
     if(a+b>0)                         //cos映射到0~180；通过sin正负映射到0~-180
-      tmp_acc_angle[0] = acos(cos_alpha)/PI_DIV_180;
+      tmp_acc_angle[0] = acos(cos_alpha)*R2D;
     else
-      tmp_acc_angle[0] = -acos(cos_alpha)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+    {
+      tmp_acc_angle[0] = -acos(cos_alpha)*R2D;           //加速度计反算的旋转倾斜角度
+
+    }
   }
   else
   {
     if(a>0)                         //cos映射到0~180；通过sin正负映射到0~-180
-      tmp_acc_angle[0] = acos(cos_alpha)/PI_DIV_180;
+      tmp_acc_angle[0] = acos(cos_alpha)*R2D;
+    
     else
-      tmp_acc_angle[0] = -acos(cos_alpha)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+    {
+      tmp_acc_angle[0] = -acos(cos_alpha)*R2D;           //加速度计反算的旋转倾斜角度
+
+    }
   }
   acc_angle[0][0] = tmp_acc_angle[0];
   
@@ -128,7 +135,7 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   float abs_e = sqrt(asquar*bsquar + asquar_plus_csquar*asquar_plus_csquar + bsquar*csquar);//向量e的模
   if(abs_e<0.00001)
     return;
-  float cos_beta =  asquar_plus_csquar/abs_e;//绕x轴旋转角的余弦
+  float cos_beta =  asquar_plus_csquar/abs_e;//绕x轴旋转角的余弦的绝对值
   if(cos_beta>1)
     cos_beta = 1;
   else if(cos_beta<-1)
@@ -136,25 +143,41 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   if(mod)       //X形状，详见大计划
   {
     if(a<b)                         //cos映射到0~180；通过sin正负映射到0~-180
-      tmp_acc_angle[1] = acos(cos_beta)/PI_DIV_180;
+      tmp_acc_angle[1] = acos(cos_beta)*R2D;
     else
-      tmp_acc_angle[1] = -acos(cos_beta)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+    {
+      tmp_acc_angle[1] = -acos(cos_beta)*R2D;           //加速度计反算的旋转倾斜角度
+    
+    }
   }
   else
   {
     if(b>0)
-      tmp_acc_angle[1] = acos(cos_beta)/PI_DIV_180;
+      tmp_acc_angle[1] = acos(cos_beta)*R2D;
     else
-      tmp_acc_angle[1] = -acos(cos_beta)/PI_DIV_180;
+    {
+      
+      tmp_acc_angle[1] = -acos(cos_beta)*R2D;
+    
+    }
   }
   acc_angle[0][1] = tmp_acc_angle[1];  //  assert(!isnan(temp_angle[0]));
   
   /************************compass data process*****************************/
- 
-  float earth_magnetic_in_d = m * a / abs_d - f * cos_alpha;//地球磁场的在水平面x轴（也就是向量d）上的分量
-  float earth_magnetic_in_e = (f * a + m * c) * b / abs_e - h * cos_beta;//地球磁场在水平面y轴（也就是向量e）上的分量
   float gamma = 0;
   static float last_gamma = 0;
+  
+  
+  float sin_alpha = sin(pangle[0]*D2R);
+  float sin_beta = sin(pangle[1]*D2R);
+  cos_alpha = cos(pangle[0]*D2R);
+  cos_beta = cos(pangle[1]*D2R);
+
+  float earth_magnetic_in_d = f * cos_alpha - m * sin_alpha;//地球磁场的在水平面x轴（也就是向量d）上的分量
+  
+  float earth_magnetic_in_e = h * cos_beta - f * sin_alpha * sin_beta - m * cos_alpha * sin_beta;//地球磁场在水平面y轴（也就是向量e）上的分量
+  
+
 //  if(pangle[2] + yaw_init<0)//这里还有问题
 //  {
 //    if(earth_magnetic_in_e>=0)
@@ -251,7 +274,10 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   //偏航角互补滤波
   temp_angle[2] = pangle[2] - (gyro.z)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//z轴陀螺仪积分得到另一种偏航角
 
-  acc_angle[0][0] = temp_angle[2];
+  //acc_angle[0][0] = temp_angle[2];
+  
+  
+
   
   static uint32 att_cal_count = 0;      //用来计时该使用加速度数据了
   static char t = 0;   
@@ -301,13 +327,14 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
       pangle[0] = 0.002*tmp_acc_angle[0] + (1-0.002)*temp_angle[0];
       pangle[1] = 0.002*tmp_acc_angle[1] + (1-0.002)*temp_angle[1];//      else
       //偏航角互补滤波
-      if(gamma-last_gamma<340&&(gamma-last_gamma>-340))
-        pangle[2] = 0.004*gamma + (1-0.004)*temp_angle[2];
+      if(gamma-last_gamma<345&&(gamma-last_gamma>-345))
+        pangle[2] = 0.003*gamma + (1-0.003)*temp_angle[2];
       else
         pangle[2] = gamma;
       last_gamma = gamma;
     }
   }
+  
 
 }
 

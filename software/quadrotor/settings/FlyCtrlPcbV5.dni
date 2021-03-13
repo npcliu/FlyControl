@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=947005367
+Checksum=354183607
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -128,8 +128,8 @@ Bp0=_ 0 "EMUL_DATA" "0x20001915" 0 0 0 0 4294967295
 Bp1=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.242.7" 0 0 1 "" 0 "" 0
 Bp2=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.320.5" 0 0 1 "" 0 "" 0
 Bp3=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.202.5" 0 0 1 "" 0 "" 0
-Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.166.3" 0 0 1 "" 0 "" 0
-Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.212.3" 0 0 1 "" 0 "" 0
+Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.172.3" 0 0 1 "" 0 "" 0
+Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.218.3" 0 0 1 "" 0 "" 0
 Bp6=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.358.7" 0 0 1 "" 0 "" 0
 Bp7=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.353.5" 0 0 1 "" 0 "" 0
 Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\MyNRF24L0.c}.478.5" 0 0 1 "" 0 "" 0

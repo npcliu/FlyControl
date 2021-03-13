@@ -13373,11 +13373,11 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     break;
   case 'X':               
     
-    send_data[0][0] = (short)acc_angle[0][0];
-    send_data[0][1] = (short)acc_angle[0][1];
+    send_data[0][0] = (short)gc[1][2];
+    send_data[0][1] = (short)nrf_rciv[3];
     send_data[1][0] = (short)angle[0];
-    send_data[1][1] = (short)angle[1];
-    send_data[1][2] = (short) acc_angle[0][2];
+    send_data[0][2] = (short)angle[1];
+    send_data[1][2] = (short)angle[2];
    
 
 
@@ -13393,10 +13393,11 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
 
     break;
   case 'Y':               
-    send_data[0][0] = (short)angle[1];
-    send_data[0][1] = (short)((nrf_rciv[3]-127)*0.3);
-    send_data[1][0] = (short)0;
-    send_data[1][1] = (short)gyro.x;
+    send_data[0][0] = (short)nrf_rciv[2];
+    send_data[0][1] = (short)offset_angle[2];
+
+
+
 
 
     break;
@@ -13534,17 +13535,33 @@ void RCDenote()
 {
   static uint8 last_DR_value = 0;
   if(nrf_rciv[1]>20)                
-    if(nrf_rciv[2]>127+15)
+  {
+    
+    if(nrf_rciv[2]>127+20&&(nrf_rciv[2]<127+70))
     {
-      if(nrf_rciv[2]>last_DR_value)
-        offset_angle[2] -= angle_z_ctrl_rate*(nrf_rciv[2] - last_DR_value);
+      if(nrf_rciv[2]>=last_DR_value)
+        offset_angle[2] -= 0.3;
     }
-    else if(nrf_rciv[2]<127-15)
+    
+    else if(nrf_rciv[2]>127+70)
     {
-      if(nrf_rciv[2]<last_DR_value)
-        offset_angle[2] -= angle_z_ctrl_rate*(nrf_rciv[2] - last_DR_value);
+      if(nrf_rciv[2]>=last_DR_value)
+        offset_angle[2] -= 0.4;
     }
+    
+    else if(nrf_rciv[2]<127-20&&(nrf_rciv[2]>127-70))
+    {
+      if(nrf_rciv[2]<=last_DR_value)
+        offset_angle[2] += 0.3;
+    }
+    
+    else if(nrf_rciv[2]<127-70)
+    {
+      if(nrf_rciv[2]<=last_DR_value)
+        offset_angle[2] += 0.4;
+    }      
     else;
+  }
   last_DR_value = nrf_rciv[2];
 
   if(offset_angle[2]>360)

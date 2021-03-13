@@ -13217,11 +13217,11 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 
     {
       att_cal_count = 0;
-      pangle[0] = 0.002*tmp_acc_angle[0] + (1-0.002)*temp_angle[0];
-      pangle[1] = 0.002*tmp_acc_angle[1] + (1-0.002)*temp_angle[1];
+      pangle[0] = 0.0015*tmp_acc_angle[0] + (1-0.0015)*temp_angle[0];
+      pangle[1] = 0.0015*tmp_acc_angle[1] + (1-0.0015)*temp_angle[1];
       
       if(gamma-last_gamma<345&&(gamma-last_gamma>-345))
-        pangle[2] = 0.003*gamma + (1-0.003)*temp_angle[2];
+        pangle[2] = 0.0015*gamma + (1-0.0015)*temp_angle[2];
       else
         pangle[2] = gamma;
       last_gamma = gamma;
@@ -13263,7 +13263,7 @@ void PWMCalc(uint8 mod)
   static float _omega_error = 0;
   
   angle_error_x = angle[0]-(nrf_rciv[4]-129)*0.3 + offset_angle[0]; 
-  angle_error_y = (nrf_rciv[3]-127)*0.3-angle[1] + offset_angle[1];
+  gc[1][2] = angle_error_y = (nrf_rciv[3]-127)*0.3-angle[1] + offset_angle[1];
   static float filter_coef_state_x = 0,filter_coef_state_y = 0;              
   float deriv_out = 0;
   if(mod)

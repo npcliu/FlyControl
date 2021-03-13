@@ -76,11 +76,17 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
     offset_angle[0] = 0;//5;
     offset_angle[1] = 0;//5;
     offset_angle[2] = 0;
-    x_p_o = 80;                     //x(x axis)_p(proportion)_o(out loop)_t(ten shape fly)x轴十形飞行控制参数
-    x_p_i = 0.0247;
-    x_d_i = 0.0015;
-    y_p_o = 80;
-    y_p_i = 0.0257;
+//    x_p_o = 80;                     //x(x axis)_p(proportion)_o(out loop)_t(ten shape fly)x轴十形飞行控制参数
+//    x_p_i = 0.0247;
+//    x_d_i = 0.0015;
+//    y_p_o = 80;
+//    y_p_i = 0.0257;
+//    y_d_i = 0.001;
+    x_p_o = 60;                     //x(x axis)_p(proportion)_o(out loop)_x(x shape fly)x轴X形飞行控制参数
+    x_p_i = 0.015;
+    x_d_i = 0.0012;
+    y_p_o = 60;
+    y_p_i = 0.015;
     y_d_i = 0.001;
   }
 #endif

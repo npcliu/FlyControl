@@ -65,11 +65,11 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     break;
   case 'X':               //[x倾角，x倾角期望][y角速度][？]
     
-    send_data[0][0] = (short)acc_angle[0][0];
-    send_data[0][1] = (short)acc_angle[0][1];
+    send_data[0][0] = (short)gc[1][2];
+    send_data[0][1] = (short)nrf_rciv[UD_ADC_OFFSET];
     send_data[1][0] = (short)angle[0];
-    send_data[1][1] = (short)angle[1];
-    send_data[1][2] = (short) acc_angle[0][2];
+    send_data[0][2] = (short)angle[1];
+    send_data[1][2] = (short)angle[2];
    // send_data[1][2] = (short)offset_angle[2];
 //    send_data[2][0] = (short)gc[DBG_TMP_ANG_WATCH][DBG_ACC_TMP_ANG_X_WATCH];
 //    send_data[2][1] = (short)gc[DBG_TMP_ANG_WATCH][DBG_GYRO_TMP_ANG_X_WATCH];
@@ -85,10 +85,11 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
 //    send_data[2][2] = (short)gc[0][1];
     break;
   case 'Y':               //[y倾角，y倾角期望][x角速度][？]
-    send_data[0][0] = (short)angle[1];
-    send_data[0][1] = (short)((nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE);
-    send_data[1][0] = (short)0;
-    send_data[1][1] = (short)gyro.x;
+    send_data[0][0] = (short)nrf_rciv[DR_ADC_OFFSET];
+    send_data[0][1] = (short)offset_angle[2];
+//    send_data[0][1] = (short)((nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE);
+//    send_data[1][0] = (short)0;
+//    send_data[1][1] = (short)gyro.x;
 //    send_data[2][0] = (short)gc[DBG_TMP_ANG_WATCH][DBG_ACC_TMP_ANG_Y_WATCH];
 //    send_data[2][1] = (short)gc[DBG_TMP_ANG_WATCH][DBG_GYRO_TMP_ANG_Y_WATCH];
     break;
@@ -227,17 +228,33 @@ void RCDenote()
 {
   static uint8 last_DR_value = 0;
   if(nrf_rciv[TH_ADC_OFFSET]>20)                //apply direction control only when plane in the air,cause unlock plane will change direction stick
-    if(nrf_rciv[DR_ADC_OFFSET]>DR_ADC_CENTER+15)//摇杆向左打的时候，加15表示推油门时偏航摇杆有一定的变化
+  {
+    //摇杆向左打的时候，加20表示推油门时偏航摇杆有一定的变化,在50范围内期望角度增量为3
+    if(nrf_rciv[DR_ADC_OFFSET]>DR_ADC_CENTER+20&&(nrf_rciv[DR_ADC_OFFSET]<DR_ADC_CENTER+70))
     {
-      if(nrf_rciv[DR_ADC_OFFSET]>last_DR_value)//增量为正才算有效增量,
-        offset_angle[2] -= angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);//偏航摇杆向左打，增量为正，但期望偏航角度应该减小，所以用减号
+      if(nrf_rciv[DR_ADC_OFFSET]>=last_DR_value)//增量为正才算有效增量,
+        offset_angle[2] -= 0.3;//angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);//偏航摇杆向左打，增量为正，但期望偏航角度应该减小，所以用减号
     }
-    else if(nrf_rciv[DR_ADC_OFFSET]<DR_ADC_CENTER-15)//摇杆向右打的时候
+    //在摇杆向左打大于70期望角度增量为6
+    else if(nrf_rciv[DR_ADC_OFFSET]>DR_ADC_CENTER+70)
     {
-      if(nrf_rciv[DR_ADC_OFFSET]<last_DR_value)//增量为负才算有效增量
-        offset_angle[2] -= angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);
+      if(nrf_rciv[DR_ADC_OFFSET]>=last_DR_value)//增量为正才算有效增量,
+        offset_angle[2] -= 0.4;//angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);//偏航摇杆向左打，增量为正，但期望偏航角度应该减小，所以用减号
     }
+    //在-50范围内期望角度增量为3
+    else if(nrf_rciv[DR_ADC_OFFSET]<DR_ADC_CENTER-20&&(nrf_rciv[DR_ADC_OFFSET]>DR_ADC_CENTER-70))//摇杆向右打的时候
+    {
+      if(nrf_rciv[DR_ADC_OFFSET]<=last_DR_value)//增量为负才算有效增量
+        offset_angle[2] += 0.3;//angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);
+    }
+    //在小于-50范围内期望角度增量为6
+    else if(nrf_rciv[DR_ADC_OFFSET]<DR_ADC_CENTER-70)
+    {
+      if(nrf_rciv[DR_ADC_OFFSET]<=last_DR_value)//增量为负才算有效增量
+        offset_angle[2] += 0.4;//angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);
+    }      
     else;
+  }
   last_DR_value = nrf_rciv[DR_ADC_OFFSET];
 
   if(offset_angle[2]>360)//把期望yaw角度限制在0到360度

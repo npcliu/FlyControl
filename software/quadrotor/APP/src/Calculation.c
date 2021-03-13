@@ -324,11 +324,11 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 //    else
     {
       att_cal_count = 0;
-      pangle[0] = 0.002*tmp_acc_angle[0] + (1-0.002)*temp_angle[0];
-      pangle[1] = 0.002*tmp_acc_angle[1] + (1-0.002)*temp_angle[1];//      else
+      pangle[0] = 0.0015*tmp_acc_angle[0] + (1-0.0015)*temp_angle[0];
+      pangle[1] = 0.0015*tmp_acc_angle[1] + (1-0.0015)*temp_angle[1];//      else
       //Æ«º½½Ç»¥²¹ÂË²¨
       if(gamma-last_gamma<345&&(gamma-last_gamma>-345))
-        pangle[2] = 0.003*gamma + (1-0.003)*temp_angle[2];
+        pangle[2] = 0.0015*gamma + (1-0.0015)*temp_angle[2];
       else
         pangle[2] = gamma;
       last_gamma = gamma;
@@ -374,7 +374,7 @@ void PWMCalc(uint8 mod)
 #endif
   
   angle_error_x = angle[0]-(nrf_rciv[LR_ADC_OFFSET]-129)*ANG_CTRL_RATE + offset_angle[0]; //
-  angle_error_y = (nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE-angle[1] + offset_angle[1];
+  gc[1][2] = angle_error_y = (nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE-angle[1] + offset_angle[1];
   static float filter_coef_state_x = 0,filter_coef_state_y = 0;              //Î¢·Ö×´Ì¬±äÁ¿
   float deriv_out = 0;
   if(mod)//XÐÎ·ÉÐÐ
@@ -387,7 +387,7 @@ void PWMCalc(uint8 mod)
 #ifdef WATCH_DIFF_COEF
   gc[1][0] = (_omega_error - last_omega_error_x)/INTERUPT_CYC_IN_MS*1e3;
   last_omega_error_x = _omega_error;
-  gc[1][2] = deriv_out/x_d_i;
+  //gc[1][2] = deriv_out/x_d_i;
 #else
 #endif
     

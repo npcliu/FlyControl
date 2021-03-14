@@ -13089,7 +13089,7 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 
   float earth_magnetic_in_d = f * cos_alpha - m * sin_alpha;
   
-  float earth_magnetic_in_e = h * cos_beta - f * sin_alpha * sin_beta - m * cos_alpha * sin_beta;
+  float earth_magnetic_in_e = h * cos_beta - (f * sin_alpha + m * cos_alpha) * sin_beta;
   
 
 

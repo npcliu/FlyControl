@@ -175,7 +175,7 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 
   float earth_magnetic_in_d = f * cos_alpha - m * sin_alpha;//地球磁场的在水平面x轴（也就是向量d）上的分量
   
-  float earth_magnetic_in_e = h * cos_beta - f * sin_alpha * sin_beta - m * cos_alpha * sin_beta;//地球磁场在水平面y轴（也就是向量e）上的分量
+  float earth_magnetic_in_e = h * cos_beta - (f * sin_alpha + m * cos_alpha) * sin_beta;//地球磁场在水平面y轴（也就是向量e）上的分量
   
 
 //  if(pangle[2] + yaw_init<0)//这里还有问题

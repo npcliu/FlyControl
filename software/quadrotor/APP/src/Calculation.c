@@ -6,6 +6,7 @@
 #include "MyNRF24L0.h"
 #include "info.h"
 
+float yaw_init = 0;//初始偏航角，起飞前记录一下机头与正北方向的夹角,起飞以后要减去这个偏置角
 float angle[3] = {0};
 float angle_error_x = 0;
 //float last_angle_error_x = 0;
@@ -74,79 +75,147 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 //  mod:飞行的形式，十字形0，X形=1；
 //Return:void;
 //Example:;
+//
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 {//  木机架抖动太厉害，并且不是高斯分布的，有一种频率比较低的大幅度成分不知道来源估计是共振，如果能解决此“共振”则可用
   static float tmp_acc_angle[3] = {0};      //attitude angle calculated from accelerometer
+  float a = pacc[0], b = pacc[1], c = pacc[2], f = pcps[0], h = pcps[1], m = pcps[2];//加负号是为了和加速度计在一个坐标系
   float temp_angle[3] = {0};         //acc_delay_angx:acc平均滤波有较大延迟的角度
   
-  float csquar = pacc[2] * pacc[2];
-  float sec_partx,sec_party;            //计算公式中的第二项
+  float csquar = c * c;//c^2
+  float asquar,bsquar;//a^2,b^2            //计算公式中的第二项
   if(mod)       //X形状，详见大计划
   {
-    sec_partx = pacc[1] + pacc[0];
-    sec_partx = sec_partx*sec_partx;
-    sec_partx = sec_partx/2.0;
-    sec_party = pacc[1] - pacc[0];
-    sec_party = sec_party*sec_party;
-    sec_party = sec_party/2.0;
+    asquar = b + a;
+    asquar = asquar*asquar;
+    asquar = asquar/2.0;
+    bsquar = b - a;
+    bsquar = bsquar*bsquar;
+    bsquar = bsquar/2.0;
   }
   else          //十字形，详见大计划
   {
-    sec_partx = pacc[0]*pacc[0];
-    sec_party = pacc[1]*pacc[1];
+    asquar = a*a;
+    bsquar = b*b;
   }
-  float tmp = sqrt(csquar + sec_partx);
-  if(tmp<0.00001)
+  float asquar_plus_csquar = asquar + csquar;//a^2 + b^2
+  float abs_d = sqrt(asquar_plus_csquar);//向量d的模
+  if(abs_d<0.00001)
     return;
-  float cos_tmp_ang_x = pacc[2]/tmp; //cos_delta/sqrt(cos_delta*cos_delta + sin_gama*sin_gama);
-  if(cos_tmp_ang_x>1)
-    cos_tmp_ang_x = 1;
-  else if(cos_tmp_ang_x<-1)
-    cos_tmp_ang_x = -1;
+  float cos_alpha = c/abs_d; //y轴旋转角的绝对值
+  if(cos_alpha>1)
+    cos_alpha = 1;
+  else if(cos_alpha<-1)
+    cos_alpha = -1;
   
   if(mod)       //X形状，详见大计划
   {
-    if(pacc[0]+pacc[1]>0)                         //cos映射到0~180；通过sin正负映射到0~-180
-      temp_angle[0] = acos(cos_tmp_ang_x)/PI_DIV_180;
+    if(a+b>0)                         //cos映射到0~180；通过sin正负映射到0~-180
+      tmp_acc_angle[0] = acos(cos_alpha)*R2D;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_x)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+    {
+      tmp_acc_angle[0] = -acos(cos_alpha)*R2D;           //加速度计反算的旋转倾斜角度
+
+    }
   }
   else
   {
-    if(pacc[0]>0)                         //cos映射到0~180；通过sin正负映射到0~-180
-      temp_angle[0] = acos(cos_tmp_ang_x)/PI_DIV_180;
+    if(a>0)                         //cos映射到0~180；通过sin正负映射到0~-180
+      tmp_acc_angle[0] = acos(cos_alpha)*R2D;
+    
     else
-      temp_angle[0] = -acos(cos_tmp_ang_x)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+    {
+      tmp_acc_angle[0] = -acos(cos_alpha)*R2D;           //加速度计反算的旋转倾斜角度
+
+    }
   }
-  acc_angle[0][0] = tmp_acc_angle[0] = temp_angle[0];
+  acc_angle[0][0] = tmp_acc_angle[0];
   
-  tmp = sqrt(sec_party + csquar);
-  if(tmp<0.00001)
+  
+  float abs_e = sqrt(asquar*bsquar + asquar_plus_csquar*asquar_plus_csquar + bsquar*csquar);//向量e的模
+  if(abs_e<0.00001)
     return;
-  float cos_tmp_ang_y =  pacc[2]/tmp;//cos_delta/sqrt(cos_delta*cos_delta + sin_ykxr*sin_ykxr);
-  if(cos_tmp_ang_y>1)
-    cos_tmp_ang_y = 1;
-  else if(cos_tmp_ang_y<-1)
-    cos_tmp_ang_y = -1;
+  float cos_beta =  asquar_plus_csquar/abs_e;//绕x轴旋转角的余弦的绝对值
+  if(cos_beta>1)
+    cos_beta = 1;
+  else if(cos_beta<-1)
+    cos_beta = -1;
   if(mod)       //X形状，详见大计划
   {
-    if(pacc[0]<pacc[1])                         //cos映射到0~180；通过sin正负映射到0~-180
-      temp_angle[0] = acos(cos_tmp_ang_y)/PI_DIV_180;
+    if(a<b)                         //cos映射到0~180；通过sin正负映射到0~-180
+      tmp_acc_angle[1] = acos(cos_beta)*R2D;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_y)/PI_DIV_180;           //加速度计反算的旋转倾斜角度
+    {
+      tmp_acc_angle[1] = -acos(cos_beta)*R2D;           //加速度计反算的旋转倾斜角度
+    
+    }
   }
   else
   {
-    if(pacc[1]>0)
-      temp_angle[0] = acos(cos_tmp_ang_y)/PI_DIV_180;
+    if(b>0)
+      tmp_acc_angle[1] = acos(cos_beta)*R2D;
     else
-      temp_angle[0] = -acos(cos_tmp_ang_y)/PI_DIV_180;
+    {
+      
+      tmp_acc_angle[1] = -acos(cos_beta)*R2D;
+    
+    }
   }
-  acc_angle[0][1] = tmp_acc_angle[1] = temp_angle[0];  //  assert(!isnan(temp_angle[0]));
-  
+  acc_angle[0][1] = tmp_acc_angle[1];  //  assert(!isnan(temp_angle[0]));
   
   /************************compass data process*****************************/
+  float gamma = 0;
+  static float last_gamma = 0;
   
+  
+  float sin_alpha = sin(pangle[0]*D2R);
+  float sin_beta = sin(pangle[1]*D2R);
+  cos_alpha = cos(pangle[0]*D2R);
+  cos_beta = cos(pangle[1]*D2R);
+
+  float earth_magnetic_in_d = f * cos_alpha - m * sin_alpha;//地球磁场的在水平面x轴（也就是向量d）上的分量
+  
+  float earth_magnetic_in_e = h * cos_beta - (f * sin_alpha + m * cos_alpha) * sin_beta;//地球磁场在水平面y轴（也就是向量e）上的分量
+  
+
+//  if(pangle[2] + yaw_init<0)//这里还有问题
+//  {
+//    if(earth_magnetic_in_e>=0)
+//    {
+//      if(earth_magnetic_in_d>0)//-270到-360度
+//        gamma = -360 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//从上往下看，逆时针转，数据为90到0度，转换为实际角度
+//      else//-180到-270度
+//        gamma = -180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为0到-90度，转换为实际角度
+//    }
+//    else
+//    {
+//      if(earth_magnetic_in_d>0)//-0到-90度
+//        gamma = R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为0到-90度，转换为实际角度
+//      else//-90到-180度    
+//        gamma = -180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为90到0度，转换为实际角度
+//    }
+//    acc_angle[0][2] = gamma; //- yaw_init;       
+//
+//  }
+//  else
+  
+    if(earth_magnetic_in_e>=0)
+    {
+      if(earth_magnetic_in_d>0)//0到90度
+        gamma = R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//从上往下看，逆时针转，数据为0到90度，转换为实际角度
+      else//90到180度
+        gamma = 180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为-90到0度，转换为实际角度
+    }
+    else
+    {
+      if(earth_magnetic_in_d>0)//270到360度
+        gamma = 360 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为-90到0度，转换为实际角度
+      else//180到270度    
+        gamma = 180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为0到90度，转换为实际角度
+    }
+    acc_angle[0][2] = gamma;// - yaw_init;    
+    
+    
   //  static float z_angle[2] = {0};                        //编译时赋值
   
   //  float hz_divid_gz = (float)pcps->z/pacc[2];//注意：如果加速度计采用了长时延的滤波，而电子罗盘未滤波，则变化过程中由于加计延迟，角度会有较大偏差
@@ -160,13 +229,15 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   // gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = pacc[0]/10;
   //    p_acc_angle[2] = atan2(index[0],index[1])/PI_DIV_180;
   
-  sqrt(pcps[0]*pcps[0] + pcps[1]*pcps[1] + pcps[2]*pcps[2]);
+  //sqrt(pcps[0]*pcps[0] + pcps[1]*pcps[1] + pcps[2]*pcps[2]);
   //  gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = (z_angle[0] = atan2(pcps[0],pcps[1])/PI_DIV_180); //计算偏航角度
-  angle[2] = angle[2] - (gyro.z)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//pgyro->z
   //    p_acc_angle[2] = (z_angle[0]+99*temp_angle[1])*0.01;  //  计算x&y轴角度值ang_x & ang_y，单位：度
   //    if(nrf_rciv[TH_ADC_OFFSET]<2)
   //      p_acc_angle[2] = 0;
   //    p_acc_angle[2] = temp_angle[1];  //  计算x&y轴角度值ang_x & ang_y，单位：度
+  //  AttitudeEKF(true,false,update,5e-3,z,0,0,0,0,0,0,0, 0,xa_apo,Pa_apo,Rot_matrix,eulerAngle,debugOutput);
+
+    
 #ifdef WATCH_INTEGRAL_ANGLE             //
   static float gyro_angle[2] = {0};
   if(mod)
@@ -192,18 +263,44 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   {
     temp_angle[0] = pangle[0] + ((pgyro[0]-pgyro[1])*0.7071)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//陀螺仪积分推算旋转倾角;
     temp_angle[1] = pangle[1] + ((pgyro[1]+pgyro[0])*0.7071)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//atan((float)(pacc->x)/pacc->z)/PI * 180.0 - Angle0;
+    
   }
   else
   {
     temp_angle[0] = pangle[0] - (pgyro[1])*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//陀螺仪积分推算旋转倾角;
     temp_angle[1] = pangle[1] + (pgyro[0])*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//atan((float)(pacc->x)/pacc->z)/PI * 180.0 - Angle0;
+    
   }
+  //偏航角互补滤波
+  temp_angle[2] = pangle[2] - (gyro.z)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//z轴陀螺仪积分得到另一种偏航角
+
+  //acc_angle[0][0] = temp_angle[2];
+  
+  
+
+  
   static uint32 att_cal_count = 0;      //用来计时该使用加速度数据了
-  if(nrf_rciv[TH_ADC_OFFSET]<=2)                        //油门小于2则认为没震动，角度就用加速度计解算值
+  static char t = 0;   
+  if(nrf_rciv[TH_ADC_OFFSET]<=2)                        //油门小于2则认为没震动，角度就用加速度计和地磁计解算值
   {
     pangle[0] = tmp_acc_angle[0];
     pangle[1] = tmp_acc_angle[1];
     att_cal_count = 0;
+    //offset angle and integerd direction angle must be cleand the same time  
+    
+    yaw_init = gamma;
+    pangle[2] = yaw_init;
+    offset_angle[2] = yaw_init;
+    
+ //   t++;
+ //   if(t>50)
+ //   {
+ //     
+ //
+ //     
+ //     nrf_rciv[TH_ADC_OFFSET] = 33;
+ //     t = 51;
+ //   }
   }
   else
   {
@@ -212,26 +309,33 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 //      pangle[0] = temp_angle[0] - angx_err;
 //      pangle[1] =(angy_err+49*temp_angle[1])*0.02;
 //    }
-    if(att_cal_count<(10/INTERUPT_CYC_IN_MS))      //10s钟归位一次
-    {
-      att_cal_count++;
-      pangle[0] = temp_angle[0];        //只用陀螺仪
-      pangle[1] = temp_angle[1];//      else
-    }
-    else
+    
+//    if(att_cal_count<(10/INTERUPT_CYC_IN_MS))      //10s钟归位一次
+//    {
+//      att_cal_count++;
+//      pangle[0] = temp_angle[0];        //只用陀螺仪
+//      pangle[1] = temp_angle[1];//      else
+//      
+//      
+//      //偏航角互补滤波
+//      pangle[2] = temp_angle[2];
+//      
+//    }
+//    else
     {
       att_cal_count = 0;
-      pangle[0] = 0.001*tmp_acc_angle[0] + (1-0.001)*temp_angle[0];
-      pangle[1] = 0.001*tmp_acc_angle[1] + (1-0.001)*temp_angle[1];//      else
+      pangle[0] = 0.0015*tmp_acc_angle[0] + (1-0.0015)*temp_angle[0];
+      pangle[1] = 0.0015*tmp_acc_angle[1] + (1-0.0015)*temp_angle[1];//      else
+      //偏航角互补滤波
+      if(gamma-last_gamma<345&&(gamma-last_gamma>-345))
+        pangle[2] = 0.0015*gamma + (1-0.0015)*temp_angle[2];
+      else
+        pangle[2] = gamma;
+      last_gamma = gamma;
     }
   }
-  //  AttitudeEKF(true,false,update,5e-3,z,0,0,0,0,0,0,0, 0,xa_apo,Pa_apo,Rot_matrix,eulerAngle,debugOutput);
   
-  if(nrf_rciv[TH_ADC_OFFSET]<2)
-  {//offset angle and integerd direction angle must be cleand the same time  
-    offset_angle[2] = 0;
-    angle[2] = 0;
-  }
+
 }
 
 
@@ -260,7 +364,7 @@ float pwm_of_dir = 0;                           //yaw  Control quantity
 //  PWMCalc(0);   //十字形飞行模式下4个电机的转速(PWM)计算
 void PWMCalc(uint8 mod)
 {
-  static float dir_angle_error[2] = {0};
+  float dir_angle_error[2] = {0};
   static float throttle = 0;
   static float omega_e = 0;             //desier rotation speed
   static float _omega_error = 0;
@@ -270,7 +374,7 @@ void PWMCalc(uint8 mod)
 #endif
   
   angle_error_x = angle[0]-(nrf_rciv[LR_ADC_OFFSET]-129)*ANG_CTRL_RATE + offset_angle[0]; //
-  angle_error_y = (nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE-angle[1] + offset_angle[1];
+  gc[1][2] = angle_error_y = (nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE-angle[1] + offset_angle[1];
   static float filter_coef_state_x = 0,filter_coef_state_y = 0;              //微分状态变量
   float deriv_out = 0;
   if(mod)//X形飞行
@@ -283,7 +387,7 @@ void PWMCalc(uint8 mod)
 #ifdef WATCH_DIFF_COEF
   gc[1][0] = (_omega_error - last_omega_error_x)/INTERUPT_CYC_IN_MS*1e3;
   last_omega_error_x = _omega_error;
-  gc[1][2] = deriv_out/x_d_i;
+  //gc[1][2] = deriv_out/x_d_i;
 #else
 #endif
     
@@ -315,6 +419,11 @@ void PWMCalc(uint8 mod)
     filter_coef_state_y += deriv_out*INTERUPT_CYC_IN_MS*1e-3;
   }
   dir_angle_error[0] = offset_angle[2] - angle[2];
+  if(dir_angle_error[0]>200)//误差大于270度说明经过了0和360度之间的间断点
+    dir_angle_error[0] -= 360;
+  else if(dir_angle_error[0]<-200)
+    dir_angle_error[0] += 360;
+  gc[1][1] = dir_angle_error[0];
   pwm_of_dir = z_p *dir_angle_error[0] + z_d*(gyro.z);
 
 #ifdef MY_WOOD                  //my wood plane

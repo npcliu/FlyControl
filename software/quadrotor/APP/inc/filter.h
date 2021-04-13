@@ -24,4 +24,5 @@ typedef  struct{
 float SecondOrderLPF(LPFParam *_PLPFParam);
 void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
 double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
+float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
 #endif

@@ -11854,18 +11854,11 @@ void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
-
-
-
 void IIC_Port_Init(void);                       
-void CompassInit(void);
 
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
 uint8 Single_Read(uint8 slave_addr,uint8 reg_addr);
-short bmp085ReadTemp(void);
-short bmp085ReadPressure(void);
-extern   unsigned int ut;
-extern unsigned long up;
+
 
  
 
@@ -12140,11 +12133,11 @@ BOOL MPUInit(void)
   
   int gyro_scale_config = 0;              
   gyro_scale_config = 0*((0.0610370f)>(0.0076294f)-0.0001 && (0.0610370f)<(0.0076294f)+0.0001)    +1*((0.0610370f)>(0.0152592f)-0.0001 && (0.0610370f)<(0.0152592f)+0.0001)    +2*((0.0610370f)>(0.0305185f)-0.0001 && (0.0610370f)<(0.0305185f)+0.0001)    +3*((0.0610370f)>(0.0610370f)-0.0001 && (0.0610370f)<(0.0610370f)+0.0001);
-((0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config) ? (void)0 : ( __aeabi_assert("0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\User\\src\\Mpu6050.c", 26), ( __iar_EmptyStepPoint())));       
+((0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config) ? (void)0 : ( __aeabi_assert("0==gyro_scale_config || 1==gyro_scale_config || 2==gyro_scale_config || 3==gyro_scale_config", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\User\\src\\Mpu6050.c", 26), ( __iar_EmptyStepPoint())));       
 
   int acc_scale_config = 0;              
 acc_scale_config = 0*((0.00048830f)>(0.00006104f)-1e-6 && (0.00048830f)<(0.00006104f)+1e-6)  +1*((0.00048830f)>(0.00012207f)-1e-6 && (0.00048830f)<(0.00012207f)+1e-6)  +2*((0.00048830f)>(0.00024415f)-1e-6 && (0.00048830f)<(0.00024415f)+1e-6)  +3*((0.00048830f)>(0.00048830f)-1e-6 && (0.00048830f)<(0.00048830f)+1e-6);
-((0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config) ? (void)0 : ( __aeabi_assert("0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\User\\src\\Mpu6050.c", 33), ( __iar_EmptyStepPoint())));       
+((0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config) ? (void)0 : ( __aeabi_assert("0==acc_scale_config || 1==acc_scale_config || 2==acc_scale_config || 3==acc_scale_config", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\User\\src\\Mpu6050.c", 33), ( __iar_EmptyStepPoint())));       
   const uint8 param[][2] = 
   {
     {0x6B,        1     }, 

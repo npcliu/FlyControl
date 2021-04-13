@@ -10,6 +10,8 @@
 #include "DataStructure.h"
 #include "interact.h"
 #include "bmp180.h"
+#include "ms5611.h"
+#include "filter.h"
 
 PSNODE anglex_pnode;
 PSNODE angley_pnode;
@@ -37,14 +39,13 @@ extern short amplitude;
 *  修改时间：2014-1-14    已经测试DLUT上位机默认数据为short格式;因此数据不要超过-32767~32767区间
 0：red;1=blue;2=light blue;3=yellow;4=light green;5=dark green
 *************************************************/
-char send_type = 'Y';
+char send_type = 'y';
 extern float pwm_of_dir;
 extern short acc_chip_out[3];
 extern short gyro_chip_out[3];
 extern short cps_chip_out[3];
 extern float filted_acc[2][3];
 extern short acc1[2][3];
-extern _bmp180 bmp180;
 void SCISend_to_Own(USART_TypeDef* USARTx)
 {
 //  static uint32 count = 0;
@@ -87,16 +88,21 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     break;
   case 'y':               //[y倾角，y倾角期望][y分量加速度][？]
     send_data[0][0] = (short)(gc[3][7]*10);
-//    send_data[0][1] = (short)cps_chip_out[0];
-//    //send_data[0][2] = (short)acc_chip_out[2];
-//    send_data[1][0] = (short)acc_chip_out[1];
-//    send_data[1][1] = (short)cps_chip_out[1];
-//    send_data[2][0] = (short)acc_chip_out[2];
-//    send_data[2][1] = (short)cps_chip_out[2];
+    send_data[0][1] = (short)(gc[3][6]*10);
+    send_data[2][0] = (short)(gc[3][5]*10);
+    send_data[2][1] = (short)(gc[3][4]*10);    
+    send_data[1][0] = (short)((gc[3][7]-gc[3][6])*10);
+    send_data[1][1] = (short)((gc[3][5]-gc[3][4])*10); 
+    extern _bmp180 bmp180;
+    extern _ms5611 ms5611;
+    //gc[3][3] = AltitudeFusion(ms5611.altitude-ms5611.altitude_init,bmp180.altitude-bmp180.altitude_init);
+    send_data[1][2] = (short)(gc[3][3]*10);
+    
 //    send_data[2][2] = (short)gc[0][1];
     break;
   case 'Y':               //[y倾角，y倾角期望][x角速度][？]
-      send_data[0][0] = (short)(gc[3][7]*10);
+    send_data[0][0] = (short)nrf_rciv[DR_ADC_OFFSET];
+    send_data[0][1] = (short)offset_angle[2];
 //    send_data[0][1] = (short)((nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE);
 //    send_data[1][0] = (short)0;
 //    send_data[1][1] = (short)gyro.x;

@@ -13,6 +13,8 @@
 #include "L3GD20.h"
 #include "Task.h"
 #include "interact.h"           //uart initial
+#include "bmp180.h"
+#include "ms5611.h"
 
 ACC acc = {.x=1,.y=2,.z=3,.kx = 1,.ky = 1,.kz = 1,.x_off=0,.y_off=0,.z_off=0};   //安全性考虑，缺省斜率应为1，而不能设为0；截距应设为0
 ACC LSM_acc_adc = {.x=1,.y=2,.kx = 1,.ky=1,.kz=1,.x_off=0,.y_off=0,.z_off=0};
@@ -43,7 +45,7 @@ int main(void)
   next_procedure = TaskInit(Task);                               //init task and task pointer
   ParamInit((short *)&gyro+3,&acc, &compass);       //read initial data from flash
   AdcInit();                                                    //
-    gpio_init(RED_PIN,Out_PP,n_interupt,GPIO_Speed_50MHz,0);						 //PB.5 ???
+  gpio_init(RED_PIN,Out_PP,n_interupt,GPIO_Speed_50MHz,0);						 //PB.5 ???
   gpio_init(BLUE_PIN,Out_OD,n_interupt,GPIO_Speed_50MHz,0);						 //PB.5 ???
   gpio_init(RGB_R_PIN,Out_PP,n_interupt,GPIO_Speed_50MHz,1);						 //PB.5 ???
   gpio_init(RGB_G_PIN,Out_PP,n_interupt,GPIO_Speed_50MHz,1);						 //PB.5 ???
@@ -54,6 +56,7 @@ int main(void)
   gpio_init(LSM303_CS_PIN, Out_PP,n_interupt,GPIO_Speed_50MHz, 1);                               //初始化CE，默认进入待机模式
   gpio_init(NRF_CSN_PIN, Out_PP,n_interupt,GPIO_Speed_50MHz, 1);                               //初始化CE，默认进入待机模式
 
+  
 #ifdef HARD_IIC
   i2c_init(I2C1,0x0FFFFFFF);
 #else
@@ -88,14 +91,27 @@ int main(void)
   SET_SPIn_POLARITY(3,0);                 //set spi'3' polarity to '1'
   
   NVIC_Config();
+  
+  BMP_ReadCalibrationData();
+  
+  MS5611_IIC_Init();
+  MS561101BA_Init();
+  
+
+//  while(1);
   __enable_irq();
   printf("实验开始\r\n");
-  extern char irq_tim4_flag;
+  extern _bmp180 bmp180;
+  
   while(1)
   {
-    //printf("bbbbbbbbbbbbbbbb");
-    //printf("%f\r\n",1.0/200);
-   //printf("acc2=%f\r\n",sqrt(0.00484*0.00484*filted_acc[0][0]*filted_acc[0][0]+0.00488*0.00488*filted_acc[0][1]*filted_acc[0][1]+0.00478*0.00478*filted_acc[0][2]*filted_acc[0][2]));
+    //MS5611GetTemperatureAndPressure();
+    
+    //BMP_UncompemstatedToTrue();
+ 
+      
+
+  //printf("%f,  %ld\r\n",bmp180.altitude,bmp180.Temp);
 /*****************************所有模式都会执行的程序*******************************/
     if(pit_5s_flag)
     {
@@ -117,6 +133,7 @@ int main(void)
       pit_5s_flag = 0;
       RGB_B_OUT = 1;
     }
+
     next_procedure = Task[next_procedure](1);
   }
 }

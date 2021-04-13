@@ -12946,6 +12946,7 @@ typedef  struct{
 float SecondOrderLPF(LPFParam *_PLPFParam);
 void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
 double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
+float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
 float change_th_flag = 0;
 float yaw_init = 0;
 float angle[3] = {0};

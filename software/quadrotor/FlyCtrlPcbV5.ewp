@@ -1944,6 +1944,9 @@
       <name>$PROJ_DIR$\FWLIB\src\stm32f10x_adc.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\FWLIB\src\stm32f10x_bkp.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\FWLIB\src\stm32f10x_dma.c</name>
     </file>
     <file>
@@ -1957,6 +1960,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\FWLIB\src\stm32f10x_i2c.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\FWLIB\src\stm32f10x_pwr.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\FWLIB\src\stm32f10x_rcc.c</name>
@@ -2028,6 +2034,9 @@
   <group>
     <name>User</name>
     <file>
+      <name>$PROJ_DIR$\User\src\BMP180.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\APP\src\DataStructure.c</name>
     </file>
     <file>
@@ -2044,6 +2053,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\User\src\Mpu6050.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\User\src\ms5611.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\User\src\MyNRF24L0.c</name>

@@ -12967,6 +12967,102 @@ float AltitudeControl(float * pacc);
 float AltitudeControl(float * pacc);
 
 
+typedef struct
+{           
+  float fd;    
+  float input;     
+  float _d_delay_element_1;
+  float _d_delay_element_2;
+}LPFParam, *PLPFParam;
+
+
+typedef  struct{
+	double filterValue;  
+	double kalmanGain;   
+	double A;   
+	double H;   
+	double Q;   
+	double R;   
+	double P;   
+}  KalmanInfo;
+
+float SecondOrderLPF(LPFParam *_PLPFParam);
+void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
+double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
+float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
+
+
+typedef struct __BMP180
+{
+	short AC1;
+	short AC2;
+	short AC3;
+	unsigned short AC4;
+	unsigned short AC5;
+	unsigned short AC6;
+	short B1;
+	short B2;
+	short MB;
+	short MC;
+	short MD;
+	long UT;
+	long UP;
+	long X1;
+	long X2;
+	long X3;
+	long B3;
+	unsigned long B4;
+	long B5;
+	long B6;
+	long B7;
+	long p;
+	long Temp;
+	float altitude;
+        float altitude_init;
+}_bmp180;
+
+extern   unsigned int ut;
+extern unsigned long up;
+
+void BMP_ReadCalibrationData(void);
+void BMP_UncompemstatedToTrue(void);
+
+
+ 
+ 
+
+
+
+
+
+ 
+
+
+typedef struct __MS5611
+{
+  uint16_t Cal_C[7]; 
+  uint32_t D1_Pres,D2_Temp; 
+  int32_t Pressure;				
+  int32_t dT,Temperature2;
+  int64_t OFF,SENS;  
+  float Aux;
+  int64_t OFF2,SENS2;
+  int32_t Temperature;
+  float altitude;
+  float altitude_init;
+}_ms5611;
+
+void MS5611_IIC_Init(void);
+void MS561101BA_Reset(void);
+void MS561101BA_readPROM(void);
+
+uint32_t MS561101BA_DO_CONVERSION(u8 command);
+void MS561101BA_GetTemperature(u8 OSR_Temp);
+void MS561101BA_GetPressure(u8 OSR_Pres);
+void MS561101BA_Init(void);
+void MS5611GetTemperatureAndPressure(void);
+
+
 
 
 
@@ -13022,6 +13118,12 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
 
 
   }
+  
+  extern KalmanInfo kalmanFilter_of_bmp180_altitude;
+  extern KalmanInfo kalmanFilter_of_ms5611_altitude;
+  Init_KalmanInfo(&kalmanFilter_of_bmp180_altitude,0.0005,0.1131);
+  Init_KalmanInfo(&kalmanFilter_of_ms5611_altitude,0.00001,0.0112);
+
   p_gyro_offset[0] = FLASH_ReadHalfWord(0x0803F800 + 0);        
   p_gyro_offset[1] = FLASH_ReadHalfWord(0x0803F800 + 2);
   p_gyro_offset[2] = FLASH_ReadHalfWord(0x0803F800 + 4);
@@ -13111,10 +13213,10 @@ float BatVoltageGet()
 {
   uint16 adc_val = 0;
   float prop_voltage = 0;       
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b2) = 1;
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b13) = 1;
   delay_us(10);                
   adc_val = GetAdc(13);         
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b2) = 0;
+  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b13) = 0;
   prop_voltage = adc_val/4096.0*3.28*(2.7+0.91)/0.91;   
   if(prop_voltage<=6)         
     return prop_voltage;
@@ -13124,7 +13226,7 @@ float BatVoltageGet()
 
 void AdcInit(void)
 {
-  gpio_init(PC2,GPIO_Mode_Out_PP,n_interupt,GPIO_Speed_50MHz,0);						 
+  gpio_init(PC13,GPIO_Mode_Out_PP,n_interupt,GPIO_Speed_50MHz,0);						 
   gpio_init(PC3,GPIO_Mode_AIN,n_interupt,GPIO_Speed_50MHz,0);						 
   RCC_APB2PeriphClockCmd(((uint32_t)0x00000200), ENABLE);
   RCC_ADCCLKConfig(((uint32_t)0x00008000));

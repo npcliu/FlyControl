@@ -1,8 +1,6 @@
 #ifndef __INTERACT_H
 #define __INTERACT_H 
 
-extern char send_type;
-
 void UARTSendFloat(float d);
 void SCISend_to_Own(USART_TypeDef* USARTx);
 void SendParametersToRC();

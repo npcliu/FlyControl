@@ -26,7 +26,7 @@
 #define BUZZER_PIN      PB0
 #define LIGHT_PIN       PC5
 #define ADC_PIN         PC3
-#define ADC_EN_PIN      PC2
+#define ADC_EN_PIN      PC13//PC2
 #define BAT_ADC_CH      13
 
 #define RED_OUT            PB12_OUT
@@ -36,7 +36,7 @@
 #define RGB_B_OUT           PC12_OUT
 #define BUZZER_OUT          PB0_OUT
 #define LIGHT_OUT           PC5_OUT
-#define ADC_EN_OUT          PC2_OUT
+#define ADC_EN_OUT          PC13_OUT//这里该是PC2，但是PC2用来测试MS5611了
 
 #define BLUE_TRN        PB13_TRN
 #define RGB_R_TRN       PC10_TRN

@@ -12046,18 +12046,11 @@ void gpio_int_cfg(PTXn_e pin,uint32_t EXTI_Line,uint8 EXTI_Trigger);
 
 
 
-
-
-
 void IIC_Port_Init(void);                       
-void CompassInit(void);
 
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
 uint8 Single_Read(uint8 slave_addr,uint8 reg_addr);
-short bmp085ReadTemp(void);
-short bmp085ReadPressure(void);
-extern   unsigned int ut;
-extern unsigned long up;
+
 
 
 

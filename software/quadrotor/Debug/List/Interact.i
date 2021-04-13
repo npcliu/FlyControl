@@ -13306,8 +13306,6 @@ char AddNode(PSNODE pnode, unsigned int Add_Node_Number);
 void UpdateDataToNode(PSNODE pnode, unsigned int i, float data);
 
 
-extern char send_type;
-
 void UARTSendFloat(float d);
 void SCISend_to_Own(USART_TypeDef* USARTx);
 void SendParametersToRC();
@@ -13320,6 +13318,102 @@ void RCDenote();
 
 
 
+
+typedef struct __BMP180
+{
+	short AC1;
+	short AC2;
+	short AC3;
+	unsigned short AC4;
+	unsigned short AC5;
+	unsigned short AC6;
+	short B1;
+	short B2;
+	short MB;
+	short MC;
+	short MD;
+	long UT;
+	long UP;
+	long X1;
+	long X2;
+	long X3;
+	long B3;
+	unsigned long B4;
+	long B5;
+	long B6;
+	long B7;
+	long p;
+	long Temp;
+	float altitude;
+        float altitude_init;
+}_bmp180;
+
+extern   unsigned int ut;
+extern unsigned long up;
+
+void BMP_ReadCalibrationData(void);
+void BMP_UncompemstatedToTrue(void);
+
+
+ 
+ 
+
+
+
+
+
+ 
+
+
+typedef struct __MS5611
+{
+  uint16_t Cal_C[7]; 
+  uint32_t D1_Pres,D2_Temp; 
+  int32_t Pressure;				
+  int32_t dT,Temperature2;
+  int64_t OFF,SENS;  
+  float Aux;
+  int64_t OFF2,SENS2;
+  int32_t Temperature;
+  float altitude;
+  float altitude_init;
+}_ms5611;
+
+void MS5611_IIC_Init(void);
+void MS561101BA_Reset(void);
+void MS561101BA_readPROM(void);
+
+uint32_t MS561101BA_DO_CONVERSION(u8 command);
+void MS561101BA_GetTemperature(u8 OSR_Temp);
+void MS561101BA_GetPressure(u8 OSR_Pres);
+void MS561101BA_Init(void);
+void MS5611GetTemperatureAndPressure(void);
+
+
+
+typedef struct
+{           
+  float fd;    
+  float input;     
+  float _d_delay_element_1;
+  float _d_delay_element_2;
+}LPFParam, *PLPFParam;
+
+
+typedef  struct{
+	double filterValue;  
+	double kalmanGain;   
+	double A;   
+	double H;   
+	double Q;   
+	double R;   
+	double P;   
+}  KalmanInfo;
+
+float SecondOrderLPF(LPFParam *_PLPFParam);
+void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
+double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
+float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
 
 PSNODE anglex_pnode;
 PSNODE angley_pnode;
@@ -13347,7 +13441,7 @@ extern short amplitude;
 
 
  
-char send_type = 'X';
+char send_type = 'y';
 extern float pwm_of_dir;
 extern short acc_chip_out[3];
 extern short gyro_chip_out[3];
@@ -13395,13 +13489,17 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
 
     break;
   case 'y':               
-    send_data[0][0] = (short)acc_chip_out[0];
-    send_data[0][1] = (short)cps_chip_out[0];
+    send_data[0][0] = (short)(gc[3][7]*10);
+    send_data[0][1] = (short)(gc[3][6]*10);
+    send_data[2][0] = (short)(gc[3][5]*10);
+    send_data[2][1] = (short)(gc[3][4]*10);    
+    send_data[1][0] = (short)((gc[3][7]-gc[3][6])*10);
+    send_data[1][1] = (short)((gc[3][5]-gc[3][4])*10); 
+    extern _bmp180 bmp180;
+    extern _ms5611 ms5611;
     
-    send_data[1][0] = (short)acc_chip_out[1];
-    send_data[1][1] = (short)cps_chip_out[1];
-    send_data[2][0] = (short)acc_chip_out[2];
-    send_data[2][1] = (short)cps_chip_out[2];
+    send_data[1][2] = (short)(gc[3][3]*10);
+    
 
     break;
   case 'Y':               

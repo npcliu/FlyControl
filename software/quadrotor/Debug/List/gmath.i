@@ -2546,8 +2546,8 @@ double nmea_distance_ellipsoid(
     double sqr_u, A, B, delta_sigma;
 
      
-    ((from_pos != 0) ? (void)0 : ( __aeabi_assert("from_pos != 0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\gmath.c", 120), ( __iar_EmptyStepPoint())));
-    ((to_pos != 0) ? (void)0 : ( __aeabi_assert("to_pos != 0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\gmath.c", 121), ( __iar_EmptyStepPoint())));
+    ((from_pos != 0) ? (void)0 : ( __aeabi_assert("from_pos != 0", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\nmealib\\src\\gmath.c", 120), ( __iar_EmptyStepPoint())));
+    ((to_pos != 0) ? (void)0 : ( __aeabi_assert("to_pos != 0", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\nmealib\\src\\gmath.c", 121), ( __iar_EmptyStepPoint())));
 
     if ((from_pos->lat == to_pos->lat) && (from_pos->lon == to_pos->lon))
     {  
@@ -2696,8 +2696,8 @@ int nmea_move_horz_ellipsoid(
     double tmp1, phi2, lambda, C, L;
     
      
-    ((start_pos != 0) ? (void)0 : ( __aeabi_assert("start_pos != 0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\gmath.c", 270), ( __iar_EmptyStepPoint())));
-    ((end_pos != 0) ? (void)0 : ( __aeabi_assert("end_pos != 0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\nmealib\\src\\gmath.c", 271), ( __iar_EmptyStepPoint())));
+    ((start_pos != 0) ? (void)0 : ( __aeabi_assert("start_pos != 0", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\nmealib\\src\\gmath.c", 270), ( __iar_EmptyStepPoint())));
+    ((end_pos != 0) ? (void)0 : ( __aeabi_assert("end_pos != 0", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\nmealib\\src\\gmath.c", 271), ( __iar_EmptyStepPoint())));
     
     if (fabs(distance) < 1e-12)
     {  

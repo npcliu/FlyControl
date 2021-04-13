@@ -13364,8 +13364,6 @@ extern PROCEDURE next_procedure;
 PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char));   
 
 
-extern char send_type;
-
 void UARTSendFloat(float d);
 void SCISend_to_Own(USART_TypeDef* USARTx);
 void SendParametersToRC();
@@ -13474,6 +13472,80 @@ typedef  struct{
 float SecondOrderLPF(LPFParam *_PLPFParam);
 void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
 double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
+float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
+
+
+typedef struct __BMP180
+{
+	short AC1;
+	short AC2;
+	short AC3;
+	unsigned short AC4;
+	unsigned short AC5;
+	unsigned short AC6;
+	short B1;
+	short B2;
+	short MB;
+	short MC;
+	short MD;
+	long UT;
+	long UP;
+	long X1;
+	long X2;
+	long X3;
+	long B3;
+	unsigned long B4;
+	long B5;
+	long B6;
+	long B7;
+	long p;
+	long Temp;
+	float altitude;
+        float altitude_init;
+}_bmp180;
+
+extern   unsigned int ut;
+extern unsigned long up;
+
+void BMP_ReadCalibrationData(void);
+void BMP_UncompemstatedToTrue(void);
+
+
+ 
+ 
+
+
+
+
+
+ 
+
+
+typedef struct __MS5611
+{
+  uint16_t Cal_C[7]; 
+  uint32_t D1_Pres,D2_Temp; 
+  int32_t Pressure;				
+  int32_t dT,Temperature2;
+  int64_t OFF,SENS;  
+  float Aux;
+  int64_t OFF2,SENS2;
+  int32_t Temperature;
+  float altitude;
+  float altitude_init;
+}_ms5611;
+
+void MS5611_IIC_Init(void);
+void MS561101BA_Reset(void);
+void MS561101BA_readPROM(void);
+
+uint32_t MS561101BA_DO_CONVERSION(u8 command);
+void MS561101BA_GetTemperature(u8 OSR_Temp);
+void MS561101BA_GetPressure(u8 OSR_Pres);
+void MS561101BA_Init(void);
+void MS5611GetTemperatureAndPressure(void);
+
+
 PROCEDURE (* Task[MAX_TASK_NUM])(char input) = 0;              
 PROCEDURE next_procedure = stb_pre;
 
@@ -13570,18 +13642,24 @@ PROCEDURE Standby(char input)
       printf("%f ",angley_data[i]);
     }
   }
-  
-  if('f'==nrf_rciv[0] && (0==need_restart_flag))
-    return att_hld_pre;
+  extern _bmp180 bmp180;
+  extern _ms5611 ms5611;
+  if(bmp180.altitude_init!=0&&(ms5611.altitude_init!=0))
+  {
+    if('f'==nrf_rciv[0] && (0==need_restart_flag))
+      return att_hld_pre;
 
-  else if('p'==nrf_rciv[0])
-  {
-    return standby;
+    else if('p'==nrf_rciv[0])
+    {
+      return standby;
+    }
+    else if('e'==nrf_rciv[0])
+    {
+      return experiment_pro;
+    }  
+    else
+      return standby;
   }
-  else if('e'==nrf_rciv[0])
-  {
-    return experiment_pro;
-  }  
   else
     return standby;
 }
@@ -13993,23 +14071,23 @@ PROCEDURE Experiment(char input)
 
 PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char))
 {
-  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 538), ( __iar_EmptyStepPoint())));
+  ((stb_pre>=0 && stb_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("stb_pre>=0 && stb_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 547), ( __iar_EmptyStepPoint())));
   _Task[stb_pre] = StbPrep;                        
-  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 540), ( __iar_EmptyStepPoint())));
+  ((standby>=0 && standby<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("standby>=0 && standby<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 549), ( __iar_EmptyStepPoint())));
   _Task[standby] = Standby;
-  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 542), ( __iar_EmptyStepPoint())));
+  ((att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld_pre>=0 && att_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 551), ( __iar_EmptyStepPoint())));
   _Task[att_hld_pre] = AttHldPrep;
-  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 544), ( __iar_EmptyStepPoint())));
+  ((att_hld>=0 && att_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("att_hld>=0 && att_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 553), ( __iar_EmptyStepPoint())));
   _Task[att_hld] = AttHld;
-  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 546), ( __iar_EmptyStepPoint())));
+  ((set_para_pre>=0 && set_para_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para_pre>=0 && set_para_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 555), ( __iar_EmptyStepPoint())));
   _Task[set_para_pre] = SetParaPre;
-  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 548), ( __iar_EmptyStepPoint())));
+  ((set_para>=0 && set_para<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("set_para>=0 && set_para<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 557), ( __iar_EmptyStepPoint())));
   _Task[set_para] = SetParam;           
-  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 550), ( __iar_EmptyStepPoint())));
+  ((experiment_pro>=0 && experiment_pro<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("experiment_pro>=0 && experiment_pro<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 559), ( __iar_EmptyStepPoint())));
   _Task[experiment_pro] = Experiment;           
-  ((height_hld_pre>=0 && height_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("height_hld_pre>=0 && height_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 552), ( __iar_EmptyStepPoint())));
+  ((height_hld_pre>=0 && height_hld_pre<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("height_hld_pre>=0 && height_hld_pre<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 561), ( __iar_EmptyStepPoint())));
   _Task[height_hld_pre] = HeiHldPrep;           
-  ((height_hld>=0 && height_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("height_hld>=0 && height_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\Task.c", 554), ( __iar_EmptyStepPoint())));
+  ((height_hld>=0 && height_hld<MAX_TASK_NUM) ? (void)0 : ( __aeabi_assert("height_hld>=0 && height_hld<MAX_TASK_NUM", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\Task.c", 563), ( __iar_EmptyStepPoint())));
   _Task[height_hld] = HeiHld;           
   
   return stb_pre;

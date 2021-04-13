@@ -11730,18 +11730,11 @@ void SysTick_CLKSourceConfig(uint32_t SysTick_CLKSource);
 
 
 
-
-
-
 void IIC_Port_Init(void);                       
-void CompassInit(void);
 
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
 uint8 Single_Read(uint8 slave_addr,uint8 reg_addr);
-short bmp085ReadTemp(void);
-short bmp085ReadPressure(void);
-extern   unsigned int ut;
-extern unsigned long up;
+
 
 
 
@@ -11959,39 +11952,4 @@ uint8 Single_Read(uint8 slave_addr,uint8 reg_addr)
   
   return recieve_data;
 }						      
-
-unsigned short twobmp085_read(u8 bmp085_RCOMMAND)
-{
-  uint8 buff[2] = {0};
-  buff[1] = Single_Read(0xee,bmp085_RCOMMAND);
-  buff[0] = Single_Read(0xee,bmp085_RCOMMAND+1);
-
-
-  return ((buff[1]<<8)|buff[0]);
-}
-
-short bmp085ReadTemp(void)
-{
-  uint8 buff[2] = {0};
-  Single_Write(0xee,0xF4,0x2E);
-  
-  DelayMs(10);	
-  
-  buff[1] = Single_Read(0xee,0xF6);
-  buff[0] = Single_Read(0xee,0xF6+1);
-    
-  return  ((buff[1]<<8)|buff[0]);
-}
-short bmp085ReadPressure(void)
-{
-  
-  
-  Single_Write(0xee,0xF4,0x34); 
-  DelayMs(3);    	                  
-  
-  
-  
-  return twobmp085_read(0xF6);	
-  
-}
 

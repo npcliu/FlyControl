@@ -8,6 +8,8 @@
 #include "calculation.h"
 #include <parser.h>
 #include "interact.h"
+#include "bmp180.h"
+#include "ms5611.h"
 
 /***************************¶¨Ê±ÖÐ¶Ï,triggerd by TIM*******************************/
 //extern float filted_acc[2][3];              //filted acc data,2 row means 2 acceleration chip,3 means 3aixs; filted_acc[0][1] reprsent chip 0,y axis filted data
@@ -30,8 +32,7 @@ void TIM4_IRQHandler(void)
 {
   
   static uint32 irq_count = 0;
-  
-
+ 
 //  GPSCal(&info, 1);
       CaliFilt(filted_acc[0],filted_gyro[0],filted_cps[0],&acc,&gyro,&compass,acc_chip_out,gyro_chip_out,cps_chip_out);
 //    AccAngleCal(&LSM_acc_adc,&acc_ang_x[1],&acc_ang_y[1]);
@@ -68,7 +69,10 @@ void EXTI15_10_IRQHandler()
     MPUReadAcc(acc_chip_out);//taks 0.26ms
     MPUReadGyr(gyro_chip_out);//
     ReadQMC5883(cps_chip_out);
-    //LSM303A_Raed(&acc1[1][0]);
+    BMP_UncompemstatedToTrue();
+    MS5611GetTemperatureAndPressure();
+
+//LSM303A_Raed(&acc1[1][0]);
 //    LSM303M_Raed((short*)&LSM_compass);
 //    ReadHMC5883((short*)&compass);
 //    Multiple_Read_QMC5883((short*)&compass);

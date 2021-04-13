@@ -53,9 +53,8 @@ double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement)
 	
 	//求协方差
 	kalmanInfo->P = kalmanInfo->A*kalmanInfo->A*kalmanInfo->P + kalmanInfo->Q;  //计算先验均方差 p(n|n-1)=A^2*p(n-1|n-1)+q
-	double preValue = kalmanInfo->filterValue;  //记录上次实际坐标的值
- 
-	//计算kalman增益
+	
+        //计算kalman增益
 	kalmanInfo->kalmanGain = kalmanInfo->P*kalmanInfo->H / (kalmanInfo->P*kalmanInfo->H*kalmanInfo->H + kalmanInfo->R);  //Kg(k)= P(k|k-1) H’ / (H P(k|k-1) H’ + R)
 	//修正结果，即计算滤波值
 	kalmanInfo->filterValue = predictValue + (lastMeasurement - predictValue)*kalmanInfo->kalmanGain;  //利用残余的信息改善对x(t)的估计，给出后验估计，这个值也就是输出  X(k|k)= X(k|k-1)+Kg(k) (Z(k)-H X(k|k-1))
@@ -63,4 +62,11 @@ double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement)
 	kalmanInfo->P = (1 - kalmanInfo->kalmanGain*kalmanInfo->H)*kalmanInfo->P;//计算后验均方差  P[n|n]=(1-K[n]*H)*P[n|n-1]
  
 	return  kalmanInfo->filterValue;
+}
+
+//融合两个气压计测出的相对高度
+float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude)
+{
+  float R_of_ms5611 = 0.0112, R_of_bmp180 = 0.1131;//bmp180和ms5611的测量噪声的方差
+  return ((R_of_ms5611)*bmp180_relative_altitude + (R_of_bmp180)*ms5611_relative_altitude)/(R_of_ms5611+R_of_bmp180);
 }

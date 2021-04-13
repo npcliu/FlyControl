@@ -6,7 +6,9 @@
 #include "math.h"                       //数据nan判断
 #include "stm32f10x_MY_Flash.h"         //读取flash
 #include "calculation.h"                //将控制计算的参数初始化
-
+#include "filter.h" 
+#include "bmp180.h" 
+#include "ms5611.h" 
 
 //Brief:Get a float from flash;
 //Parameters:
@@ -90,6 +92,12 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
 //    y_d_i = 0.001;
   }
 #endif
+  
+  extern KalmanInfo kalmanFilter_of_bmp180_altitude;
+  extern KalmanInfo kalmanFilter_of_ms5611_altitude;
+  Init_KalmanInfo(&kalmanFilter_of_bmp180_altitude,0.0005,0.1131);
+  Init_KalmanInfo(&kalmanFilter_of_ms5611_altitude,0.00001,0.0112);
+
   p_gyro_offset[0] = FLASH_ReadHalfWord(STM32F103RC_FLASH_PAGE127_ADDR + GYRO_XOFF_ADDR_OFFSET);        //从flash读取陀螺仪的零偏校准参数
   p_gyro_offset[1] = FLASH_ReadHalfWord(STM32F103RC_FLASH_PAGE127_ADDR + GYRO_YOFF_ADDR_OFFSET);
   p_gyro_offset[2] = FLASH_ReadHalfWord(STM32F103RC_FLASH_PAGE127_ADDR + GYRO_ZOFF_ADDR_OFFSET);

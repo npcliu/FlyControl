@@ -160,38 +160,3 @@ uint8 Single_Read(uint8 slave_addr,uint8 reg_addr)
   return recieve_data;
 }						      
 
-unsigned short twobmp085_read(u8 bmp085_RCOMMAND)
-{
-  uint8 buff[2] = {0};
-  buff[1] = Single_Read(BMP085_SlaveAddress,bmp085_RCOMMAND);
-  buff[0] = Single_Read(BMP085_SlaveAddress,bmp085_RCOMMAND+1);
-//  if(0x80==buff[1])
-//    buff[1] = buff[1];
-  return ((buff[1]<<8)|buff[0]);
-}
-
-short bmp085ReadTemp(void)
-{
-  uint8 buff[2] = {0};
-  Single_Write(BMP085_SlaveAddress,0xF4,0x2E);
-  
-  DelayMs(10);	// max time is 4.5ms
-  
-  buff[1] = Single_Read(BMP085_SlaveAddress,0xF6);
-  buff[0] = Single_Read(BMP085_SlaveAddress,0xF6+1);
-    
-  return  ((buff[1]<<8)|buff[0]);
-}
-short bmp085ReadPressure(void)
-{
-  //  short _pressure = 0;
-  
-  Single_Write(BMP085_SlaveAddress,0xF4,0x34); //0x34 
-  DelayMs(3);    	                  // max time is 4.5ms
-  
-  //  pressure = twobmp085_read(0xF6);
-  
-  return twobmp085_read(0xF6);	
-  
-}
-

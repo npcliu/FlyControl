@@ -1,8 +1,8 @@
-#ifndef _BMP180_H_
-#define _BMP180_H_
+#ifndef __BMP180_H
+#define __BMP180_H
+//#include "myiic.h"
+#include "define.h"
 
-#include "myiic.h"
-#include "include.h"
 typedef struct __BMP180
 {
 	short AC1;
@@ -27,22 +27,14 @@ typedef struct __BMP180
 	long B6;
 	long B7;
 	long p;
-	long Temp;
+	long Temp;//除以10得到真实温度
 	float altitude;
+        float altitude_init;//记录起飞前的初始高度
 }_bmp180;
 
-extern _bmp180 bmp180;
+extern   unsigned int ut;
+extern unsigned long up;
 
-void BMP_Init(void);
-uint8_t BMP_ReadOneByte(uint8_t ReadAddr);
-void BMP_WriteOneByte(uint8_t WriteAddr,uint8_t DataToWrite);
-short BMP_ReadTwoByte(uint8_t ReadAddr);
 void BMP_ReadCalibrationData(void);
-long BMP_Read_UT(void);
-long BMP_Read_UP(void);
 void BMP_UncompemstatedToTrue(void);
-
 #endif
-
-
-

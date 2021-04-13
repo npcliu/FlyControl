@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=886244892
+Checksum=-1954594865
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -125,20 +125,21 @@ Exclusions=
 mode=0
 [Breakpoints2]
 Bp0=_ 0 "EMUL_DATA" "0x20001915" 0 0 0 0 4294967295
-Bp1=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.242.7" 0 0 1 "" 0 "" 0
-Bp2=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.320.5" 0 0 1 "" 0 "" 0
+Bp1=_ 0 "EMUL_CODE" "{E:\FlyCtrl\bmp180_test}.242.7" 0 0 1 "" 0 "" 0
+Bp2=_ 0 "EMUL_CODE" "{E:\FlyCtrl\bmp180_test}.320.5" 0 0 1 "" 0 "" 0
 Bp3=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.202.5" 0 0 1 "" 0 "" 0
-Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.172.3" 0 0 1 "" 0 "" 0
-Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.218.3" 0 0 1 "" 0 "" 0
+Bp4=_ 0 "EMUL_CODE" "{E:\FlyCtrl\bmp180_test}.172.3" 0 0 1 "" 0 "" 0
+Bp5=_ 0 "EMUL_CODE" "{E:\FlyCtrl\bmp180_test}.218.3" 0 0 1 "" 0 "" 0
 Bp6=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.358.7" 0 0 1 "" 0 "" 0
 Bp7=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.353.5" 0 0 1 "" 0 "" 0
 Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\MyNRF24L0.c}.489.5" 0 0 1 "" 0 "" 0
-Bp9=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.400.3" 0 0 1 "" 0 "" 0
+Bp9=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.409.3" 0 0 1 "" 0 "" 0
 Bp10=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\Mpu6050.c}.159.11" 0 0 1 "" 0 "" 0
 Bp11=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Calculation.c}.472.5" 0 0 1 "" 0 "" 0
 Bp12=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\MyNRF24L0.c}.483.5" 0 0 1 "" 0 "" 0
-Bp13=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\main.c}.81.3" 0 0 1 "" 0 "" 0
-Count=14
+Bp13=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Interact.c}.98.7" 0 0 1 "" 0 "" 0
+Bp14=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Interact.c}.102.5" 0 0 1 "" 0 "" 0
+Count=15
 [Aliases]
 Count=0
 SuppressDialog=0

@@ -14,6 +14,9 @@
 #include "calculation.h"        //该文件中的参数需要发送出去
 #include "usart.h"	
 #include "filter.h"
+#include "bmp180.h"
+#include "ms5611.h"
+
 PROCEDURE (* Task[MAX_TASK_NUM])(char input) = NULL;              //函数指针，每个指针代表一个函数入口，这些函数都是非中断函数，也可以叫任务。
 PROCEDURE next_procedure = stb_pre;
 
@@ -111,18 +114,24 @@ PROCEDURE Standby(char input)
       printf("%f ",angley_data[i]);
     }
   }
-  
-  if('f'==nrf_rciv[PLANE_MODE_OFFSET] && (0==need_restart_flag))
-    return att_hld_pre;
+  extern _bmp180 bmp180;
+  extern _ms5611 ms5611;
+  if(bmp180.altitude_init!=0&&(ms5611.altitude_init!=0))//如果初始高度为0，说明现在还没求出初始高度，暂时不能起飞
+  {
+    if('f'==nrf_rciv[PLANE_MODE_OFFSET] && (0==need_restart_flag))
+      return att_hld_pre;
 
-  else if('p'==nrf_rciv[PLANE_MODE_OFFSET])
-  {
-    return standby;
+    else if('p'==nrf_rciv[PLANE_MODE_OFFSET])
+    {
+      return standby;
+    }
+    else if('e'==nrf_rciv[PLANE_MODE_OFFSET])
+    {
+      return experiment_pro;
+    }  
+    else
+      return standby;
   }
-  else if('e'==nrf_rciv[PLANE_MODE_OFFSET])
-  {
-    return experiment_pro;
-  }  
   else
     return standby;
 }

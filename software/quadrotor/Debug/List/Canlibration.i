@@ -12635,18 +12635,11 @@ _Pragma("function_effects = no_state")    __intrinsic __nounwind double sinh(dou
 
 
 
-
-
-
 void IIC_Port_Init(void);                       
-void CompassInit(void);
 
 extern BOOL Single_Write(unsigned char slave_addr, unsigned char reg_addr, unsigned char data);		     
 uint8 Single_Read(uint8 slave_addr,uint8 reg_addr);
-short bmp085ReadTemp(void);
-short bmp085ReadPressure(void);
-extern   unsigned int ut;
-extern unsigned long up;
+
 
  
 

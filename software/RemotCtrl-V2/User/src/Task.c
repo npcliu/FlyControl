@@ -245,13 +245,25 @@ PROCEDURE Standby(char input)           //standby procedure
       DelayMs(500);
       return standby;
     }
+    else if(S2_IN)
+    {
+      printf("please press SW2 to left;\n");
+      DelayMs(500);
+      return standby;      
+    }
 //    FreeSList(p_thcrv->sdatli);
 //    free(p_thcrv);
     plane_mod = fly;
     return att_pre;
   }
   else if(plane_mod == experiment){
-  
+    if(NRF_TX_OK != nrf_tx_sta)
+    {
+      printf("RF link is bad,unlock denyd;\n");
+      DelayMs(500);
+      plane_mod = lock;
+      return standby;   
+    }
     return experiment_pro;//进入实验模式
   }
   else
@@ -333,10 +345,114 @@ PROCEDURE AttHld(char input)
     plane_mod = lock;
     return stb_pre;
   }
+  else if(S2_IN)//拨码开关往右打，进入定高模式
+  {
+    if(NRF_TX_OK != nrf_tx_sta)
+    {
+      printf("RF link is bad,unlock denyd;\n");
+      DelayMs(500);
+      plane_mod = lock;
+      return standby;   
+    }
+//    FreeSList(p_thcrv->sdatli);
+//    free(p_thcrv);
+    plane_mod = height_fix;
+    return hei_hld_pre;    
+  }
   else
     return att_hld;
 }
 
+PROCEDURE HeiHldPre(char input)
+{
+  EXTIDisable(ENSW_IRQ_LINE);
+  EXTIDisable(ENA_IRQ_LINE);
+  EXTIDisable(KEY2_IRQ_LINE);
+  lcd.bcolr = RGB(0,0,35);
+  Gpio8080OptLcdClr(lcd.bcolr);
+  printf("height hold\n");
+  
+  
+  //  LcdSS(0,0,c2412,1,"Clear to take-off!", YELLOW,BLACK);
+  //    UpdatePlaneMod(plane_mod);
+  
+  return hei_hld;
+}
+PROCEDURE HeiHld(char input)
+{
+  if(rlud==lcd.scan_dir)
+  {
+    th_adc = TH_ADC_MAX - GetAdc(TH_TO_LR_ADC,TH_ADC_CHANNEL);
+    dr_adc = DR_ADC_MAX - GetAdc(TH_TO_LR_ADC,DR_ADC_CHANNEL);
+    ud_adc = UD_ADC_MAX - GetAdc(TH_TO_LR_ADC,UD_ADC_CHANNEL);
+    lr_adc = LR_ADC_MAX - GetAdc(TH_TO_LR_ADC,LR_ADC_CHANNEL);
+  }
+  else if(lrdu==lcd.scan_dir)
+  {
+    th_adc = GetAdc(TH_TO_LR_ADC,TH_ADC_CHANNEL);
+    dr_adc = GetAdc(TH_TO_LR_ADC,DR_ADC_CHANNEL);
+    ud_adc = GetAdc(TH_TO_LR_ADC,UD_ADC_CHANNEL);
+    lr_adc = GetAdc(TH_TO_LR_ADC,LR_ADC_CHANNEL);
+  }
+  else
+    return stb_pre;
+  
+  if(th_adc>TH_ADC_MAX)               //限位，
+    th_adc = TH_ADC_MAX;
+  if(dr_adc>DR_ADC_MAX)
+    dr_adc = DR_ADC_MAX;
+  if(ud_adc>UD_ADC_MAX)
+    ud_adc = UD_ADC_MAX;
+  if(lr_adc>LR_ADC_MAX)
+    lr_adc = LR_ADC_MAX;
+  
+  if(pit_50ms_flag)
+  {
+//    //  if(nrf_tx_sta!=NRF_TXING)
+//    if(S1_IN)
+//    {
+      plane_mod = height_fix;
+      irq_tx_buff[PLANE_MODE_OFFSET] = 'h';         //置飞行模式
+//    }
+//    else
+//    {
+//      plane_mod = height_fix;
+//      irq_tx_buff[PLANE_MODE_OFFSET] = 'h';         //置飞行模式
+//    }
+    
+    pit_50ms_flag = 0;
+  }
+  extern nrf_mode_e  nrf_mode;
+  if(nrf_mode == TX_MODE)
+  {
+//    pit_20ms_flag = 0;
+    
+    irq_tx_buff[TH_ADC_OFFSET] = th_adc>>4;       //16位转换成8位
+    irq_tx_buff[DR_ADC_OFFSET] = dr_adc>>4;
+    irq_tx_buff[UD_ADC_OFFSET] = ud_adc>>4;
+    irq_tx_buff[LR_ADC_OFFSET] = lr_adc>>4;
+    
+    nrf_tx(irq_tx_buff,DATA_PACKET);      //DATA_PACKET
+    
+  }
+
+  UpdateRmtCtrlStatus(nrf_tx_sta,1,GREEN,lcd.bcolr);
+  UpdatePlaneMod(plane_mod,GREEN,lcd.bcolr);
+
+  DelayMs(2);
+  if(th_adc<2 && dr_adc>(2700/4096.0*4096.0))
+  {
+    plane_mod = lock;
+    return stb_pre;
+  }
+  else if(!S2_IN)
+  {
+    plane_mod = fly;
+    return att_pre;    
+  }
+  else
+    return hei_hld;  
+}
 char waite_for_nrf_data = 0;
 static int last_cursor = 3,cursor = 3;        //屏幕显示光标位置（第几位），由于参数是滚动显示，光标下降到屏幕的最下面就不再下降，而是参数上滚
 static short parameter_pointer = 3,last_parameter_pointer = 3;//parameter_pointer是参数的序号，有多少个参数就有多少个序号
@@ -600,5 +716,10 @@ PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char))   //函数指针数组
   _Task[set_para] = SetParam;
   assert(experiment_pro>=0 && experiment_pro<MAX_TASK_NUM);
   _Task[experiment_pro] = ExperimentProcedure;  
+  assert(hei_hld_pre>=0 && hei_hld_pre<MAX_TASK_NUM);
+  _Task[hei_hld_pre] = HeiHldPre; 
+  assert(hei_hld>=0 && hei_hld<MAX_TASK_NUM);
+  _Task[hei_hld] = HeiHld;   
+  
     return stb_pre;
 }

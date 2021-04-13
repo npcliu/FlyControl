@@ -7,6 +7,8 @@ typedef enum
   standby,
   att_pre,
   att_hld,
+  hei_hld_pre,//定高模式
+  hei_hld,
   set_para_pre,   //set_parameters
   set_para,
   experiment_pro,       //实验模式

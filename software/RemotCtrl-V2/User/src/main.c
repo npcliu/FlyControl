@@ -31,6 +31,7 @@ PARAMETER params[PARAMETER_NUM] = {        //用户可以在lLCD上修改的参数
 };
 float bat_voltage;                      //电池电压
 volatile char pit_5ms_flag = 0;         //5ms定时标志，该标志位定时置1，
+char pit_20ms_flag = 0;
 char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;                //5s时间标志
 char pit_5s_flag = 0;                   //5s时间标志
@@ -57,7 +58,8 @@ int main(void)
   next_procedure = TaskInit(Task);
   gpio_init(PC11,Out_PP,n_interupt,GPIO_Speed_50MHz,0);
   gpio_init(PA8,Out_PP,n_interupt,GPIO_Speed_50MHz,0);
-    gpio_init(S1_PIN,IPU,n_interupt,GPIO_Speed_50MHz,0);
+  gpio_init(S1_PIN,IPU,n_interupt,GPIO_Speed_50MHz,0);
+  
   GpioInit();
   DelayMs(50);
   if(KEY2_IN)                   //根据按键状态初始化左右手模式

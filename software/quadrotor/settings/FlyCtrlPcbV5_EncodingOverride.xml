@@ -101,6 +101,14 @@
     <path>E:\Elec\Air plane\FlyCtrl\CTRL_PCBV5\User\src\MyNRF24L0.c</path>
     <encoding>System</encoding>
   </override>
+  <override>
+    <path>E:\FlyCtrl\CTRL_PCBV5 (github)\FlyControl\software\quadrotor\APP\src\Calculation.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>E:\FlyCtrl\CTRL_PCBV5 (github)\FlyControl\software\quadrotor\APP\src\Task.c</path>
+    <encoding>System</encoding>
+  </override>
 </userOverrides>
 
 

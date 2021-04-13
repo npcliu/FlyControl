@@ -12072,6 +12072,122 @@ void SPI3_Init(void);
 
  
 
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+typedef struct
+{
+  short x, y, z;                        
+  float kx,ky,kz;                       
+  float x_off,y_off,z_off;              
+}ACC,*PACC;
+
+typedef struct
+{
+  short x, y, z;                        
+  short x_offset, y_offset, z_offset;   
+}GYRO,*PGYRO;
+typedef struct
+{
+  short x, y, z;                        
+  float kx,ky,kz;                       
+  short x_offset,y_offset,z_offset;     
+}COMPASS,*PCOMPASS;
+
+typedef enum
+{
+  x_n = 0,              
+  x_p,                  
+  y_n,
+  y_p
+}PWM_GPIO_ENUM;
+
+extern ACC acc;
+extern ACC LSM_acc_adc;
+extern GYRO gyro;
+extern GYRO L3GDgyro_adc;
+extern COMPASS compass;
+extern COMPASS LSM_compass;
+
+extern float acc_angle[2][3];    
+
+
+
+
+extern uint8 pipl_dir;
+extern int  temperature;
+extern int  pressure;
+extern float bat_voltage;          
+
+
+extern float gc[4][8];          
+extern float ctrl[5];           
+
+extern short cps_chip_out[3];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+typedef struct
+{
+  uint8 SendBuf[50];
+  uint8 RecvBuf[1024];
+  uint32 RecvLen;
+  uint8 fSending :1;
+  uint8 fRecv :1;
+}SCom;
+extern SCom sCom;
+
+
+
+extern void PWM_Calculation(uint8 mod);
+ 
+
+
+
+
+
+   
 
 
 
@@ -12265,10 +12381,14 @@ uint8 nrf_init(nrf_mode_e _nrf_mode_e)
 
   nrf_writereg(0x20 + 0x06, 0x08);                   
   nrf_writereg(0x20 + 0x02, 0x01);                  
+
   
+
   nrf_writebuf(0x20 + 0x0A, RX_ADDRESS, 5); 
   nrf_writereg(0x20 + 0x11, 32);         
-  nrf_writereg(0xE2, 0xFF);                                    
+  nrf_writereg(0xE2, 0xFF);   
+  
+  
   
   nrf_writebuf(0x20 + 0x10, TX_ADDRESS, 5); 
   nrf_writereg(0x20 + 0x04, 0x1F);                 
@@ -12412,7 +12532,7 @@ uint8 nrf_link_check(void)
 void nrf_rx_mode(void)
 {
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b4) = 0;
-  
+
   nrf_writereg(0x20 + 0x01, 0x01);          
   nrf_writereg(0x20 + 0x02, 0x01);      
   nrf_writebuf(0x20 + 0x0A, RX_ADDRESS, 5); 
@@ -12436,6 +12556,7 @@ void nrf_tx_mode(void)
   
   (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b4) = 0;
   
+
   nrf_writebuf(0x20 + 0x10, TX_ADDRESS, 5); 
   nrf_writebuf(0x20 + 0x0A, RX_ADDRESS, 5); 
   nrf_writereg(0x20 + 0x00, 0x0A | (1 << 2)); 
@@ -12634,7 +12755,7 @@ nrf_tx_state_e nrf_tx_state ()
     return NRF_TXING;
   }
 }
-
+uint8 test_commincation = 0;
 void nrf_handler(void)
 {
   uint8 nrf_state;
@@ -12658,6 +12779,12 @@ void nrf_handler(void)
     else
       rx_flag = 3;
     (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x1000))->ODR)))->b4) = 1;
+    
+
+
+
+
+
   }
   else if(nrf_state & 0x20) 
   {
@@ -12675,7 +12802,7 @@ void nrf_handler(void)
     
     
     
-    nrf_rx_mode();                                  
+      nrf_rx_mode();                                  
   }
   else if(nrf_state & 0x01) 
   {

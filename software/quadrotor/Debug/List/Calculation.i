@@ -12613,8 +12613,8 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
 void PWMCalc(uint8 mod);
-
-
+float AltitudeControl(float * pacc);
+float AltitudeControl(float * pacc);
 
 
 
@@ -12631,6 +12631,8 @@ void PWMCalc(uint8 mod);
 
  
 
+   
+   
 
 
 
@@ -12921,9 +12923,34 @@ void nmea_zero_INFO(nmeaINFO *info);
 
 
 
+
+typedef struct
+{           
+  float fd;    
+  float input;     
+  float _d_delay_element_1;
+  float _d_delay_element_2;
+}LPFParam, *PLPFParam;
+
+
+typedef  struct{
+	double filterValue;  
+	double kalmanGain;   
+	double A;   
+	double H;   
+	double Q;   
+	double R;   
+	double P;   
+}  KalmanInfo;
+
+float SecondOrderLPF(LPFParam *_PLPFParam);
+void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
+double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
+float change_th_flag = 0;
 float yaw_init = 0;
 float angle[3] = {0};
 float angle_error_x = 0;
+
 
 float angle_error_y = 0;                                
 
@@ -13090,68 +13117,23 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   float earth_magnetic_in_d = f * cos_alpha - m * sin_alpha;
   
   float earth_magnetic_in_e = h * cos_beta - (f * sin_alpha + m * cos_alpha) * sin_beta;
-  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-    if(earth_magnetic_in_e>=0)
-    {
-      if(earth_magnetic_in_d>0)
-        gamma = 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-      else
-        gamma = 180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-    }
+  if(earth_magnetic_in_e>=0)
+  {
+    if(earth_magnetic_in_d>0)
+      gamma = 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
     else
-    {
-      if(earth_magnetic_in_d>0)
-        gamma = 360 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-      else
-        gamma = 180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
-    }
-    acc_angle[0][2] = gamma;
-    
-    
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-    
+      gamma = 180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+  }
+  else
+  {
+    if(earth_magnetic_in_d>0)
+      gamma = 360 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+    else
+      gamma = 180 + 57.29577f*atan(earth_magnetic_in_e / earth_magnetic_in_d);
+  }
+  acc_angle[0][2] = gamma;
+   
   if(mod)
   {
     temp_angle[0] = pangle[0] + ((pgyro[0]-pgyro[1])*0.7071)*(0.0610370f) * 5/1000.0;
@@ -13166,34 +13148,16 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   }
   
   temp_angle[2] = pangle[2] - (gyro.z)*(0.0610370f) * 5/1000.0;
-
   
-  
-  
-
-  
-  static uint32 att_cal_count = 0;      
-  static char t = 0;   
-  if(nrf_rciv[1]<=2)                        
+  if(nrf_rciv[1]<3)                        
   {
     pangle[0] = tmp_acc_angle[0];
     pangle[1] = tmp_acc_angle[1];
-    att_cal_count = 0;
     
     
     yaw_init = gamma;
     pangle[2] = yaw_init;
     offset_angle[2] = yaw_init;
-    
- 
- 
- 
- 
- 
- 
- 
- 
- 
   }
   else
   {
@@ -13202,21 +13166,6 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 
 
 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-    {
-      att_cal_count = 0;
       pangle[0] = 0.0015*tmp_acc_angle[0] + (1-0.0015)*temp_angle[0];
       pangle[1] = 0.0015*tmp_acc_angle[1] + (1-0.0015)*temp_angle[1];
       
@@ -13225,13 +13174,114 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
       else
         pangle[2] = gamma;
       last_gamma = gamma;
-    }
   }
-  
-
 }
 
+  float height_acc_p = 40;
+  float height_acc_i = 0;
+  float height_acc_d = 8;
 
+float AltitudeControl(float * pacc)
+{
+  
+
+
+   float height_acc = sqrt(0.0000234256*pacc[0]*pacc[0]+0.0000238144*pacc[1]*pacc[1]+0.0000228484*pacc[2]*pacc[2]) - 9.82;
+   
+   gc[3][1] = height_acc;
+   float filted_height_acc = 0;
+       
+   static float last_height_acc = 0, last_filted_height_acc = 0;
+   
+   float height_acc_err = 0;
+   float height_diff_acc_err = 0,z_pid_out = 0;
+   static float last_height_acc_err = 0, sum_of_heoght_acc_err = 0;
+   
+   float filted_height_acc_pid = 0;
+   static float last_height_acc_pid = 0;
+   static float last_filted_height_acc_pid = 0;
+   float z_pid_out1 = 0;
+
+   static LPFParam LPFParam_of_height_acc;
+
+   extern KalmanInfo kalmanFilter_of_height_acc;
+  if(nrf_rciv[1]>20)
+  {
+    
+    
+    
+    
+    filted_height_acc = KalmanFilter(&kalmanFilter_of_height_acc, height_acc);
+    
+    
+    
+    
+    gc[3][2] =filted_height_acc;
+    float expect_acc = 0;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+    expect_acc = 0;
+    
+     
+    gc[3][0] = height_acc_err = (expect_acc - filted_height_acc);
+
+    height_diff_acc_err = height_acc_err - last_height_acc_err;
+    last_height_acc_err = height_acc_err;
+    sum_of_heoght_acc_err += height_acc_err;
+    z_pid_out = height_acc_p * height_acc_err + height_acc_i * sum_of_heoght_acc_err + height_acc_d * height_diff_acc_err;
+    gc[3][0] = z_pid_out;
+      
+    if(z_pid_out>250)z_pid_out = 250;
+    else if(z_pid_out<-250)z_pid_out = -250;
+    
+
+
+
+
+
+    
+    z_pid_out1 = 250 * (1 - exp(-0.02 * z_pid_out)) / (1 + exp(-0.02 * z_pid_out));
+
+    if(z_pid_out1>300)z_pid_out1 = 300;
+    else if(z_pid_out1<-300)z_pid_out1 = -300;
+    
+  }
+  else
+  {
+    gc[3][1] = z_pid_out1 = 0;
+    gc[3][0] = filted_height_acc_pid = 0;
+    last_height_acc = 0;
+    last_filted_height_acc = 0;
+    last_height_acc_err = 0;
+    sum_of_heoght_acc_err = 0;
+    z_pid_out = 0;
+    
+    last_filted_height_acc_pid = 0;
+    last_height_acc_pid = 0;
+   
+  }
+
+
+
+
+
+
+  return z_pid_out;  
+}
  
 uint16 cali = 0;
 float offset_angle[3] = {0};
@@ -13248,6 +13298,7 @@ int Coef = 15;
 int pwm[4] = {0};      
 float xcq = 0,ycq = 0;                          
 float pwm_of_dir = 0;                           
+extern float filted_acc[2][3];
 
 
 
@@ -13282,8 +13333,6 @@ void PWMCalc(uint8 mod)
   }
   else
   {
-
-
     omega_e = x_p_o*angle_error_x;
     _omega_error = omega_e - gyro.y;
     deriv_out = Coef*(x_d_i*_omega_error-filter_coef_state_x);
@@ -13301,35 +13350,43 @@ void PWMCalc(uint8 mod)
     dir_angle_error[0] -= 360;
   else if(dir_angle_error[0]<-200)
     dir_angle_error[0] += 360;
-  gc[1][1] = dir_angle_error[0];
   pwm_of_dir = z_p *dir_angle_error[0] + z_d*(gyro.z);
+  
+  extern char Filter_init_flag;
+  static float expect_throttle = 0;
+  if('f'==nrf_rciv[0])
+  {
+       
+       expect_throttle = sqrt(800*nrf_rciv[1]);      
+       
+       throttle = expect_throttle;
+  }
+  else if('h'==nrf_rciv[0]&&(Filter_init_flag==1))
+  {
+    throttle = AltitudeControl(filted_acc[0]) + expect_throttle;
 
-  throttle = 1.2*nrf_rciv[1]+500;      
+  }
   if(mod)
   {
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    pwm[x_n] = (int)(throttle + xcq + ycq - pwm_of_dir);
-    pwm[x_p] = (int)(throttle - xcq - ycq - pwm_of_dir);
-    pwm[y_n] = (int)(throttle + xcq - ycq + pwm_of_dir);
-    pwm[y_p] = (int)(throttle - xcq + ycq + pwm_of_dir);
+    pwm[x_n] = (int)sqrt(throttle + xcq + ycq - pwm_of_dir)*20 + 500;
+    pwm[x_p] = (int)sqrt(throttle - xcq - ycq - pwm_of_dir)*20 + 500;
+    pwm[y_n] = (int)sqrt(throttle + xcq - ycq + pwm_of_dir)*20 + 500;
+    pwm[y_p] = (int)sqrt(throttle - xcq + ycq + pwm_of_dir)*20 + 500;
   }
   else
   {
-    pwm[x_n] = (int)(throttle + xcq - pwm_of_dir);
-    pwm[x_p] = (int)(throttle - xcq - pwm_of_dir);
-    pwm[y_n] = (int)(throttle - ycq + pwm_of_dir);
-    pwm[y_p] = (int)(throttle + ycq + pwm_of_dir);
+    
+    pwm[x_n] = (int)(throttle + xcq - pwm_of_dir) + 500;
+    pwm[x_p] = (int)(throttle - xcq - pwm_of_dir) + 500;
+    pwm[y_n] = (int)(throttle - ycq + pwm_of_dir) + 500;
+    pwm[y_p] = (int)(throttle + ycq + pwm_of_dir) + 500;
+    
+
+
+
+
+    
+
   }
 }
 

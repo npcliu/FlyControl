@@ -12965,8 +12965,8 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
 void PWMCalc(uint8 mod);
-
-
+float AltitudeControl(float * pacc);
+float AltitudeControl(float * pacc);
 
 
 
@@ -12983,6 +12983,8 @@ void PWMCalc(uint8 mod);
 
  
 
+   
+   
 
 
 
@@ -13348,7 +13350,10 @@ extern short amplitude;
 char send_type = 'X';
 extern float pwm_of_dir;
 extern short acc_chip_out[3];
+extern short gyro_chip_out[3];
 extern short cps_chip_out[3];
+extern float filted_acc[2][3];
+extern short acc1[2][3];
 void SCISend_to_Own(USART_TypeDef* USARTx)
 {
 
@@ -13357,28 +13362,35 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
   switch(send_type)
   {
   case 'x':               
-    send_data[0][0] = (short)angle[0]; 
-    send_data[0][1] = (short)((nrf_rciv[4]-127)*0.3);
-    send_data[0][2] = (short)(gyro.y/164.0);
-    send_data[0][3] = (short)(xcq);
-    send_data[1][0] = (short)angle[0];
-    send_data[1][1] = (short)(gyro.y/100.0);
-    send_data[1][2] = (short)(acc.x/100.0);
-    send_data[1][3] = (short)gc[1][0];
-    send_data[1][4] = (short)gc[1][2];
-    send_data[1][5] = (short)xcq;
-    send_data[2][0] = (short)angle[0];
-    send_data[2][1] = (short)acc_angle[0][0];
-    send_data[2][2] = (short)gc[0][0];
+    send_data[0][0] = (short)acc_chip_out[0]; 
+    send_data[0][1] = (short)acc_chip_out[1];
+    send_data[0][2] = (short)acc_chip_out[2];
+    send_data[1][0] = (short)gyro_chip_out[0];
+    send_data[1][1] = (short)gyro_chip_out[1];
+    send_data[1][2] = (short)gyro_chip_out[2];
+    send_data[2][0] = (short)cps_chip_out[0];
+    send_data[2][1] = (short)cps_chip_out[1];
+    send_data[2][2] = (short)cps_chip_out[2];   
+
+
+
+
+
+
+
+
+
+
     break;
   case 'X':               
     
-    send_data[0][0] = (short)gc[1][2];
-    send_data[0][1] = (short)nrf_rciv[3];
-    send_data[1][0] = (short)angle[0];
-    send_data[0][2] = (short)angle[1];
-    send_data[1][2] = (short)angle[2];
-   
+ 
+  
+    send_data[0][3] = (short)(gc[3][2]*10);
+    send_data[0][0] = (short)(gc[3][1]*10);
+  send_data[1][0] = (short)gc[3][0];
+
+
 
 
     break;
@@ -13402,9 +13414,9 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
 
     break;
   case 'z':               
-    send_data[0][0] = (short)(compass.x);
-    send_data[1][1] = (short)((float)compass.y/10)*1000;
-    send_data[2][2] = (short)((float)compass.z/10)*1000;
+    send_data[0][0] = (short)acc1[1][0];
+    send_data[1][1] = (short)acc1[1][1];
+    send_data[2][2] = (short)acc1[1][2];
     
     break;
   case 'Z':               
@@ -13531,11 +13543,14 @@ float angle_z_ctrl_rate = 0.6;
 
 
 
+
 void RCDenote()
 {
+   
   static uint8 last_DR_value = 0;
   if(nrf_rciv[1]>20)                
   {
+     
     
     if(nrf_rciv[2]>127+20&&(nrf_rciv[2]<127+70))
     {
@@ -13560,10 +13575,12 @@ void RCDenote()
       if(nrf_rciv[2]<=last_DR_value)
         offset_angle[2] += 0.4;
     }      
-    else;
+    else;   
   }
   last_DR_value = nrf_rciv[2];
+    
 
+    
   if(offset_angle[2]>360)
     offset_angle[2] -= 360;
   else if(offset_angle[2]<0)

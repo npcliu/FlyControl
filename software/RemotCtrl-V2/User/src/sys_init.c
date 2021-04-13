@@ -190,6 +190,8 @@ void GpioInit(void)
   //  gpio_init(RGB_B_PIN,Out_OD,n_interupt,GPIO_Speed_50MHz,1);					 //PB.5 ???
   //  gpio_init(BUZZER_PIN,Out_PP,n_interupt,GPIO_Speed_50MHz,1);						 //PB.5 ???
   //  gpio_init(LIGHT_PIN,Out_PP,n_interupt,GPIO_Speed_50MHz,1);						 //PB.5 ???
+  gpio_init(S2_PIN,IPU,n_interupt,GPIO_Speed_50MHz,0);
+
 }
 
 //#define BAT_VOL_FILT_LEN        8

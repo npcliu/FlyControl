@@ -5,10 +5,12 @@
 #include "calculation.h"
 #include "MyNRF24L0.h"
 #include "info.h"
-
+#include "filter.h"
+float change_th_flag = 0;//油门改变标志位
 float yaw_init = 0;//初始偏航角，起飞前记录一下机头与正北方向的夹角,起飞以后要减去这个偏置角
 float angle[3] = {0};
 float angle_error_x = 0;
+
 //float last_angle_error_x = 0;
 float angle_error_y = 0;                                //累加变量注意清nan
 //float iangle_error_x = 0, integer_x1 = 0;               //累加变量注意清nan
@@ -176,68 +178,23 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   float earth_magnetic_in_d = f * cos_alpha - m * sin_alpha;//地球磁场的在水平面x轴（也就是向量d）上的分量
   
   float earth_magnetic_in_e = h * cos_beta - (f * sin_alpha + m * cos_alpha) * sin_beta;//地球磁场在水平面y轴（也就是向量e）上的分量
-  
 
-//  if(pangle[2] + yaw_init<0)//这里还有问题
-//  {
-//    if(earth_magnetic_in_e>=0)
-//    {
-//      if(earth_magnetic_in_d>0)//-270到-360度
-//        gamma = -360 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//从上往下看，逆时针转，数据为90到0度，转换为实际角度
-//      else//-180到-270度
-//        gamma = -180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为0到-90度，转换为实际角度
-//    }
-//    else
-//    {
-//      if(earth_magnetic_in_d>0)//-0到-90度
-//        gamma = R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为0到-90度，转换为实际角度
-//      else//-90到-180度    
-//        gamma = -180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为90到0度，转换为实际角度
-//    }
-//    acc_angle[0][2] = gamma; //- yaw_init;       
-//
-//  }
-//  else
-  
-    if(earth_magnetic_in_e>=0)
-    {
-      if(earth_magnetic_in_d>0)//0到90度
-        gamma = R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//从上往下看，逆时针转，数据为0到90度，转换为实际角度
-      else//90到180度
-        gamma = 180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为-90到0度，转换为实际角度
-    }
-    else
-    {
-      if(earth_magnetic_in_d>0)//270到360度
-        gamma = 360 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为-90到0度，转换为实际角度
-      else//180到270度    
-        gamma = 180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为0到90度，转换为实际角度
-    }
-    acc_angle[0][2] = gamma;// - yaw_init;    
-    
-    
-  //  static float z_angle[2] = {0};                        //编译时赋值
-  
-  //  float hz_divid_gz = (float)pcps->z/pacc[2];//注意：如果加速度计采用了长时延的滤波，而电子罗盘未滤波，则变化过程中由于加计延迟，角度会有较大偏差
-  //  float index[2] = {0};
-  //  index[0] = pcps->x - pacc[0]*hz_divid_gz;
-  //  index[1] = pcps->y - pacc[1]*hz_divid_gz;
-  //  float denum = sqrt(index[0]*index[0] + index[1]*index[1]);
-  //  if(denum<0.00001)
-  //    return;
-  //  float tan_fai = index[0]/index[1];
-  // gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = pacc[0]/10;
-  //    p_acc_angle[2] = atan2(index[0],index[1])/PI_DIV_180;
-  
-  //sqrt(pcps[0]*pcps[0] + pcps[1]*pcps[1] + pcps[2]*pcps[2]);
-  //  gc[DBG_TMP_ANG_WATCH][DBG_COMPASS_TMP_ANG_Z_WATCH] = (z_angle[0] = atan2(pcps[0],pcps[1])/PI_DIV_180); //计算偏航角度
-  //    p_acc_angle[2] = (z_angle[0]+99*temp_angle[1])*0.01;  //  计算x&y轴角度值ang_x & ang_y，单位：度
-  //    if(nrf_rciv[TH_ADC_OFFSET]<2)
-  //      p_acc_angle[2] = 0;
-  //    p_acc_angle[2] = temp_angle[1];  //  计算x&y轴角度值ang_x & ang_y，单位：度
-  //  AttitudeEKF(true,false,update,5e-3,z,0,0,0,0,0,0,0, 0,xa_apo,Pa_apo,Rot_matrix,eulerAngle,debugOutput);
-
-    
+  if(earth_magnetic_in_e>=0)
+  {
+    if(earth_magnetic_in_d>0)//0到90度
+      gamma = R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//从上往下看，逆时针转，数据为0到90度，转换为实际角度
+    else//90到180度
+      gamma = 180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为-90到0度，转换为实际角度
+  }
+  else
+  {
+    if(earth_magnetic_in_d>0)//270到360度
+      gamma = 360 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为-90到0度，转换为实际角度
+    else//180到270度    
+      gamma = 180 + R2D*atan(earth_magnetic_in_e / earth_magnetic_in_d);//数据为0到90度，转换为实际角度
+  }
+  acc_angle[0][2] = gamma;// - yaw_init;    
+   
 #ifdef WATCH_INTEGRAL_ANGLE             //
   static float gyro_angle[2] = {0};
   if(mod)
@@ -273,34 +230,16 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
   }
   //偏航角互补滤波
   temp_angle[2] = pangle[2] - (gyro.z)*MPU6050GYRO_SCALE_DEG * INTERUPT_CYC_IN_MS/1000.0;//z轴陀螺仪积分得到另一种偏航角
-
-  //acc_angle[0][0] = temp_angle[2];
   
-  
-
-  
-  static uint32 att_cal_count = 0;      //用来计时该使用加速度数据了
-  static char t = 0;   
-  if(nrf_rciv[TH_ADC_OFFSET]<=2)                        //油门小于2则认为没震动，角度就用加速度计和地磁计解算值
+  if(nrf_rciv[TH_ADC_OFFSET]<3)                        //油门小于2则认为没震动，角度就用加速度计和地磁计解算值
   {
     pangle[0] = tmp_acc_angle[0];
     pangle[1] = tmp_acc_angle[1];
-    att_cal_count = 0;
     //offset angle and integerd direction angle must be cleand the same time  
     
     yaw_init = gamma;
     pangle[2] = yaw_init;
     offset_angle[2] = yaw_init;
-    
- //   t++;
- //   if(t>50)
- //   {
- //     
- //
- //     
- //     nrf_rciv[TH_ADC_OFFSET] = 33;
- //     t = 51;
- //   }
   }
   else
   {
@@ -309,21 +248,6 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 //      pangle[0] = temp_angle[0] - angx_err;
 //      pangle[1] =(angy_err+49*temp_angle[1])*0.02;
 //    }
-    
-//    if(att_cal_count<(10/INTERUPT_CYC_IN_MS))      //10s钟归位一次
-//    {
-//      att_cal_count++;
-//      pangle[0] = temp_angle[0];        //只用陀螺仪
-//      pangle[1] = temp_angle[1];//      else
-//      
-//      
-//      //偏航角互补滤波
-//      pangle[2] = temp_angle[2];
-//      
-//    }
-//    else
-    {
-      att_cal_count = 0;
       pangle[0] = 0.0015*tmp_acc_angle[0] + (1-0.0015)*temp_angle[0];
       pangle[1] = 0.0015*tmp_acc_angle[1] + (1-0.0015)*temp_angle[1];//      else
       //偏航角互补滤波
@@ -332,13 +256,114 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
       else
         pangle[2] = gamma;
       last_gamma = gamma;
-    }
   }
-  
-
 }
 
+  float height_acc_p = 40;
+  float height_acc_i = 0;
+  float height_acc_d = 8;
+//高度控制
+float AltitudeControl(float * pacc)
+{
+  //printf("%f,%f,%f\r\n",_ohm,_a2,_b0);
 
+
+   float height_acc = sqrt(0.0000234256*pacc[0]*pacc[0]+0.0000238144*pacc[1]*pacc[1]+0.0000228484*pacc[2]*pacc[2]) - 9.82;//运动时高度轴方向上的加速度，所以减去重力加速度
+   //printf("%f\r\n",height_acc);
+   gc[3][1] = height_acc;
+   float filted_height_acc = 0;
+       
+   static float last_height_acc = 0, last_filted_height_acc = 0;
+   
+   float height_acc_err = 0;
+   float height_diff_acc_err = 0,z_pid_out = 0;
+   static float last_height_acc_err = 0, sum_of_heoght_acc_err = 0;
+   
+   float filted_height_acc_pid = 0;
+   static float last_height_acc_pid = 0;
+   static float last_filted_height_acc_pid = 0;
+   float z_pid_out1 = 0;
+
+   static LPFParam LPFParam_of_height_acc;//高度方向上加速度的滤波器参数，里面某些成员需要静态变量
+
+   extern KalmanInfo kalmanFilter_of_height_acc;
+  if(nrf_rciv[TH_ADC_OFFSET]>20)
+  {
+    //LPFParam_of_height_acc.fd=4;//滤波器截止频率
+    //LPFParam_of_height_acc.input=height_acc;
+    //filted_height_acc=SecondOrderLPF(&LPFParam_of_height_acc);
+    
+    filted_height_acc = KalmanFilter(&kalmanFilter_of_height_acc, height_acc);
+    //    //把加速度过一个一阶低通滤波器，其采样频率为200HZ，截止频率为1HZ
+    //filted_height_acc = (19.73 * (height_acc + last_height_acc) + 1236.27 * last_filted_height_acc) / 1275.73;
+    //last_height_acc = height_acc;
+    //last_filted_height_acc = filted_height_acc;
+    gc[3][2] =filted_height_acc;
+    float expect_acc = 0;
+ //   if(nrf_rciv[TH_ADC_OFFSET]<97)
+ //   {
+ //     expect_acc = -0.8;
+ //   }
+ //   else if(nrf_rciv[TH_ADC_OFFSET]>=97&&(nrf_rciv[TH_ADC_OFFSET]<157))
+ //   {
+ //     expect_acc = 0;
+ //   }
+ //   else if(nrf_rciv[TH_ADC_OFFSET]>=157)
+ //   {
+ //     expect_acc = 0.8;
+ //   }
+ //   else//如果执行这一个程序肯定出问题了
+ //   {
+ //     expect_acc = 0;
+ //   }
+    expect_acc = 0;
+    
+     // height_acc_err = (expect_acc - height_acc);
+    gc[3][0] = height_acc_err = (expect_acc - filted_height_acc);
+
+    height_diff_acc_err = height_acc_err - last_height_acc_err;
+    last_height_acc_err = height_acc_err;
+    sum_of_heoght_acc_err += height_acc_err;
+    z_pid_out = height_acc_p * height_acc_err + height_acc_i * sum_of_heoght_acc_err + height_acc_d * height_diff_acc_err;
+    gc[3][0] = z_pid_out;
+      
+    if(z_pid_out>250)z_pid_out = 250;
+    else if(z_pid_out<-250)z_pid_out = -250;
+    
+//    if(z_pid_out>0)
+//      z_pid_out1 = 5*sqrt(z_pid_out);
+//    else 
+//      z_pid_out1 = -5*sqrt(-z_pid_out); 
+//    z_pid_out1 = z_pid_out;
+    
+    z_pid_out1 = 250 * (1 - exp(-0.02 * z_pid_out)) / (1 + exp(-0.02 * z_pid_out));
+
+    if(z_pid_out1>300)z_pid_out1 = 300;
+    else if(z_pid_out1<-300)z_pid_out1 = -300;
+    
+  }
+  else
+  {
+    gc[3][1] = z_pid_out1 = 0;
+    gc[3][0] = filted_height_acc_pid = 0;
+    last_height_acc = 0;
+    last_filted_height_acc = 0;
+    last_height_acc_err = 0;
+    sum_of_heoght_acc_err = 0;
+    z_pid_out = 0;
+    
+    last_filted_height_acc_pid = 0;
+    last_height_acc_pid = 0;
+   
+  }
+//  static float v_of_height_in_acc_inf = 0;//加速度计积分得到当前高度方向上的速度
+//  gc[2][0] = v_of_height_in_acc_inf += (filted_height_acc * INTERUPT_CYC_IN_MS*1e-3);//加速度积分
+//
+//  static float height_in_acc_inf= 0;//加速度计两次积分得到的高度
+//  gc[2][1] = height_in_acc_inf += v_of_height_in_acc_inf*INTERUPT_CYC_IN_MS*1e-3;
+
+  return z_pid_out;  
+}
 /*******************************************PWM值计算*******************************************/
 uint16 cali = 0;
 float offset_angle[3] = {0};
@@ -355,6 +380,7 @@ int Coef = 15;                          //derivative Coefficient
 int pwm[4] = {0};      //
 float xcq = 0,ycq = 0;                          //X,Y angle Control quantity
 float pwm_of_dir = 0;                           //yaw  Control quantity
+extern float filted_acc[2][3];
 //Brief:name-PWMCalc(Calculate),4个电机占空比计算函数
 //  计算之PWM值存于pwm
 //Parameters:
@@ -387,14 +413,14 @@ void PWMCalc(uint8 mod)
 #ifdef WATCH_DIFF_COEF
   gc[1][0] = (_omega_error - last_omega_error_x)/INTERUPT_CYC_IN_MS*1e3;
   last_omega_error_x = _omega_error;
-  //gc[1][2] = deriv_out/x_d_i;
+  gc[1][2] = deriv_out/x_d_i;
 #else
 #endif
     
     omega_e = y_p_o*angle_error_y;  
     _omega_error = omega_e - (gyro.x+gyro.y)*0.7071;
 #ifdef WATCH_DIFF_COEF
-  gc[1][1] = (_omega_error - last_omega_error_y)/INTERUPT_CYC_IN_MS*1e3;
+  //gc[1][1] = (_omega_error - last_omega_error_y)/INTERUPT_CYC_IN_MS*1e3;
   last_omega_error_y = _omega_error;
 #else
 #endif
@@ -404,8 +430,6 @@ void PWMCalc(uint8 mod)
   }
   else//十形飞行
   {
-//    if(ctrl[0]>-1 && ctrl[0]<1)
-//        x1[0] = x_p_o*angle_error_x;
     omega_e = x_p_o*angle_error_x;
     _omega_error = omega_e - gyro.y;
     deriv_out = Coef*(x_d_i*_omega_error-filter_coef_state_x);//FilterCoefficient[0]
@@ -423,39 +447,47 @@ void PWMCalc(uint8 mod)
     dir_angle_error[0] -= 360;
   else if(dir_angle_error[0]<-200)
     dir_angle_error[0] += 360;
-  gc[1][1] = dir_angle_error[0];
   pwm_of_dir = z_p *dir_angle_error[0] + z_d*(gyro.z);
+  
+  extern char Filter_init_flag;
+  static float expect_throttle = 0;
+  if('f'==nrf_rciv[PLANE_MODE_OFFSET])
+  {
+     #ifdef MY_WOOD                  //my wood plane
+       expect_throttle = (1.0*nrf_rciv[TH_ADC_OFFSET]);      //1.3的比例操作非常灵敏,油门比例需要配合电调的油门行程
+     #elif CARBON_FIBRE              //other plane
+       
+       expect_throttle = sqrt(800*nrf_rciv[TH_ADC_OFFSET]);      //
+       //expect_throttle = nrf_rciv[TH_ADC_OFFSET]; 
+     #endif
+       throttle = expect_throttle;
+  }
+  else if('h'==nrf_rciv[PLANE_MODE_OFFSET]&&(Filter_init_flag==1))
+  {
+    throttle = AltitudeControl(filted_acc[0]) + expect_throttle;
 
-#ifdef MY_WOOD                  //my wood plane
-  throttle = 1.0*nrf_rciv[TH_ADC_OFFSET]+500;      //1.3的比例操作非常灵敏,油门比例需要配合电调的油门行程
-#elif CARBON_FIBRE              //other plane
-  throttle = 1.2*nrf_rciv[TH_ADC_OFFSET]+500;      //
-#endif
+  }
   if(mod)
   {
-    //    pwm[x_n] = (int)(throttle + xcq);//
-    //    pwm[x_p] = (int)(throttle - xcq);//
-    //    pwm[y_n] = (int)(throttle + xcq);
-    //    pwm[y_p] = (int)(throttle - xcq);
-    //    pwm[x_n] = (int)(throttle - ycq);//
-    //    pwm[x_p] = (int)(throttle + ycq);//
-    //    pwm[y_n] = (int)(throttle + ycq);
-    //    pwm[y_p] = (int)(throttle - ycq);
-    //    pwm[x_n] = (int)(throttle + xcq - ycq);//
-    //    pwm[x_p] = (int)(throttle - xcq + ycq);//
-    //    pwm[y_n] = (int)(throttle + xcq + ycq);
-    //    pwm[y_p] = (int)(throttle - xcq - ycq);
-    pwm[x_n] = (int)(throttle + xcq + ycq - pwm_of_dir);//
-    pwm[x_p] = (int)(throttle - xcq - ycq - pwm_of_dir);//
-    pwm[y_n] = (int)(throttle + xcq - ycq + pwm_of_dir);
-    pwm[y_p] = (int)(throttle - xcq + ycq + pwm_of_dir);
+    pwm[x_n] = (int)sqrt(throttle + xcq + ycq - pwm_of_dir)*20 + 500;//
+    pwm[x_p] = (int)sqrt(throttle - xcq - ycq - pwm_of_dir)*20 + 500;//
+    pwm[y_n] = (int)sqrt(throttle + xcq - ycq + pwm_of_dir)*20 + 500;
+    pwm[y_p] = (int)sqrt(throttle - xcq + ycq + pwm_of_dir)*20 + 500;
   }
   else
   {
-    pwm[x_n] = (int)(throttle + xcq - pwm_of_dir);//
-    pwm[x_p] = (int)(throttle - xcq - pwm_of_dir);//
-    pwm[y_n] = (int)(throttle - ycq + pwm_of_dir);
-    pwm[y_p] = (int)(throttle + ycq + pwm_of_dir);
+    
+    pwm[x_n] = (int)(throttle + xcq - pwm_of_dir) + 500;//
+    pwm[x_p] = (int)(throttle - xcq - pwm_of_dir) + 500;//
+    pwm[y_n] = (int)(throttle - ycq + pwm_of_dir) + 500;
+    pwm[y_p] = (int)(throttle + ycq + pwm_of_dir) + 500;
+    
+//    pwm[x_n] = (int)sqrt(500 * (throttle + xcq - pwm_of_dir)) + 500;//
+//    pwm[x_p] = (int)sqrt(500 * (throttle - xcq - pwm_of_dir)) + 500;//
+//    pwm[y_n] = (int)sqrt(500 * (throttle - ycq + pwm_of_dir)) + 500;
+//    pwm[y_p] = (int)sqrt(500 * (throttle + ycq + pwm_of_dir)) + 500;
+    
+
   }
 }
 

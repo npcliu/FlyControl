@@ -326,6 +326,7 @@ void nrf_rx_mode(void)
   nrf_writereg(NRF_WRITE_REG + EN_RXADDR, 0x01);      //使能通道0的接收地址
   nrf_writebuf(NRF_WRITE_REG + RX_ADDR_P0, RX_ADDRESS, RX_ADR_WIDTH); //写RX节点地址
   nrf_writereg(NRF_WRITE_REG + CONFIG, 0x0B | (IS_CRC16 << 2));       //配置基本工作模式的参数;PWR_UP,EN_CRC,16BIT_CRC,接收模式
+
   /* 清除中断标志*/
   nrf_writereg(NRF_WRITE_REG + STATUS, 0xff);
   nrf_writereg(FLUSH_RX, NOP);                    //清除RX FIFO寄存器
@@ -348,6 +349,8 @@ void nrf_tx_mode(void)
   nrf_writebuf(NRF_WRITE_REG + TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH); //写TX节点地址
   nrf_writebuf(NRF_WRITE_REG + RX_ADDR_P0, RX_ADDRESS, RX_ADR_WIDTH); //设置RX节点地址 ,主要为了使能ACK
   nrf_writereg(NRF_WRITE_REG + CONFIG, 0x0A | (IS_CRC16 << 2)); //配置基本工作模式的参数;PWR_UP,EN_CRC,16BIT_CRC,发射模式,开启所有中断
+  
+  
   /*CE拉高，进入发送模式*/
   NRF_CE = 1;
   
@@ -559,12 +562,22 @@ void nrf_handler(void)
     }
     else
       rx_flag = 3;//      LCDShowStr(0,LCD_W-16,"there are some unread data in NRF RX FIFO!please check!",1,YELLOW,BLACK); 
-waite_for_nrf_data = 0;
+    waite_for_nrf_data = 0;
     NRF_CE = 1;
+    
+ //   if(irq_tx_buff[PLANE_MODE_OFFSET] == 'h')//如果是定高模式
+ //   {
+ //     //接受完数据后进入发送模式
+ //     nrf_tx_mode();
+      
+ //   }
+    
   }
   else if(nrf_state & TX_DS) //发送完数据
   {
     nrf_tx_sta = NRF_TX_OK;
+    //if(irq_tx_buff[PLANE_MODE_OFFSET] == 'h')
+    //  nrf_rx_mode();
   }
   else if(nrf_state & MAX_RT)      //发送超时
   {

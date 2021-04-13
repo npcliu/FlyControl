@@ -9,6 +9,8 @@ typedef enum
   standby,                              //standby待机程序
   att_hld_pre,                              //姿态控制飞前准备
   att_hld,                               //姿态控制模式
+  height_hld_pre,
+  height_hld,
   pos_hld_prep,                               //空间位置控制模式肥前准备
   pos_hld,                               //空间位置控制模式
   land,                         //降落

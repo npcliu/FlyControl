@@ -12888,6 +12888,8 @@ float FlashReadFloat(uint32_t address);
 
  
 
+   
+   
 
 
 
@@ -12988,6 +12990,8 @@ typedef enum
   standby,                              
   att_hld_pre,                              
   att_hld,                               
+  height_hld_pre,
+  height_hld,
   pos_hld_prep,                               
   pos_hld,                               
   land,                         
@@ -13038,7 +13042,7 @@ extern char pwr_low_flag;
 char GPS_CMD_send_flag = 0;
 uint8 GPS_send_buff[25] = "$PSRF103,00,00,00,01*24";
 SCom sCom;
-
+extern float filted_acc[2][3];
  
 int main(void)
 {
@@ -13068,7 +13072,7 @@ int main(void)
   
   SPI3_Init();
   UartInit();
-  printf("aaaaa");
+  printf("bbbbbbbbbbbbbbbb");
   
   
   
@@ -13085,17 +13089,22 @@ int main(void)
   
   L3GD20_Init(((uint8_t)0x00));
   LSM303D_Init();
-  
+  LSM303A_Init();
   (((_32type*)(&(((SPI_TypeDef *) (((uint32_t)0x40000000) + 0x3C00))->CR1)))->b6) = 0; (((_32type*)(&(((SPI_TypeDef *) (((uint32_t)0x40000000) + 0x3C00))->CR1)))->b1) = 0; (((_32type*)(&(((SPI_TypeDef *) (((uint32_t)0x40000000) + 0x3C00))->CR1)))->b0) = 0; (((_32type*)(&(((SPI_TypeDef *) (((uint32_t)0x40000000) + 0x3C00))->CR1)))->b6) = 1;;                 
   
   NVIC_Config();
   __enable_interrupt();
-  
+  printf("实验开始\r\n");
+  extern char irq_tim4_flag;
   while(1)
   {
+    
+    
+   
  
     if(pit_5s_flag)
     {
+      
       bat_voltage = BatVoltageGet();
       if(bat_voltage<10.5 && bat_voltage>9)             
       {

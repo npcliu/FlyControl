@@ -28,6 +28,6 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 //void GPSCal(nmeaINFO *info, uint32 th_vs_mg);
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
 void PWMCalc(uint8 mod);
-
-
+float AltitudeControl(float * pacc);
+float AltitudeControl(float * pacc);
 #endif

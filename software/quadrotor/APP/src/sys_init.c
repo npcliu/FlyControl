@@ -29,7 +29,7 @@
 void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
 {
   pipl_dir = 0;
-  x_b = -5;
+  x_b = 0;//-5;
   y_b = 0;
   z_p = 2;
   z_d = 0.02;
@@ -76,18 +76,18 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
     offset_angle[0] = 0;//5;
     offset_angle[1] = 0;//5;
     offset_angle[2] = 0;
-//    x_p_o = 80;                     //x(x axis)_p(proportion)_o(out loop)_t(ten shape fly)x轴十形飞行控制参数
-//    x_p_i = 0.0247;
-//    x_d_i = 0.0015;
-//    y_p_o = 80;
-//    y_p_i = 0.0257;
-//    y_d_i = 0.001;
-    x_p_o = 60;                     //x(x axis)_p(proportion)_o(out loop)_x(x shape fly)x轴X形飞行控制参数
-    x_p_i = 0.015;
-    x_d_i = 0.0012;
-    y_p_o = 60;
-    y_p_i = 0.015;
+    x_p_o = 80;                     //x(x axis)_p(proportion)_o(out loop)_t(ten shape fly)x轴十形飞行控制参数
+    x_p_i = 0.0247;
+    x_d_i = 0.0015;
+    y_p_o = 80;
+    y_p_i = 0.0257;
     y_d_i = 0.001;
+//    x_p_o = 70;                     //x(x axis)_p(proportion)_o(out loop)_x(x shape fly)x轴X形飞行控制参数
+//    x_p_i = 0.019;
+//    x_d_i = 0.0012;
+//    y_p_o = 70;
+//    y_p_i = 0.019;
+//    y_d_i = 0.001;
   }
 #endif
   p_gyro_offset[0] = FLASH_ReadHalfWord(STM32F103RC_FLASH_PAGE127_ADDR + GYRO_XOFF_ADDR_OFFSET);        //从flash读取陀螺仪的零偏校准参数
@@ -215,7 +215,7 @@ void AdcInit(void)
 void NVIC_Config(void)
 {
   NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);//NVIC_PriorityGroup_0:表示所有中断不会被打断
   NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;

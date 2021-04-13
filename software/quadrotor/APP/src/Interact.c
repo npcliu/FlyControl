@@ -9,7 +9,7 @@
 #include <info.h>
 #include "DataStructure.h"
 #include "interact.h"
-
+#include "bmp180.h"
 
 PSNODE anglex_pnode;
 PSNODE angley_pnode;
@@ -37,10 +37,14 @@ extern short amplitude;
 *  修改时间：2014-1-14    已经测试DLUT上位机默认数据为short格式;因此数据不要超过-32767~32767区间
 0：red;1=blue;2=light blue;3=yellow;4=light green;5=dark green
 *************************************************/
-char send_type = 'X';
+char send_type = 'Y';
 extern float pwm_of_dir;
 extern short acc_chip_out[3];
+extern short gyro_chip_out[3];
 extern short cps_chip_out[3];
+extern float filted_acc[2][3];
+extern short acc1[2][3];
+extern _bmp180 bmp180;
 void SCISend_to_Own(USART_TypeDef* USARTx)
 {
 //  static uint32 count = 0;
@@ -49,44 +53,50 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
   switch(send_type)
   {
   case 'x':               //[x倾角，x倾角期望][y分量加速度][？]
-    send_data[0][0] = (short)angle[0]; //         
-    send_data[0][1] = (short)((nrf_rciv[LR_ADC_OFFSET]-127)*ANG_CTRL_RATE);
-    send_data[0][2] = (short)(gyro.y/164.0);//
-    send_data[0][3] = (short)(xcq);//
-    send_data[1][0] = (short)angle[0];
-    send_data[1][1] = (short)(gyro.y/100.0);
-    send_data[1][2] = (short)(acc.x/100.0);
-    send_data[1][3] = (short)gc[1][0];
-    send_data[1][4] = (short)gc[1][2];
-    send_data[1][5] = (short)xcq;
-    send_data[2][0] = (short)angle[0];
-    send_data[2][1] = (short)acc_angle[0][0];
-    send_data[2][2] = (short)gc[0][0];
+    send_data[0][0] = (short)acc_chip_out[0]; //         
+    send_data[0][1] = (short)acc_chip_out[1];
+    send_data[0][2] = (short)acc_chip_out[2];//
+    send_data[1][0] = (short)gyro_chip_out[0];
+    send_data[1][1] = (short)gyro_chip_out[1];
+    send_data[1][2] = (short)gyro_chip_out[2];
+    send_data[2][0] = (short)cps_chip_out[0];
+    send_data[2][1] = (short)cps_chip_out[1];
+    send_data[2][2] = (short)cps_chip_out[2];   
+//    send_data[0][3] = (short)(xcq);//
+//    send_data[1][0] = (short)angle[0];
+//    send_data[1][1] = (short)(gyro.y/100.0);
+//    send_data[1][2] = (short)(acc.x/100.0);
+//    send_data[1][3] = (short)gc[1][0];
+//    send_data[1][4] = (short)gc[1][2];
+//    send_data[1][5] = (short)xcq;
+//    send_data[2][0] = (short)angle[0];
+//    send_data[2][1] = (short)acc_angle[0][0];
+//    send_data[2][2] = (short)gc[0][0];
     break;
   case 'X':               //[x倾角，x倾角期望][y角速度][？]
     
-    send_data[0][0] = (short)gc[1][2];
-    send_data[0][1] = (short)nrf_rciv[UD_ADC_OFFSET];
-    send_data[1][0] = (short)angle[0];
-    send_data[0][2] = (short)angle[1];
-    send_data[1][2] = (short)angle[2];
-   // send_data[1][2] = (short)offset_angle[2];
+ //send_data[1][0] = (short)(10*(sqrt(0.0000234256*filted_acc[0][0]*filted_acc[0][0]+0.0000238144*filted_acc[0][1]*filted_acc[0][1]+0.0000228484*filted_acc[0][2]*filted_acc[0][2]) - 9.82));
+  
+    send_data[0][3] = (short)(gc[3][2]*10);
+    send_data[0][0] = (short)(gc[3][1]*10);
+  send_data[1][0] = (short)gc[3][0];
+//  send_data[2][0] = (short)gc[4][0];
+
 //    send_data[2][0] = (short)gc[DBG_TMP_ANG_WATCH][DBG_ACC_TMP_ANG_X_WATCH];
 //    send_data[2][1] = (short)gc[DBG_TMP_ANG_WATCH][DBG_GYRO_TMP_ANG_X_WATCH];
     break;
   case 'y':               //[y倾角，y倾角期望][y分量加速度][？]
-    send_data[0][0] = (short)acc_chip_out[0];
-    send_data[0][1] = (short)cps_chip_out[0];
-    //send_data[0][2] = (short)acc_chip_out[2];
-    send_data[1][0] = (short)acc_chip_out[1];
-    send_data[1][1] = (short)cps_chip_out[1];
-    send_data[2][0] = (short)acc_chip_out[2];
-    send_data[2][1] = (short)cps_chip_out[2];
+    send_data[0][0] = (short)(gc[3][7]*10);
+//    send_data[0][1] = (short)cps_chip_out[0];
+//    //send_data[0][2] = (short)acc_chip_out[2];
+//    send_data[1][0] = (short)acc_chip_out[1];
+//    send_data[1][1] = (short)cps_chip_out[1];
+//    send_data[2][0] = (short)acc_chip_out[2];
+//    send_data[2][1] = (short)cps_chip_out[2];
 //    send_data[2][2] = (short)gc[0][1];
     break;
   case 'Y':               //[y倾角，y倾角期望][x角速度][？]
-    send_data[0][0] = (short)nrf_rciv[DR_ADC_OFFSET];
-    send_data[0][1] = (short)offset_angle[2];
+      send_data[0][0] = (short)(gc[3][7]*10);
 //    send_data[0][1] = (short)((nrf_rciv[UD_ADC_OFFSET]-127)*ANG_CTRL_RATE);
 //    send_data[1][0] = (short)0;
 //    send_data[1][1] = (short)gyro.x;
@@ -94,9 +104,9 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
 //    send_data[2][1] = (short)gc[DBG_TMP_ANG_WATCH][DBG_GYRO_TMP_ANG_Y_WATCH];
     break;
   case 'z':               //[偏航角][？][地磁计x,y,z]
-    send_data[0][0] = (short)(compass.x);
-    send_data[1][1] = (short)((float)compass.y/10)*1000;
-    send_data[2][2] = (short)((float)compass.z/10)*1000;
+    send_data[0][0] = (short)acc1[1][0];
+    send_data[1][1] = (short)acc1[1][1];
+    send_data[2][2] = (short)acc1[1][2];
     
     break;
   case 'Z':               //[偏航角][z轴角速度][偏航角参量]
@@ -224,11 +234,14 @@ float angle_z_ctrl_rate = 0.6;
 //brief：This function is used to convert raw data from Remote Controller to plane parameters
 //such as convert direction stick adc value 127 to direction angle(offset_angle[2]) 0;
 //example：
+
 void RCDenote()
 {
+   
   static uint8 last_DR_value = 0;
   if(nrf_rciv[TH_ADC_OFFSET]>20)                //apply direction control only when plane in the air,cause unlock plane will change direction stick
   {
+    /**********************************期望偏航角******************************/
     //摇杆向左打的时候，加20表示推油门时偏航摇杆有一定的变化,在50范围内期望角度增量为3
     if(nrf_rciv[DR_ADC_OFFSET]>DR_ADC_CENTER+20&&(nrf_rciv[DR_ADC_OFFSET]<DR_ADC_CENTER+70))
     {
@@ -253,10 +266,12 @@ void RCDenote()
       if(nrf_rciv[DR_ADC_OFFSET]<=last_DR_value)//增量为负才算有效增量
         offset_angle[2] += 0.4;//angle_z_ctrl_rate*(nrf_rciv[DR_ADC_OFFSET] - last_DR_value);
     }      
-    else;
+    else;   
   }
   last_DR_value = nrf_rciv[DR_ADC_OFFSET];
+    
 
+    
   if(offset_angle[2]>360)//把期望yaw角度限制在0到360度
     offset_angle[2] -= 360;
   else if(offset_angle[2]<0)

@@ -51,6 +51,11 @@ void TIM4_IRQHandler(void)/*******************¶¨Ê±ÖÐ¶Ï*******************/
 //      light_ness = 9000;              //enough dark
     TIM_SetCompare3(TIM1,1000);  
   }
+  extern char pit_20ms_flag;
+  if(0==irq_count%4)
+  {
+    pit_20ms_flag = 1;
+  }
   switch(irq_count%100)         //INTERUPT_CYC_IN_MS*100 is this period
   {
   case 0:

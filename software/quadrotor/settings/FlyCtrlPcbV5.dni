@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=354183607
+Checksum=886244892
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -132,12 +132,13 @@ Bp4=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.172.3" 0 0 1 "" 0 "" 0
 Bp5=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\sys_init.c}.218.3" 0 0 1 "" 0 "" 0
 Bp6=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.358.7" 0 0 1 "" 0 "" 0
 Bp7=_ 0 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Canlibration.c}.353.5" 0 0 1 "" 0 "" 0
-Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\MyNRF24L0.c}.478.5" 0 0 1 "" 0 "" 0
-Bp9=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.286.5" 0 0 1 "" 0 "" 0
+Bp8=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\MyNRF24L0.c}.489.5" 0 0 1 "" 0 "" 0
+Bp9=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Task.c}.400.3" 0 0 1 "" 0 "" 0
 Bp10=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\Mpu6050.c}.159.11" 0 0 1 "" 0 "" 0
-Bp11=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Calculation.c}.339.1" 0 0 1 "" 0 "" 0
-Bp12=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Calculation.c}.339.1" 0 0 1 "" 0 "" 0
-Count=13
+Bp11=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\Calculation.c}.472.5" 0 0 1 "" 0 "" 0
+Bp12=_ 1 "EMUL_CODE" "{$PROJ_DIR$\User\src\MyNRF24L0.c}.483.5" 0 0 1 "" 0 "" 0
+Bp13=_ 1 "EMUL_CODE" "{$PROJ_DIR$\APP\src\main.c}.81.3" 0 0 1 "" 0 "" 0
+Count=14
 [Aliases]
 Count=0
 SuppressDialog=0

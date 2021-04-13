@@ -12141,6 +12141,8 @@ char MPU6050GyroCalibration(short *PGYRO);
 
  
 
+   
+   
 
 
 
@@ -12274,8 +12276,8 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
 void PWMCalc(uint8 mod);
-
-
+float AltitudeControl(float * pacc);
+float AltitudeControl(float * pacc);
 
 
 
@@ -12573,44 +12575,55 @@ float filted_acc[2][3] = {0};
 float filted_gyro[2][3] = {0};             
 float filted_cps[2][3] = {0};              
 char pit_5ms_flag = 0;
+char pit_80ms_flag = 0;
 char pit_25ms_flag = 0;
 char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;
 char pit_5s_flag = 0;         
+
 void TIM4_IRQHandler(void)
 {
+  
   static uint32 irq_count = 0;
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b13) = 0;
+  
+
 
       CaliFilt(filted_acc[0],filted_gyro[0],filted_cps[0],&acc,&gyro,&compass,acc_chip_out,gyro_chip_out,cps_chip_out);
 
     AttCalc(angle, filted_acc[0], filted_gyro[0], filted_cps[0], pipl_dir);                       
+    
     PWMCalc(pipl_dir);
 
   irq_count++;
+
   if(irq_count>=100000)
     irq_count = 0;
   if(0==irq_count%5)           
     pit_25ms_flag = 1;
+  if(0==irq_count%16)           
+    pit_80ms_flag = 1;  
   if(0==irq_count%10)           
     pit_50ms_flag = 1;
   if(0==irq_count%100)         
     pit_500ms_flag = 1;
   if(0==irq_count%1000)
     pit_5s_flag = 1;
+  
+  
   TIM_ClearITPendingBit(((TIM_TypeDef *) (((uint32_t)0x40000000) + 0x0800)), ((uint16_t)0x0002)|((uint16_t)0x0001)); 
-  (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b13) = 1;
 }
+short acc1[2][3];
 void EXTI15_10_IRQHandler()
 {
+
  
   if(EXTI_GetITStatus(((uint32_t)0x04000))!=RESET)
   {
-    (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b12) = 0;
 
     MPUReadAcc(acc_chip_out);
     MPUReadGyr(gyro_chip_out);
     ReadQMC5883(cps_chip_out);
+    
 
 
 
@@ -12620,11 +12633,11 @@ void EXTI15_10_IRQHandler()
 
 
     
-    EXTI_ClearITPendingBit(((uint32_t)0x04000));
-    (((_32type*)(&(((GPIO_TypeDef *) ((((uint32_t)0x40000000) + 0x10000) + 0x0C00))->ODR)))->b12) = 1;
+    EXTI_ClearITPendingBit(((uint32_t)0x04000));   
+    
   }
   else
-    ((0) ? (void)0 : ( __aeabi_assert("0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\ISR.c", 74), ( __iar_EmptyStepPoint())));
+    ((0) ? (void)0 : ( __aeabi_assert("0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\ISR.c", 85), ( __iar_EmptyStepPoint())));
 }
 char nrf_int_flag = 1;          
 void EXTI9_5_IRQHandler()

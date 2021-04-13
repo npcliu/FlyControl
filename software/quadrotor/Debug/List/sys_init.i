@@ -12963,8 +12963,8 @@ void CaliFilt(float *pfilted_acc,float *pfilted_gyro,float *pfilted_cps,const PA
 
 void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod);
 void PWMCalc(uint8 mod);
-
-
+float AltitudeControl(float * pacc);
+float AltitudeControl(float * pacc);
 
 
 
@@ -12988,7 +12988,7 @@ void PWMCalc(uint8 mod);
 void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
 {
   pipl_dir = 0;
-  x_b = -5;
+  x_b = 0;
   y_b = 0;
   z_p = 2;
   z_d = 0.02;
@@ -13009,18 +13009,18 @@ void ParamInit(short *p_gyro_offset, PACC p_acc,PCOMPASS p_compass)
     offset_angle[0] = 0;
     offset_angle[1] = 0;
     offset_angle[2] = 0;
-
-
-
-
-
-
-    x_p_o = 60;                     
-    x_p_i = 0.015;
-    x_d_i = 0.0012;
-    y_p_o = 60;
-    y_p_i = 0.015;
+    x_p_o = 80;                     
+    x_p_i = 0.0247;
+    x_d_i = 0.0015;
+    y_p_o = 80;
+    y_p_i = 0.0257;
     y_d_i = 0.001;
+
+
+
+
+
+
   }
   p_gyro_offset[0] = FLASH_ReadHalfWord(0x0803F800 + 0);        
   p_gyro_offset[1] = FLASH_ReadHalfWord(0x0803F800 + 2);

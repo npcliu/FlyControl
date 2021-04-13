@@ -1,3 +1,0 @@
-Removed Pin From Net: NetName=ADC Pin=U2-10
-Added Pin To Net: NetName=ADC Pin=U2-24
-Added Member To Class: ClassName=CTRL V5 Member=Component U9 BMP180

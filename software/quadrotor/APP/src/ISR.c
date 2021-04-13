@@ -20,44 +20,55 @@ float filted_acc[2][3] = {0};              //filted acc data,2 row means 2 accel
 float filted_gyro[2][3] = {0};             //filted gyro data;
 float filted_cps[2][3] = {0};              //filted compass data
 char pit_5ms_flag = 0;
+char pit_80ms_flag = 0;
 char pit_25ms_flag = 0;
 char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;
 char pit_5s_flag = 0;         //5s时间标志
+
 void TIM4_IRQHandler(void)
 {
+  
   static uint32 irq_count = 0;
-  BLUE_OUT = 0;
+  
+
 //  GPSCal(&info, 1);
       CaliFilt(filted_acc[0],filted_gyro[0],filted_cps[0],&acc,&gyro,&compass,acc_chip_out,gyro_chip_out,cps_chip_out);
 //    AccAngleCal(&LSM_acc_adc,&acc_ang_x[1],&acc_ang_y[1]);
     AttCalc(angle, filted_acc[0], filted_gyro[0], filted_cps[0], pipl_dir);                       //
+    
     PWMCalc(pipl_dir);
 
   irq_count++;
+
   if(irq_count>=100000)
     irq_count = 0;
   if(0==irq_count%5)           //INTERUPT_CYC_IN_MS*5 = 25ms is this period检查一次nrf的接收情况
     pit_25ms_flag = 1;
+  if(0==irq_count%16)           //INTERUPT_CYC_IN_MS*5 = 25ms is this period检查一次nrf的接收情况
+    pit_80ms_flag = 1;  
   if(0==irq_count%10)           //INTERUPT_CYC_IN_MS*10 = 50ms is this period检查一次nrf的接收情况
     pit_50ms_flag = 1;
   if(0==irq_count%100)         //INTERUPT_CYC_IN_MS*100 is this period
     pit_500ms_flag = 1;
   if(0==irq_count%1000)
     pit_5s_flag = 1;
+  
+  
   TIM_ClearITPendingBit(TIM4, TIM_IT_CC1|TIM_IT_Update); //清除中断标志位
-  BLUE_OUT = 1;
 }
+short acc1[2][3];
 void EXTI15_10_IRQHandler()
 {
+
 /****************************triggerd by MPU6050 IRQ pin*******************************/
   if(EXTI_GetITStatus(MPUINT_Line)!=RESET)
   {
-    RED_OUT = 0;
 
     MPUReadAcc(acc_chip_out);//taks 0.26ms
     MPUReadGyr(gyro_chip_out);//
     ReadQMC5883(cps_chip_out);
+    //LSM303A_Raed(&acc1[1][0]);
 //    LSM303M_Raed((short*)&LSM_compass);
 //    ReadHMC5883((short*)&compass);
 //    Multiple_Read_QMC5883((short*)&compass);
@@ -67,8 +78,8 @@ void EXTI15_10_IRQHandler()
 //    AttCalc(angle, filted_acc[0], filted_gyro[0], filted_cps[0]);                       //
 //    PWM_Calculation();
     
-    EXTI_ClearITPendingBit(MPUINT_Line);
-    RED_OUT = 1;
+    EXTI_ClearITPendingBit(MPUINT_Line);   
+    
   }
   else
     assert(0);

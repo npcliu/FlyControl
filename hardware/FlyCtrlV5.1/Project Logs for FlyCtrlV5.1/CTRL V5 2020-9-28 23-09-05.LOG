@@ -1,9 +1,0 @@
-Change Component Designator: OldDesignator=JP? NewDesignator=JP6
-Added Component: Designator=R300(0603-Res)
-Added Component: Designator=R310(0603-Res)
-Added Pin To Net: NetName=SDA2 Pin=R300-1
-Added Pin To Net: NetName=3V3 Pin=R300-2
-Added Pin To Net: NetName=SCL2 Pin=R310-1
-Added Pin To Net: NetName=3V3 Pin=R310-2
-Added Member To Class: ClassName=CTRL V5 Member=Component R300 2.2K
-Added Member To Class: ClassName=CTRL V5 Member=Component R310 2.2K

@@ -16,6 +16,9 @@
 
 #ifndef _VCAN_NRF24L0_H_
 #define _VCAN_NRF24L0_H_     1
+   
+#include "define.h"
+   
 //以下是硬件配置
 #define NRF_SPI         SPI3
 //#define NRF_CS          SPI_PCS0

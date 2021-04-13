@@ -1902,6 +1902,9 @@
       <name>$PROJ_DIR$\APP\src\Canlibration.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\APP\src\filter.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\APP\src\Interact.c</name>
     </file>
     <file>
@@ -2032,9 +2035,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\User\src\GPS.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\User\src\HMC5883.C</name>
     </file>
     <file>
       <name>$PROJ_DIR$\User\src\L3GD20.c</name>

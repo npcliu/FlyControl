@@ -58,6 +58,9 @@
 #define S1_PIN                  PD9
 #define S1_IN                  PD9_IN
 
+//S2ÍùÓÒ´ò£¬S2_IN = 1£»Íù×ó´òS2_IN = 0
+#define S2_PIN                  PD10
+#define S2_IN                  PD10_IN
 /***************************       ENCODER      *******************************/
 #define ENSW_PIN                 PD14
 #define ENA_PIN                 PD15

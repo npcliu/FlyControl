@@ -13,6 +13,7 @@
 #include "canlibration.h"
 #include "calculation.h"        //该文件中的参数需要发送出去
 #include "usart.h"	
+#include "filter.h"
 PROCEDURE (* Task[MAX_TASK_NUM])(char input) = NULL;              //函数指针，每个指针代表一个函数入口，这些函数都是非中断函数，也可以叫任务。
 PROCEDURE next_procedure = stb_pre;
 
@@ -24,10 +25,10 @@ char cali_compass = 0;
 char pwr_low_flag = 1;               //电池能量不足标志
 int expriment_time = 0;//实验模式下记录实验时间
 #define MAX_EXPRIMENT_TIME 200//5ms记录一次，则200表示最大记录时间为1s
-float angley_data[MAX_EXPRIMENT_TIME] = 0;//y轴角度数据
+float angley_data[MAX_EXPRIMENT_TIME] = {0};//y轴角度数据
 int pwm0,pwm1,pwm2,pwm3;//记录实验开始时的pwm波数据
 extern int pwm[4];
-
+char Filter_init_flag = 0;//卡尔曼滤波器初始化完成后才能开定高控制程序
 PROCEDURE StbPrep(char input)
 {
   TIM_SetCompare1(TIM2,0);
@@ -47,7 +48,8 @@ PROCEDURE Standby(char input)
   static uint32 count_delet = 0;
   
   expriment_time = 0;//实验模式下的实验时间清零
-  
+  Filter_init_flag = 0;//卡尔曼滤波器初始化完成后才能开定高控制程序
+  //send_wave_flag = 0;
   if(send_wave_flag)
     SCISend_to_Own(USART1);
   else;
@@ -59,16 +61,16 @@ PROCEDURE Standby(char input)
     else
     {
       count_delet=0;
-      UARTSendFloat(gyro.x*MPU6050GYRO_SCALE_DEG);
-      UARTSendFloat(gyro.y*MPU6050GYRO_SCALE_DEG);
-      UARTSendFloat(gyro.z*MPU6050GYRO_SCALE_DEG);
-      UARTSendFloat(acc.x*MPU6050ACC_SCALE_G*9.81);
-      UARTSendFloat(acc.y*MPU6050ACC_SCALE_G*9.81);
-      UARTSendFloat(acc.z*MPU6050ACC_SCALE_G*9.81);
-      float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
-      UARTSendFloat(compass.x/norm);
-      UARTSendFloat(compass.y/norm);
-      UARTSendFloat(compass.z/norm);
+ //     UARTSendFloat(gyro.x*MPU6050GYRO_SCALE_DEG);
+ //     UARTSendFloat(gyro.y*MPU6050GYRO_SCALE_DEG);
+ //     UARTSendFloat(gyro.z*MPU6050GYRO_SCALE_DEG);
+ //     UARTSendFloat(acc.x*MPU6050ACC_SCALE_G*9.81);
+ //     UARTSendFloat(acc.y*MPU6050ACC_SCALE_G*9.81);
+ //     UARTSendFloat(acc.z*MPU6050ACC_SCALE_G*9.81);
+ //     float norm = sqrt(compass.x*compass.x + compass.y*compass.y + compass.z*compass.z);
+ //     UARTSendFloat(compass.x/norm);
+ //     UARTSendFloat(compass.y/norm);
+ //     UARTSendFloat(compass.z/norm);
     }
     pit_25ms_flag = 0;
   }
@@ -112,6 +114,7 @@ PROCEDURE Standby(char input)
   
   if('f'==nrf_rciv[PLANE_MODE_OFFSET] && (0==need_restart_flag))
     return att_hld_pre;
+
   else if('p'==nrf_rciv[PLANE_MODE_OFFSET])
   {
     return standby;
@@ -133,17 +136,17 @@ PROCEDURE AttHldPrep(char input)
   
   return att_hld;
 }
-
+extern float filted_acc[2][3];
 extern char nrf_int_flag;          //看门狗标志，定时置位
 char nrf_break = 1;             //无线失联状态
 PROCEDURE AttHld(char input)
 {
-//   send_wave_flag = 1;
-//    if(send_wave_flag && pit_25ms_flag)        //以25ms周期发送，画1个点50ms,详情看SCISend_to_Own函数
-//    {
-//        SCISend_to_Own(USART1);
-//      pit_25ms_flag = 0;
-//    }
+   send_wave_flag = 0;
+    if(send_wave_flag && pit_25ms_flag)        //以25ms周期发送，画1个点50ms,详情看SCISend_to_Own函数
+    { 
+        SCISend_to_Own(USART1);
+      pit_25ms_flag = 0;
+    }
   
   if(nrf_rciv[TH_ADC_OFFSET]>2)
   {
@@ -186,6 +189,7 @@ PROCEDURE AttHld(char input)
   /**************************500ms******************************/
   if(pit_500ms_flag)
   {
+    RED_OUT = ~RED_OUT;
     if(pwr_low_flag)
       BUZZER_TRN;
     else
@@ -199,10 +203,117 @@ PROCEDURE AttHld(char input)
     nrf_int_flag = 0;
     return stb_pre;
   }
+  else if('h'==nrf_rciv[PLANE_MODE_OFFSET])//进入定高模式
+  {
+        nrf_int_flag = 0;
+    return height_hld_pre;
+    
+  }
   else
     return att_hld;
 }
+KalmanInfo kalmanFilter_of_height_acc;
 
+PROCEDURE HeiHldPrep(char input)
+{
+  Init_KalmanInfo(&kalmanFilter_of_height_acc,38,39000);
+  Filter_init_flag = 1;
+  return height_hld;
+}
+//定高模式
+PROCEDURE HeiHld(char input)
+{
+  
+   send_wave_flag = 1;
+    if(send_wave_flag && pit_25ms_flag)        //以25ms周期发送，画1个点50ms,详情看SCISend_to_Own函数
+    {
+        SCISend_to_Own(USART1);
+      pit_25ms_flag = 0;
+    }  
+  
+  if(nrf_rciv[TH_ADC_OFFSET]>2)
+  {
+    TIM_SetCompare1(TIM2,pwm[x_n]);  //X1       //actually if you write the parameters as:throttle + y2 - pwm_of_dir,it will be differen inside of this function
+    TIM_SetCompare2(TIM2,pwm[x_p]);  //X2
+    TIM_SetCompare3(TIM2,pwm[y_n]);  //Y1
+    TIM_SetCompare4(TIM2,pwm[y_p]);  //Y2
+  }else
+  {
+    TIM_SetCompare1(TIM2,STOP_PWM);      
+    TIM_SetCompare2(TIM2,STOP_PWM);
+    TIM_SetCompare3(TIM2,STOP_PWM);
+    TIM_SetCompare4(TIM2,STOP_PWM);
+  }
+  
+  /**************************50ms******************************/
+  if(pit_50ms_flag)
+  {
+    if(nrf_int_flag>=20)        //超過1秒未收到信号才关油门
+    {
+      nrf_rciv[TH_ADC_OFFSET] = 0;          //如果你想坠机的话就关闭油门
+      BUZZER_OUT = 0;               //蜂鸣报警（50ms的急促报警声）
+    }
+    else if(nrf_int_flag)
+    {
+      nrf_break = 1;
+      BUZZER_OUT = 1;               //蜂鸣报警（50ms的急促报警声）
+      if(nrf_rciv[TH_ADC_OFFSET] > 80)          //大于80，才收至平衡位置，否则你不插遥控直接就转了
+        nrf_rciv[TH_ADC_OFFSET] = 80;          //如果你想坠机的话就关闭油门，我估计油门80刚好平衡
+    }
+    else if(nrf_break)
+    {
+      nrf_break = 0;               //蜂鸣报警（50ms的急促报警声）
+      BUZZER_OUT = 0;               //蜂鸣报警（50ms的急促报警声）
+    }
+    if(nrf_int_flag<100)
+      nrf_int_flag ++;           //置位查验标志（nrf接收中断复位标志）
+    
+      
+    pit_50ms_flag = 0;
+  }
+  
+//  extern char pit_80ms_flag;
+//  extern uint8  nrf_mode;
+//  if(pit_80ms_flag)  
+//  {
+//    if(nrf_mode == TX_MODE)
+//    {
+//      irq_tx_buff[BACKUP2_OFFSET] = (uint8)gc[3][0];
+//      nrf_tx(irq_tx_buff,DATA_PACKET);
+//    }
+//    pit_80ms_flag = 0;
+//  }
+//    extern uint8 test_commincation;
+//  if(nrf_mode == RX_MODE)
+//  {
+//    printf("%d\r\n",test_commincation);
+//  }
+  /**************************500ms******************************/
+  if(pit_500ms_flag)
+  {
+
+    if(pwr_low_flag)
+      BUZZER_TRN;
+    else
+      BUZZER_OUT = 0;
+    pit_500ms_flag = 0;
+  }
+  
+  if('l'==nrf_rciv[PLANE_MODE_OFFSET])
+  {
+    BUZZER_OUT = 0;
+    nrf_int_flag = 0;
+    return stb_pre;
+  }
+  else if('f'==nrf_rciv[PLANE_MODE_OFFSET])
+  {
+    BUZZER_OUT = 0;
+    nrf_int_flag = 0;
+    return att_hld_pre;
+  }
+  else
+    return height_hld;  
+}
 PROCEDURE PosHldPrep()
 {
   //检查GPS定位
@@ -438,6 +549,10 @@ PROCEDURE TaskInit(PROCEDURE (*_Task[MAX_TASK_NUM])(char))
   _Task[set_para] = SetParam;           //检查指针
   assert(experiment_pro>=0 && experiment_pro<MAX_TASK_NUM);
   _Task[experiment_pro] = Experiment;           //检查指针
+  assert(height_hld_pre>=0 && height_hld_pre<MAX_TASK_NUM);
+  _Task[height_hld_pre] = HeiHldPrep;           //检查指针  
+  assert(height_hld>=0 && height_hld<MAX_TASK_NUM);
+  _Task[height_hld] = HeiHld;           //检查指针    
   
   return stb_pre;
 }

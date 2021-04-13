@@ -33,7 +33,7 @@ extern char pwr_low_flag;               //电池能量不足标志
 char GPS_CMD_send_flag = 0;
 uint8 GPS_send_buff[25] = "$PSRF103,00,00,00,01*24";
 SCom sCom;
-
+extern float filted_acc[2][3];
 /***************************  main  *****************************/
 int main(void)
 {
@@ -67,7 +67,7 @@ int main(void)
   
   SPI3_Init();
   UartInit();
-  printf("aaaaa");
+  printf("bbbbbbbbbbbbbbbb");
   //ComInit();
   //  BUZZER_OUT = 0;
   //  DelayMs(300);         //等待MPU6050自身上电初始化完成
@@ -84,17 +84,22 @@ int main(void)
   
   L3GD20_Init(L3GD20_FULLSCALE_250);
   LSM303D_Init();
-  
+  LSM303A_Init();
   SET_SPIn_POLARITY(3,0);                 //set spi'3' polarity to '1'
   
   NVIC_Config();
   __enable_irq();
-  
+  printf("实验开始\r\n");
+  extern char irq_tim4_flag;
   while(1)
   {
+    //printf("bbbbbbbbbbbbbbbb");
+    //printf("%f\r\n",1.0/200);
+   //printf("acc2=%f\r\n",sqrt(0.00484*0.00484*filted_acc[0][0]*filted_acc[0][0]+0.00488*0.00488*filted_acc[0][1]*filted_acc[0][1]+0.00478*0.00478*filted_acc[0][2]*filted_acc[0][2]));
 /*****************************所有模式都会执行的程序*******************************/
     if(pit_5s_flag)
     {
+      
       bat_voltage = BatVoltageGet();
       if(bat_voltage<10.5 && bat_voltage>9)             //降落后，电压回升接近11.1V，可用于长期储存
       {

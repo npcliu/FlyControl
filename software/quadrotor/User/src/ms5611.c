@@ -515,7 +515,7 @@ void MS5611GetTemperatureAndPressure(void)
       ms5611.Pressure=((((ms5611.D1_Pres*ms5611.SENS)>>21)-ms5611.OFF)>>15);
 
     
-      ms5611.altitude = (float)((1.0f - pow((double)ms5611.Pressure / 101325.0f, 0.190295f)) * 44330.0f); 
+      gc[3][5] = ms5611.altitude = (float)((1.0f - pow((double)ms5611.Pressure / 101325.0f, 0.190295f)) * 44330.0f); 
      
       //printf("%f ",ms5611.altitude);
       
@@ -534,8 +534,9 @@ void MS5611GetTemperatureAndPressure(void)
       {
         gc[3][4] = ms5611.altitude_init = sum_of_ms5611_altitude/200;
       }
-      gc[3][5] = ms5611.altitude = KalmanFilter(&kalmanFilter_of_ms5611_altitude, ms5611.altitude);
-
+      //gc[3][5] = ms5611.altitude = KalmanFilter(&kalmanFilter_of_ms5611_altitude, ms5611.altitude);
+      if(ms5611.altitude_init!=0)
+        ms5611.update = 1;
     }
   }
   //printf("%f   %f\r\n",ms5611.altitude,ms5611.altitude_init);

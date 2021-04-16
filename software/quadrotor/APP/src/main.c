@@ -15,6 +15,8 @@
 #include "interact.h"           //uart initial
 #include "bmp180.h"
 #include "ms5611.h"
+#include "math.h"
+#include "matrix.h"
 
 ACC acc = {.x=1,.y=2,.z=3,.kx = 1,.ky = 1,.kz = 1,.x_off=0,.y_off=0,.z_off=0};   //安全性考虑，缺省斜率应为1，而不能设为0；截距应设为0
 ACC LSM_acc_adc = {.x=1,.y=2,.kx = 1,.ky=1,.kz=1,.x_off=0,.y_off=0,.z_off=0};
@@ -92,7 +94,7 @@ int main(void)
   
   NVIC_Config();
   
-  BMP_ReadCalibrationData();
+  //BMP_ReadCalibrationData();
   
   MS5611_IIC_Init();
   MS561101BA_Init();
@@ -109,8 +111,18 @@ int main(void)
     
     //BMP_UncompemstatedToTrue();
  
-      
+//    extern _ms5611 ms5611;
+//    if(ms5611.update == 1)
+//    {
+//      ms5611.update = 0;
+//     float mpu6050_height_acc = sqrt(0.0000234256*filted_acc[0][0]*filted_acc[0][0]+0.0000238144*filted_acc[0][1]*filted_acc[0][1]+0.0000228484*filted_acc[0][2]*filted_acc[0][2]) - 9.82;//运动时高度轴方向上的加速度，所以减去重力加速度
+//     
+//     //printf("%f %f;\r\n",ms5611.altitude - ms5611.altitude_init,mpu6050_height_acc);
+//     printf("%f,%f,",ms5611.altitude - ms5611.altitude_init,mpu6050_height_acc);
+//    }      
 
+    
+  
   //printf("%f,  %ld\r\n",bmp180.altitude,bmp180.Temp);
 /*****************************所有模式都会执行的程序*******************************/
     if(pit_5s_flag)

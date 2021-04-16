@@ -30,6 +30,7 @@ typedef struct __BMP180
 	long Temp;//除以10得到真实温度
 	float altitude;
         float altitude_init;//记录起飞前的初始高度
+        char update;//数据更新标志位
 }_bmp180;
 
 extern   unsigned int ut;

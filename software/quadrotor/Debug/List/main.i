@@ -13042,6 +13042,7 @@ typedef struct __BMP180
 	long Temp;
 	float altitude;
         float altitude_init;
+        char update;
 }_bmp180;
 
 extern   unsigned int ut;
@@ -13345,6 +13346,7 @@ typedef struct __MS5611
   int32_t Temperature;
   float altitude;
   float altitude_init;
+  char update;
 }_ms5611;
 
 void MS5611_IIC_Init(void);
@@ -13356,6 +13358,18 @@ void MS561101BA_GetTemperature(u8 OSR_Temp);
 void MS561101BA_GetPressure(u8 OSR_Pres);
 void MS561101BA_Init(void);
 void MS5611GetTemperatureAndPressure(void);
+
+ 
+ 
+
+
+
+
+
+
+ 
+
+void Transpose(float *(*sour), float *(*dest), int m, int n);
 
 
 ACC acc = {.x=1,.y=2,.z=3,.kx = 1,.ky = 1,.kz = 1,.x_off=0,.y_off=0,.z_off=0};   
@@ -13430,7 +13444,7 @@ int main(void)
   
   NVIC_Config();
   
-  BMP_ReadCalibrationData();
+  
   
   MS5611_IIC_Init();
   MS561101BA_Init();
@@ -13447,8 +13461,18 @@ int main(void)
     
     
  
-      
 
+
+
+
+
+
+
+
+
+
+    
+  
   
  
     if(pit_5s_flag)

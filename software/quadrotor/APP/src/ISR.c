@@ -10,7 +10,7 @@
 #include "interact.h"
 #include "bmp180.h"
 #include "ms5611.h"
-
+#include "filter.h"
 /***************************定时中断,triggerd by TIM*******************************/
 //extern float filted_acc[2][3];              //filted acc data,2 row means 2 acceleration chip,3 means 3aixs; filted_acc[0][1] reprsent chip 0,y axis filted data
 //extern float filted_gyro[2][3];             //filted gyro data;
@@ -28,9 +28,10 @@ char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;
 char pit_5s_flag = 0;         //5s时间标志
 
+
 void TIM4_IRQHandler(void)
 {
-  
+
   static uint32 irq_count = 0;
  
 //  GPSCal(&info, 1);
@@ -69,7 +70,7 @@ void EXTI15_10_IRQHandler()
     MPUReadAcc(acc_chip_out);//taks 0.26ms
     MPUReadGyr(gyro_chip_out);//
     ReadQMC5883(cps_chip_out);
-    BMP_UncompemstatedToTrue();
+    //BMP_UncompemstatedToTrue();
     MS5611GetTemperatureAndPressure();
 
 //LSM303A_Raed(&acc1[1][0]);

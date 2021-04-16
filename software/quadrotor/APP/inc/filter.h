@@ -25,4 +25,9 @@ float SecondOrderLPF(LPFParam *_PLPFParam);
 void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
 double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
 float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
+double BMP180AndMS5611KalmanFilterFusion();
+void AccAndMS5611KalmanFilterFusion(float* x,float altitude,float acc);
+
+//void kalamFilterFusion(const float x[3], float altitude, float acc, float P[9], float
+//                 filterx[3], float TEMPP[9]);
 #endif

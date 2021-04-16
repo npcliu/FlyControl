@@ -6,6 +6,10 @@
 #include "MyNRF24L0.h"
 #include "info.h"
 #include "filter.h"
+#include "bmp180.h"
+#include "ms5611.h"
+#include "math.h"
+#include "kalamFilter.h"
 float change_th_flag = 0;//油门改变标志位
 float yaw_init = 0;//初始偏航角，起飞前记录一下机头与正北方向的夹角,起飞以后要减去这个偏置角
 float angle[3] = {0};
@@ -266,103 +270,78 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 float AltitudeControl(float * pacc)
 {
   //printf("%f,%f,%f\r\n",_ohm,_a2,_b0);
-
-
-   float height_acc = sqrt(0.0000234256*pacc[0]*pacc[0]+0.0000238144*pacc[1]*pacc[1]+0.0000228484*pacc[2]*pacc[2]) - 9.82;//运动时高度轴方向上的加速度，所以减去重力加速度
+   float mpu6050_height_acc = sqrt(0.0000234256*pacc[0]*pacc[0]+0.0000238144*pacc[1]*pacc[1]+0.0000228484*pacc[2]*pacc[2]) - 9.82;//运动时高度轴方向上的加速度，所以减去重力加速度
    //printf("%f\r\n",height_acc);
-   gc[3][1] = height_acc;
-   float filted_height_acc = 0;
-       
-   static float last_height_acc = 0, last_filted_height_acc = 0;
-   
-   float height_acc_err = 0;
-   float height_diff_acc_err = 0,z_pid_out = 0;
-   static float last_height_acc_err = 0, sum_of_heoght_acc_err = 0;
-   
-   float filted_height_acc_pid = 0;
-   static float last_height_acc_pid = 0;
-   static float last_filted_height_acc_pid = 0;
-   float z_pid_out1 = 0;
+   gc[3][1] = mpu6050_height_acc;
+   float filted_mpu6050_height_acc = 0;
 
-   static LPFParam LPFParam_of_height_acc;//高度方向上加速度的滤波器参数，里面某些成员需要静态变量
-
-   extern KalmanInfo kalmanFilter_of_height_acc;
+   extern KalmanInfo kalmanFilter_of_MPU6050_acc;
   if(nrf_rciv[TH_ADC_OFFSET]>20)
-  {
-    //LPFParam_of_height_acc.fd=4;//滤波器截止频率
-    //LPFParam_of_height_acc.input=height_acc;
-    //filted_height_acc=SecondOrderLPF(&LPFParam_of_height_acc);
+  {  
+    filted_mpu6050_height_acc = KalmanFilter(&kalmanFilter_of_MPU6050_acc, mpu6050_height_acc);
     
-    filted_height_acc = KalmanFilter(&kalmanFilter_of_height_acc, height_acc);
-    //    //把加速度过一个一阶低通滤波器，其采样频率为200HZ，截止频率为1HZ
-    //filted_height_acc = (19.73 * (height_acc + last_height_acc) + 1236.27 * last_filted_height_acc) / 1275.73;
-    //last_height_acc = height_acc;
-    //last_filted_height_acc = filted_height_acc;
-    gc[3][2] =filted_height_acc;
-    float expect_acc = 0;
- //   if(nrf_rciv[TH_ADC_OFFSET]<97)
- //   {
- //     expect_acc = -0.8;
- //   }
- //   else if(nrf_rciv[TH_ADC_OFFSET]>=97&&(nrf_rciv[TH_ADC_OFFSET]<157))
- //   {
- //     expect_acc = 0;
- //   }
- //   else if(nrf_rciv[TH_ADC_OFFSET]>=157)
- //   {
- //     expect_acc = 0.8;
- //   }
- //   else//如果执行这一个程序肯定出问题了
- //   {
- //     expect_acc = 0;
- //   }
-    expect_acc = 0;
-    
-     // height_acc_err = (expect_acc - height_acc);
-    gc[3][0] = height_acc_err = (expect_acc - filted_height_acc);
+    static float mpu6050_height_vel = 0;//加速度计积分得到当前高度方向上的速度
+    gc[2][0] = mpu6050_height_vel += (mpu6050_height_acc * INTERUPT_CYC_IN_MS*1e-3);//加速度积分
 
-    height_diff_acc_err = height_acc_err - last_height_acc_err;
-    last_height_acc_err = height_acc_err;
-    sum_of_heoght_acc_err += height_acc_err;
-    z_pid_out = height_acc_p * height_acc_err + height_acc_i * sum_of_heoght_acc_err + height_acc_d * height_diff_acc_err;
-    gc[3][0] = z_pid_out;
-      
-    if(z_pid_out>250)z_pid_out = 250;
-    else if(z_pid_out<-250)z_pid_out = -250;
+    static float mpu6050_height= 0;//加速度计两次积分得到的高度
+    gc[2][1] = mpu6050_height += mpu6050_height_vel*INTERUPT_CYC_IN_MS*1e-3;
     
-//    if(z_pid_out>0)
-//      z_pid_out1 = 5*sqrt(z_pid_out);
-//    else 
-//      z_pid_out1 = -5*sqrt(-z_pid_out); 
-//    z_pid_out1 = z_pid_out;
-    
-    z_pid_out1 = 250 * (1 - exp(-0.02 * z_pid_out)) / (1 + exp(-0.02 * z_pid_out));
+    extern _ms5611 ms5611;
+    static float fusioned_x[3] = {0,0,0};//融合后的位置、速度和加速度
+    static int flag = 0;
+    if(ms5611.update == 1)
+    {
+      ms5611.update = 0;
+      if(isnan(ms5611.altitude)==0)
+      { 
+        //kalamFilterFusion(fusioned_x, ms5611.altitude-ms5611.altitude_init, mpu6050_height_acc, P,fusioned_x, P);
+       
+      AccAndMS5611KalmanFilterFusion(fusioned_x,ms5611.altitude-ms5611.altitude_init,mpu6050_height_acc);
+      //printf("%f %f\r\n",fusioned_x[0],ms5611.altitude-ms5611.altitude_init);
+      gc[3][2] = fusioned_x[2];//滤波后的加速度
+      gc[2][7] = fusioned_x[0];
+      gc[2][6] = ms5611.altitude-ms5611.altitude_init;
+      }
+      else
+      {
+        flag++;
+      }
+    }
+    /*************************加速度计和融合后的气压高度二阶互补滤波************************/
+    ///////////////////////还有问题！fd只能在50到100范围内。并且变化太慢了
+//    #define fd 100        //数字截止频率
+//    #define _fs      200//采样频率：1000.0/INTERUPT_CYC_IN_MS  
+//    #define dt      INTERUPT_CYC_IN_MS/1000
+//    float _ohm=tan(3.1415926 * fd / _fs); 
+//    //经过化简后的模拟角频率（wa = 2*fs*tan(pi*fd/fs)）
+//    //然后用双线性变换法映射到Z域，然后用线性时不变系统的可交换性化简传递函数，就变成了下述程序
+//    float _c  =  1 + 1.414 * _ohm + _ohm * _ohm    ; 
+//    float _a1   =  2.0 * (_ohm * _ohm - 1.0) / _c;
+//    float _a2   =  (1.0 - 1.414 * _ohm + _ohm * _ohm) / _c;   
+//    float altitude_complementary_filter_output = 0;
+//    static float altitude_complementary_filter_output_delay_1 = 0;//延时一个时间单位的输出
+//    static float altitude_complementary_filter_output_delay_2 = 0;//延时两个时间单位的输出
+//    
+//    float para_altitude_complementary_filter_output = 1+_a1*dt+_a2*dt*dt;//altitude_complementary_filter_output的参数
+//    float para_altitude_complementary_filter_output_delay_1 = 2+_a1*dt;
+//    
+//    static float fusioned_baro_altitude_delay_1 = 0;
+//    extern _bmp180 bmp180;
+//    extern _ms5611 ms5611;
+//    float fusioned_baro_altitude = AltitudeFusion(ms5611.altitude-ms5611.altitude_init,bmp180.altitude-bmp180.altitude_init);
+//    //结果是nan，看看哪里错了
+//    gc[3][2] = altitude_complementary_filter_output = (para_altitude_complementary_filter_output_delay_1*altitude_complementary_filter_output_delay_1 - altitude_complementary_filter_output_delay_2 + dt*dt*mpu6050_height_acc + (_a1*dt+_a2*dt*dt)*fusioned_baro_altitude - _a1*dt*fusioned_baro_altitude_delay_1) / para_altitude_complementary_filter_output;
+//    fusioned_baro_altitude_delay_1 = fusioned_baro_altitude;
+//    altitude_complementary_filter_output_delay_2 = altitude_complementary_filter_output_delay_1;
+//    altitude_complementary_filter_output_delay_1 = altitude_complementary_filter_output;
+//    //printf("%f\r\n",altitude_complementary_filter_output);
 
-    if(z_pid_out1>300)z_pid_out1 = 300;
-    else if(z_pid_out1<-300)z_pid_out1 = -300;
-    
   }
   else
   {
-    gc[3][1] = z_pid_out1 = 0;
-    gc[3][0] = filted_height_acc_pid = 0;
-    last_height_acc = 0;
-    last_filted_height_acc = 0;
-    last_height_acc_err = 0;
-    sum_of_heoght_acc_err = 0;
-    z_pid_out = 0;
-    
-    last_filted_height_acc_pid = 0;
-    last_height_acc_pid = 0;
-   
-  }
-//  static float v_of_height_in_acc_inf = 0;//加速度计积分得到当前高度方向上的速度
-//  gc[2][0] = v_of_height_in_acc_inf += (filted_height_acc * INTERUPT_CYC_IN_MS*1e-3);//加速度积分
-//
-//  static float height_in_acc_inf= 0;//加速度计两次积分得到的高度
-//  gc[2][1] = height_in_acc_inf += v_of_height_in_acc_inf*INTERUPT_CYC_IN_MS*1e-3;
 
-  return z_pid_out;  
+  }
+  return 0;  
 }
 /*******************************************PWM值计算*******************************************/
 uint16 cali = 0;
@@ -469,10 +448,10 @@ void PWMCalc(uint8 mod)
   }
   if(mod)
   {
-    pwm[x_n] = (int)sqrt(throttle + xcq + ycq - pwm_of_dir)*20 + 500;//
-    pwm[x_p] = (int)sqrt(throttle - xcq - ycq - pwm_of_dir)*20 + 500;//
-    pwm[y_n] = (int)sqrt(throttle + xcq - ycq + pwm_of_dir)*20 + 500;
-    pwm[y_p] = (int)sqrt(throttle - xcq + ycq + pwm_of_dir)*20 + 500;
+    pwm[x_n] = (int)(throttle + xcq + ycq - pwm_of_dir) + 500;//
+    pwm[x_p] = (int)(throttle - xcq - ycq - pwm_of_dir) + 500;//
+    pwm[y_n] = (int)(throttle + xcq - ycq + pwm_of_dir) + 500;
+    pwm[y_p] = (int)(throttle - xcq + ycq + pwm_of_dir) + 500;
   }
   else
   {

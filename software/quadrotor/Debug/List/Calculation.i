@@ -12947,6 +12947,953 @@ float SecondOrderLPF(LPFParam *_PLPFParam);
 void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
 double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
 float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
+double BMP180AndMS5611KalmanFilterFusion();
+void AccAndMS5611KalmanFilterFusion(float* x,float altitude,float acc);
+
+
+
+
+
+typedef struct __BMP180
+{
+	short AC1;
+	short AC2;
+	short AC3;
+	unsigned short AC4;
+	unsigned short AC5;
+	unsigned short AC6;
+	short B1;
+	short B2;
+	short MB;
+	short MC;
+	short MD;
+	long UT;
+	long UP;
+	long X1;
+	long X2;
+	long X3;
+	long B3;
+	unsigned long B4;
+	long B5;
+	long B6;
+	long B7;
+	long p;
+	long Temp;
+	float altitude;
+        float altitude_init;
+        char update;
+}_bmp180;
+
+extern   unsigned int ut;
+extern unsigned long up;
+
+void BMP_ReadCalibrationData(void);
+void BMP_UncompemstatedToTrue(void);
+
+
+ 
+ 
+
+  #pragma system_include
+
+ 
+ 
+
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+ 
+ 
+
+
+  #pragma system_include
+
+ 
+ 
+
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+                 
+typedef _Sizet size_t;
+
+typedef unsigned int __data_size_t;
+
+
+
+
+ 
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+    struct __FILE
+    {        
+      unsigned short _Mode;
+      unsigned char _Lockno;
+      signed char _Handle;
+
+       
+       
+       
+      unsigned char *_Buf, *_Bend, *_Next;
+       
+       
+      
+  
+      unsigned char *_Rend, *_Wend, *_Rback;
+
+      
+  
+      _Wchart *_WRback, _WBack[2];
+
+       
+       
+       
+      unsigned char *_Rsave, *_WRend, *_WWend;
+
+      _Mbstatet _Wstate;
+      char *_Tmpnam;
+      unsigned char _Back[1], _Cbuf;
+    };
+
+    
+  
+
+ 
+
+__intrinsic __nounwind int remove(const char *);
+__intrinsic __nounwind int rename(const char *, const char *);
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+ 
+#pragma rtmodel="__dlib_file_descriptor","1"
+
+                 
+
+  typedef _Filet FILE;
+
+
+      
+       extern FILE __iar_Stdin;
+       extern FILE __iar_Stdout;
+       extern FILE __iar_Stderr;
+      
+
+
+
+
+
+
+                 
+typedef _Fpost fpos_t;
+
+                 
+#pragma language=save
+#pragma language=extended
+
+
+                 
+  
+
+  __intrinsic __nounwind void clearerr(FILE *);
+  __intrinsic __nounwind int fclose(FILE *);
+  __intrinsic __nounwind int feof(FILE *);
+  __intrinsic __nounwind int ferror(FILE *);
+  __intrinsic __nounwind int fflush(FILE *);
+  __intrinsic __nounwind int fgetc(FILE *);
+  __intrinsic __nounwind int fgetpos(FILE *, fpos_t *);
+  __intrinsic __nounwind char * fgets(char *, int, FILE *);
+  __intrinsic __nounwind FILE * fopen(const char *, const char *);
+  _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int fprintf(FILE *, const char *, 
+                                      ...);
+  __intrinsic __nounwind int fputc(int, FILE *);
+  __intrinsic __nounwind int fputs(const char *, FILE *);
+  __intrinsic __nounwind size_t fread(void *, size_t, size_t, FILE *);
+  __intrinsic __nounwind FILE * freopen(const char *, const char *,
+                              FILE *);
+  _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown") __intrinsic __nounwind int fscanf(FILE *, const char *, 
+                                    ...);
+  __intrinsic __nounwind int fseek(FILE *, long, int);
+  __intrinsic __nounwind int fsetpos(FILE *, const fpos_t *);
+  __intrinsic __nounwind long ftell(FILE *);
+  __intrinsic __nounwind size_t fwrite(const void *, size_t, size_t, 
+                             FILE *);
+
+  __intrinsic __nounwind void rewind(FILE *);
+  __intrinsic __nounwind void setbuf(FILE *, char *);
+  __intrinsic __nounwind int setvbuf(FILE *, char *, int, size_t);
+  __intrinsic __nounwind FILE * tmpfile(void);
+  __intrinsic __nounwind int ungetc(int, FILE *);
+  _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vfprintf(FILE *, 
+                                       const char *, __Va_list);
+    _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int vfscanf(FILE *, const char *,
+                                        __Va_list);
+
+    __intrinsic __nounwind FILE * fdopen(signed char, const char *);
+    __intrinsic __nounwind signed char fileno(FILE *);
+    __intrinsic __nounwind int getw(FILE *);
+    __intrinsic __nounwind int putw(int, FILE *);
+
+  __intrinsic __nounwind int getc(FILE *);
+  __intrinsic __nounwind int putc(int, FILE *);
+  
+
+
+              
+_Pragma("function_effects = no_read(1)")    __intrinsic __nounwind char * __gets(char *, int);
+_Pragma("function_effects = no_read(1)")    __intrinsic __nounwind char * gets(char *);
+_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind void perror(const char *);
+_Pragma("function_effects = no_write(1)")    _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int printf(const char *, ...);
+_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind int puts(const char *);
+_Pragma("function_effects = no_write(1)")    _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int scanf(const char *, ...);
+_Pragma("function_effects = no_read(1), no_write(2)") _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int sprintf(char *, 
+                                                 const char *, ...);
+_Pragma("function_effects = no_write(1,2)") _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int sscanf(const char *, 
+                                                const char *, ...);
+             __intrinsic __nounwind char * tmpnam(char *);
+              
+             __intrinsic __nounwind int __ungetchar(int);
+_Pragma("function_effects = no_write(1)")    _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vprintf(const char *,
+                                                 __Va_list);
+  _Pragma("function_effects = no_write(1)")    _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int vscanf(const char *, 
+                                                  __Va_list);
+  _Pragma("function_effects = no_write(1,2)") _Pragma("__scanf_args") _Pragma("library_default_requirements _Scanf = unknown")  __intrinsic __nounwind int vsscanf(const char *, 
+                                                   const char *, 
+                                                   __Va_list);
+_Pragma("function_effects = no_read(1), no_write(2)")  _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vsprintf(char *, 
+                                                   const char *,
+                                                   __Va_list);
+               
+_Pragma("function_effects = no_write(1)")      __intrinsic __nounwind size_t __write_array(const void *, size_t, size_t);
+  _Pragma("function_effects = no_read(1), no_write(3)") _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int snprintf(char *, size_t, 
+                                                    const char *, ...);
+  _Pragma("function_effects = no_read(1), no_write(3)") _Pragma("__printf_args") _Pragma("library_default_requirements _Printf = unknown") __intrinsic __nounwind int vsnprintf(char *, size_t,
+                                                     const char *, 
+                                                     __Va_list);
+
+              __intrinsic __nounwind int getchar(void);
+              __intrinsic __nounwind int putchar(int);
+
+
+
+#pragma language=restore
+
+             
+  #pragma inline
+  int (getc)(FILE *_Str)
+  {
+    return fgetc(_Str);
+  }
+
+  #pragma inline
+  int (putc)(int _C, FILE *_Str)
+  {
+    return fputc(_C, _Str);
+  }
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void delay_init(void);
+void DelayMs(u16 nms); 
+void delay_us(u32 nus);
+void delay_raw1us();
+void delay_rawus(u32 nus);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+typedef struct __MS5611
+{
+  uint16_t Cal_C[7]; 
+  uint32_t D1_Pres,D2_Temp; 
+  int32_t Pressure;				
+  int32_t dT,Temperature2;
+  int64_t OFF,SENS;  
+  float Aux;
+  int64_t OFF2,SENS2;
+  int32_t Temperature;
+  float altitude;
+  float altitude_init;
+  char update;
+}_ms5611;
+
+void MS5611_IIC_Init(void);
+void MS561101BA_Reset(void);
+void MS561101BA_readPROM(void);
+
+uint32_t MS561101BA_DO_CONVERSION(u8 command);
+void MS561101BA_GetTemperature(u8 OSR_Temp);
+void MS561101BA_GetPressure(u8 OSR_Pres);
+void MS561101BA_Init(void);
+void MS5611GetTemperatureAndPressure(void);
+
+ 
+ 
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+ 
+ 
+ 
+
+  #pragma system_include
+
+ 
+ 
+
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+ 
+ 
+
+
+
+
+
+
+                 
+
+
+                 
+  typedef _Ptrdifft ptrdiff_t;
+
+  typedef _Wchart wchar_t;
+
+
+
+
+
+
+
+ 
+ 
+ 
+
+
+  #pragma system_include
+
+ 
+ 
+
+ 
+
+  #pragma system_include
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+ 
+ 
+
+
+
+
+ 
+#pragma rtmodel="__dlib_full_locale_support",   "1"
+
+
+
+
+extern int __aeabi_MB_CUR_MAX(void);
+
+
+
+
+
+                 
+
+
+
+                 
+
+typedef struct
+{        
+  int quot;
+  int rem;
+} div_t;
+
+typedef struct
+{        
+  long quot;
+  long rem;
+} ldiv_t;
+
+    #pragma language=save
+    #pragma language=extended
+    typedef struct
+    {      
+      _Longlong quot;
+      _Longlong rem;
+    } lldiv_t;
+    #pragma language=restore
+
+                 
+  
+__intrinsic __nounwind int atexit(void (*)(void));
+  __intrinsic __noreturn __nounwind void _Exit(int) ;
+__intrinsic __noreturn __nounwind void exit(int) ;
+__intrinsic __nounwind char * getenv(const char *);
+__intrinsic __nounwind int system(const char *);
+
+
+
+             __intrinsic __noreturn __nounwind void abort(void) ;
+_Pragma("function_effects = no_state, no_errno")     __intrinsic __nounwind int abs(int);
+             __intrinsic __nounwind void * calloc(size_t, size_t);
+_Pragma("function_effects = no_state, no_errno")     __intrinsic __nounwind div_t div(int, int);
+             __intrinsic __nounwind void free(void *);
+_Pragma("function_effects = no_state, no_errno")     __intrinsic __nounwind long labs(long);
+_Pragma("function_effects = no_state, no_errno")     __intrinsic __nounwind ldiv_t ldiv(long, long);
+    #pragma language=save
+    #pragma language=extended
+    _Pragma("function_effects = no_state, no_errno") __intrinsic __nounwind long long llabs(long long);
+    _Pragma("function_effects = no_state, no_errno") __intrinsic __nounwind lldiv_t lldiv(long long, long long);
+    #pragma language=restore
+             __intrinsic __nounwind void * malloc(size_t);
+_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind int mblen(const char *, size_t);
+_Pragma("function_effects = no_read(1), no_write(2)") __intrinsic __nounwind size_t mbstowcs(wchar_t *, 
+                                          const char *, size_t);
+_Pragma("function_effects = no_read(1), no_write(2)") __intrinsic __nounwind int mbtowc(wchar_t *, const char *, 
+                                     size_t);
+             __intrinsic __nounwind int rand(void);
+             __intrinsic __nounwind void srand(unsigned int);
+             __intrinsic __nounwind void * realloc(void *, size_t);
+_Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind long strtol(const char *, 
+                                      char **, int);
+_Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind unsigned long strtoul(const char *, char **, int);
+_Pragma("function_effects = no_read(1), no_write(2)") __intrinsic __nounwind size_t wcstombs(char *, 
+                                          const wchar_t *, size_t);
+_Pragma("function_effects = no_read(1)")    __intrinsic __nounwind int wctomb(char *, wchar_t);
+    #pragma language=save
+    #pragma language=extended
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind long long strtoll(const char *, char **, int);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind unsigned long long strtoull(const char *, 
+                                                          char **, int);
+    #pragma language=restore
+
+
+
+
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind unsigned long __iar_Stoul(const char *, char **, 
+                                                        int);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind float         __iar_Stof(const char *, char **, long);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind double        __iar_Stod(const char *, char **, long);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind long double   __iar_Stold(const char *, char **, 
+                                                          long);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind long          __iar_Stolx(const char *, char **, int, 
+                                                        int *);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind unsigned long __iar_Stoulx(const char *, char **,
+                                                         int, int *);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind float         __iar_Stofx(const char *, char **, 
+                                                        long, int *);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind double        __iar_Stodx(const char *, char **, 
+                                                        long, int *);
+    _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind long double   __iar_Stoldx(const char *, char **, 
+                                                         long, int *);
+      #pragma language=save
+      #pragma language=extended
+      _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind _Longlong   __iar_Stoll(const char *, char **, 
+                                                        int);
+      _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind _ULonglong   __iar_Stoull(const char *, char **, 
+                                                          int);
+      _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind _Longlong    __iar_Stollx(const char *, char **, 
+                                                          int, int *);
+      _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind _ULonglong   __iar_Stoullx(const char *, char **, 
+                                                           int, int *);
+      #pragma language=restore
+
+
+
+
+
+typedef int _Cmpfun(const void *, const void *);
+
+_Pragma("function_effects = no_write(1,2)") __intrinsic void * bsearch(const void *, 
+                                                   const void *, size_t,
+                                                   size_t, _Cmpfun *);
+             __intrinsic void qsort(void *, size_t, size_t, 
+                                               _Cmpfun *);
+             __intrinsic void __qsortbbl(void *, size_t, size_t, 
+                                                    _Cmpfun *);
+_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind double atof(const char *);
+_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind int atoi(const char *);
+_Pragma("function_effects = no_write(1)")    __intrinsic __nounwind long atol(const char *);
+    #pragma language=save
+    #pragma language=extended
+    _Pragma("function_effects = no_write(1)") __intrinsic __nounwind long long atoll(const char *);
+    #pragma language=restore
+  _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind float strtof(const char *, 
+                                         char **);
+  _Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind long double strtold(const char *, char **);
+_Pragma("function_effects = no_write(1), no_read(2)") __intrinsic __nounwind double strtod(const char *, 
+                                        char **);
+                                        
+                                        
+               __intrinsic __nounwind size_t __iar_Mbcurmax(void);
+
+  _Pragma("function_effects = no_state, no_errno")     __intrinsic __nounwind int __iar_DLib_library_version(void);
+  
+
+
+
+
+  
+  typedef void _Atexfun(void);
+  
+
+                 
+    #pragma inline=no_body
+    double atof(const char *_S)
+    {       
+      return (__iar_Stod(_S, 0, 0));
+    }
+
+    #pragma inline=no_body
+    int atoi(const char *_S)
+    {       
+      return ((int)__iar_Stoul(_S, 0, 10));
+    }
+
+    #pragma inline=no_body
+    long atol(const char *_S)
+    {       
+      return ((long)__iar_Stoul(_S, 0, 10));
+    }
+
+        #pragma language=save
+        #pragma language=extended
+        #pragma inline=no_body
+        long long atoll(const char *_S)
+        {       
+            return ((long long)__iar_Stoull(_S, 0, 10));
+        }
+        #pragma language=restore
+
+    #pragma inline=no_body
+    double strtod(const char * _S, char ** _Endptr)
+    {       
+      return (__iar_Stod(_S, _Endptr, 0));
+    }
+
+      #pragma inline=no_body
+      float strtof(const char * _S, char ** _Endptr)
+      {       
+        return (__iar_Stof(_S, _Endptr, 0));
+      }
+
+      #pragma inline=no_body
+      long double strtold(const char * _S, char ** _Endptr)
+      {       
+        return (__iar_Stold(_S, _Endptr, 0));
+      }
+
+    #pragma inline=no_body
+    long strtol(const char * _S, char ** _Endptr, 
+                int _Base)
+    {       
+      return (__iar_Stolx(_S, _Endptr, _Base, 0));
+    }
+
+    #pragma inline=no_body
+    unsigned long strtoul(const char * _S, char ** _Endptr, 
+                          int _Base)
+    {       
+      return (__iar_Stoul(_S, _Endptr, _Base));
+    }
+
+        #pragma language=save
+        #pragma language=extended
+        #pragma inline=no_body
+        long long strtoll(const char * _S, char ** _Endptr,
+                          int _Base)
+        {       
+            return (__iar_Stoll(_S, _Endptr, _Base));
+        }
+
+        #pragma inline=no_body
+        unsigned long long strtoull(const char * _S, 
+                                    char ** _Endptr, int _Base)
+        {       
+            return (__iar_Stoull(_S, _Endptr, _Base));
+        }
+        #pragma language=restore
+
+
+  #pragma inline=no_body
+  int abs(int i)
+  {       
+    return (i < 0 ? -i : i);
+  }
+
+  #pragma inline=no_body
+  long labs(long i)
+  {       
+    return (i < 0 ? -i : i);
+  }
+
+      #pragma language=save
+      #pragma language=extended
+      #pragma inline=no_body
+      long long llabs(long long i)
+      {       
+        return (i < 0 ? -i : i);
+      }
+      #pragma language=restore
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+ 
+ 
+
+ 
+
+
+  #pragma system_include
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+ 
+typedef signed char int8_T;
+typedef unsigned char uint8_T;
+typedef short int16_T;
+typedef unsigned short uint16_T;
+typedef int int32_T;
+typedef unsigned int uint32_T;
+typedef float real32_T;
+typedef double real64_T;
+
+
+
+
+ 
+typedef double real_T;
+typedef double time_T;
+typedef _Bool boolean_T;
+typedef int int_T;
+typedef unsigned int uint_T;
+typedef unsigned long ulong_T;
+typedef char char_T;
+typedef char_T byte_T;
+
+
+
+ 
+
+typedef struct {
+  real32_T re;
+  real32_T im;
+} creal32_T;
+
+typedef struct {
+  real64_T re;
+  real64_T im;
+} creal64_T;
+
+typedef struct {
+  real_T re;
+  real_T im;
+} creal_T;
+
+typedef struct {
+  int8_T re;
+  int8_T im;
+} cint8_T;
+
+typedef struct {
+  uint8_T re;
+  uint8_T im;
+} cuint8_T;
+
+typedef struct {
+  int16_T re;
+  int16_T im;
+} cint16_T;
+
+typedef struct {
+  uint16_T re;
+  uint16_T im;
+} cuint16_T;
+
+typedef struct {
+  int32_T re;
+  int32_T im;
+} cint32_T;
+
+typedef struct {
+  uint32_T re;
+  uint32_T im;
+} cuint32_T;
+
+
+
+
+
+ 
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+ 
+extern void kalamFilterFusion(const float x[3], float altitude, float acc, float P[9],
+  float filterx[3], float TEMPP[9]);
+
+
+
+
+
+
+ 
 float change_th_flag = 0;
 float yaw_init = 0;
 float angle[3] = {0};
@@ -13185,103 +14132,78 @@ void AttCalc(float * pangle,float *pacc,float* pgyro,float *pcps, uint8 mod)
 float AltitudeControl(float * pacc)
 {
   
-
-
-   float height_acc = sqrt(0.0000234256*pacc[0]*pacc[0]+0.0000238144*pacc[1]*pacc[1]+0.0000228484*pacc[2]*pacc[2]) - 9.82;
+   float mpu6050_height_acc = sqrt(0.0000234256*pacc[0]*pacc[0]+0.0000238144*pacc[1]*pacc[1]+0.0000228484*pacc[2]*pacc[2]) - 9.82;
    
-   gc[3][1] = height_acc;
-   float filted_height_acc = 0;
-       
-   static float last_height_acc = 0, last_filted_height_acc = 0;
-   
-   float height_acc_err = 0;
-   float height_diff_acc_err = 0,z_pid_out = 0;
-   static float last_height_acc_err = 0, sum_of_heoght_acc_err = 0;
-   
-   float filted_height_acc_pid = 0;
-   static float last_height_acc_pid = 0;
-   static float last_filted_height_acc_pid = 0;
-   float z_pid_out1 = 0;
+   gc[3][1] = mpu6050_height_acc;
+   float filted_mpu6050_height_acc = 0;
 
-   static LPFParam LPFParam_of_height_acc;
-
-   extern KalmanInfo kalmanFilter_of_height_acc;
+   extern KalmanInfo kalmanFilter_of_MPU6050_acc;
   if(nrf_rciv[1]>20)
-  {
+  {  
+    filted_mpu6050_height_acc = KalmanFilter(&kalmanFilter_of_MPU6050_acc, mpu6050_height_acc);
     
-    
-    
-    
-    filted_height_acc = KalmanFilter(&kalmanFilter_of_height_acc, height_acc);
-    
-    
-    
-    
-    gc[3][2] =filted_height_acc;
-    float expect_acc = 0;
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-    expect_acc = 0;
-    
-     
-    gc[3][0] = height_acc_err = (expect_acc - filted_height_acc);
+    static float mpu6050_height_vel = 0;
+    gc[2][0] = mpu6050_height_vel += (mpu6050_height_acc * 5*1e-3);
 
-    height_diff_acc_err = height_acc_err - last_height_acc_err;
-    last_height_acc_err = height_acc_err;
-    sum_of_heoght_acc_err += height_acc_err;
-    z_pid_out = height_acc_p * height_acc_err + height_acc_i * sum_of_heoght_acc_err + height_acc_d * height_diff_acc_err;
-    gc[3][0] = z_pid_out;
+    static float mpu6050_height= 0;
+    gc[2][1] = mpu6050_height += mpu6050_height_vel*5*1e-3;
+    
+    extern _ms5611 ms5611;
+    static float fusioned_x[3] = {0,0,0};
+    static int flag = 0;
+    if(ms5611.update == 1)
+    {
+      ms5611.update = 0;
+      if((__c99_generic(ms5611 . altitude,,, __iar_Dtest, __iar_FDtest, __iar_Dtest,,,)(ms5611 . altitude) == 2)==0)
+      { 
+        
+       
+      AccAndMS5611KalmanFilterFusion(fusioned_x,ms5611.altitude-ms5611.altitude_init,mpu6050_height_acc);
       
-    if(z_pid_out>250)z_pid_out = 250;
-    else if(z_pid_out<-250)z_pid_out = -250;
+      gc[3][2] = fusioned_x[2];
+      gc[2][7] = fusioned_x[0];
+      gc[2][6] = ms5611.altitude-ms5611.altitude_init;
+      }
+      else
+      {
+        flag++;
+      }
+    }
+     
     
 
 
 
 
 
-    
-    z_pid_out1 = 250 * (1 - exp(-0.02 * z_pid_out)) / (1 + exp(-0.02 * z_pid_out));
 
-    if(z_pid_out1>300)z_pid_out1 = 300;
-    else if(z_pid_out1<-300)z_pid_out1 = -300;
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
   else
   {
-    gc[3][1] = z_pid_out1 = 0;
-    gc[3][0] = filted_height_acc_pid = 0;
-    last_height_acc = 0;
-    last_filted_height_acc = 0;
-    last_height_acc_err = 0;
-    sum_of_heoght_acc_err = 0;
-    z_pid_out = 0;
-    
-    last_filted_height_acc_pid = 0;
-    last_height_acc_pid = 0;
-   
+
   }
-
-
-
-
-
-
-  return z_pid_out;  
+  return 0;  
 }
  
 uint16 cali = 0;
@@ -13369,10 +14291,10 @@ void PWMCalc(uint8 mod)
   }
   if(mod)
   {
-    pwm[x_n] = (int)sqrt(throttle + xcq + ycq - pwm_of_dir)*20 + 500;
-    pwm[x_p] = (int)sqrt(throttle - xcq - ycq - pwm_of_dir)*20 + 500;
-    pwm[y_n] = (int)sqrt(throttle + xcq - ycq + pwm_of_dir)*20 + 500;
-    pwm[y_p] = (int)sqrt(throttle - xcq + ycq + pwm_of_dir)*20 + 500;
+    pwm[x_n] = (int)(throttle + xcq + ycq - pwm_of_dir) + 500;
+    pwm[x_p] = (int)(throttle - xcq - ycq - pwm_of_dir) + 500;
+    pwm[y_n] = (int)(throttle + xcq - ycq + pwm_of_dir) + 500;
+    pwm[y_p] = (int)(throttle - xcq + ycq + pwm_of_dir) + 500;
   }
   else
   {

@@ -13346,6 +13346,7 @@ typedef struct __BMP180
 	long Temp;
 	float altitude;
         float altitude_init;
+        char update;
 }_bmp180;
 
 extern   unsigned int ut;
@@ -13377,6 +13378,7 @@ typedef struct __MS5611
   int32_t Temperature;
   float altitude;
   float altitude_init;
+  char update;
 }_ms5611;
 
 void MS5611_IIC_Init(void);
@@ -13414,6 +13416,11 @@ float SecondOrderLPF(LPFParam *_PLPFParam);
 void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
 double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
 float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
+double BMP180AndMS5611KalmanFilterFusion();
+void AccAndMS5611KalmanFilterFusion(float* x,float altitude,float acc);
+
+
+
 
 PSNODE anglex_pnode;
 PSNODE angley_pnode;
@@ -13441,7 +13448,7 @@ extern short amplitude;
 
 
  
-char send_type = 'y';
+char send_type = 'Y';
 extern float pwm_of_dir;
 extern short acc_chip_out[3];
 extern short gyro_chip_out[3];
@@ -13498,13 +13505,16 @@ void SCISend_to_Own(USART_TypeDef* USARTx)
     extern _bmp180 bmp180;
     extern _ms5611 ms5611;
     
+    
     send_data[1][2] = (short)(gc[3][3]*10);
     
 
     break;
   case 'Y':               
-    send_data[0][0] = (short)nrf_rciv[2];
-    send_data[0][1] = (short)offset_angle[2];
+    send_data[0][0] = (short)(gc[3][1]*10);
+    send_data[0][1] = (short)(gc[3][2]*10);
+    send_data[2][1] = (short)(gc[2][7]*10);
+    send_data[2][0] = (short)(gc[2][6]*10);
 
 
 

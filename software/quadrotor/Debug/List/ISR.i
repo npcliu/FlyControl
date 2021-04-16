@@ -12590,6 +12590,7 @@ typedef struct __BMP180
 	long Temp;
 	float altitude;
         float altitude_init;
+        char update;
 }_bmp180;
 
 extern   unsigned int ut;
@@ -12916,6 +12917,7 @@ typedef struct __MS5611
   int32_t Temperature;
   float altitude;
   float altitude_init;
+  char update;
 }_ms5611;
 
 void MS5611_IIC_Init(void);
@@ -12927,6 +12929,35 @@ void MS561101BA_GetTemperature(u8 OSR_Temp);
 void MS561101BA_GetPressure(u8 OSR_Pres);
 void MS561101BA_Init(void);
 void MS5611GetTemperatureAndPressure(void);
+
+
+
+typedef struct
+{           
+  float fd;    
+  float input;     
+  float _d_delay_element_1;
+  float _d_delay_element_2;
+}LPFParam, *PLPFParam;
+
+
+typedef  struct{
+	double filterValue;  
+	double kalmanGain;   
+	double A;   
+	double H;   
+	double Q;   
+	double R;   
+	double P;   
+}  KalmanInfo;
+
+float SecondOrderLPF(LPFParam *_PLPFParam);
+void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
+double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
+float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
+double BMP180AndMS5611KalmanFilterFusion();
+void AccAndMS5611KalmanFilterFusion(float* x,float altitude,float acc);
+
 
 
  
@@ -12946,9 +12977,10 @@ char pit_50ms_flag = 0;
 char pit_500ms_flag = 0;
 char pit_5s_flag = 0;         
 
+
 void TIM4_IRQHandler(void)
 {
-  
+
   static uint32 irq_count = 0;
  
 
@@ -12987,7 +13019,7 @@ void EXTI15_10_IRQHandler()
     MPUReadAcc(acc_chip_out);
     MPUReadGyr(gyro_chip_out);
     ReadQMC5883(cps_chip_out);
-    BMP_UncompemstatedToTrue();
+    
     MS5611GetTemperatureAndPressure();
 
 
@@ -13004,7 +13036,7 @@ void EXTI15_10_IRQHandler()
     
   }
   else
-    ((0) ? (void)0 : ( __aeabi_assert("0", "E:\\FlyCtrl\\bmp180_test\\quadrotor\\APP\\src\\ISR.c", 89), ( __iar_EmptyStepPoint())));
+    ((0) ? (void)0 : ( __aeabi_assert("0", "E:\\FlyCtrl\\CTRL_PCBV5 (github)\\FlyControl\\software\\quadrotor\\APP\\src\\ISR.c", 90), ( __iar_EmptyStepPoint())));
 }
 char nrf_int_flag = 1;          
 void EXTI9_5_IRQHandler()

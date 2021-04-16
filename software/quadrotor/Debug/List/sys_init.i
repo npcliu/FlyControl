@@ -12990,6 +12990,11 @@ float SecondOrderLPF(LPFParam *_PLPFParam);
 void Init_KalmanInfo(KalmanInfo* info, double Q, double R);
 double KalmanFilter(KalmanInfo* kalmanInfo, double lastMeasurement);
 float AltitudeFusion(float ms5611_relative_altitude,float bmp180_relative_altitude);
+double BMP180AndMS5611KalmanFilterFusion();
+void AccAndMS5611KalmanFilterFusion(float* x,float altitude,float acc);
+
+
+
 
 
 typedef struct __BMP180
@@ -13019,6 +13024,7 @@ typedef struct __BMP180
 	long Temp;
 	float altitude;
         float altitude_init;
+        char update;
 }_bmp180;
 
 extern   unsigned int ut;
@@ -13050,6 +13056,7 @@ typedef struct __MS5611
   int32_t Temperature;
   float altitude;
   float altitude_init;
+  char update;
 }_ms5611;
 
 void MS5611_IIC_Init(void);

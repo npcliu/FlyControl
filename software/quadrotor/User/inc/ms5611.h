@@ -25,6 +25,7 @@ typedef struct __MS5611
   int32_t Temperature;//除以100得到真实温度
   float altitude;
   float altitude_init;//记录起飞前初始高度
+  char update;//数据更新标志位
 }_ms5611;
 
 void MS5611_IIC_Init(void);

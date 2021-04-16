@@ -52,7 +52,7 @@ PROCEDURE Standby(char input)
   
   expriment_time = 0;//实验模式下的实验时间清零
   Filter_init_flag = 0;//卡尔曼滤波器初始化完成后才能开定高控制程序
-  //send_wave_flag = 0;
+  send_wave_flag = 0;
   if(send_wave_flag)
     SCISend_to_Own(USART1);
   else;
@@ -116,7 +116,9 @@ PROCEDURE Standby(char input)
   }
   extern _bmp180 bmp180;
   extern _ms5611 ms5611;
-  if(bmp180.altitude_init!=0&&(ms5611.altitude_init!=0))//如果初始高度为0，说明现在还没求出初始高度，暂时不能起飞
+  //if(bmp180.altitude_init!=0&&(ms5611.altitude_init!=0))//如果初始高度为0，说明现在还没求出初始高度，暂时不能起飞
+if((ms5611.altitude_init!=0))//如果初始高度为0，说明现在还没求出初始高度，暂时不能起飞
+
   {
     if('f'==nrf_rciv[PLANE_MODE_OFFSET] && (0==need_restart_flag))
       return att_hld_pre;
@@ -221,11 +223,11 @@ PROCEDURE AttHld(char input)
   else
     return att_hld;
 }
-KalmanInfo kalmanFilter_of_height_acc;
+KalmanInfo kalmanFilter_of_MPU6050_acc;
 
 PROCEDURE HeiHldPrep(char input)
 {
-  Init_KalmanInfo(&kalmanFilter_of_height_acc,38,39000);
+  Init_KalmanInfo(&kalmanFilter_of_MPU6050_acc,38,39000);
   Filter_init_flag = 1;
   return height_hld;
 }
